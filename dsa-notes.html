@@ -1,0 +1,571 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GATE Lab / Full DSA Notes</title><style>body{max-width:900px;margin:auto;padding:30px;font:16px/1.7 system-ui;color:#203c31}h1,h2,h3{color:#1c6554}h2{margin-top:50px;border-top:1px solid #ccc;padding-top:25px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef4eb;padding:20px;font-size:13px}aside{background:#fbecdd;padding:14px}a{color:#1c6554}@media print{button{display:none}h2{break-before:page}pre{break-inside:avoid}body{font-size:10pt}}</style><h1>GATE Lab / Full DSA Notes</h1><p>All 39 lessons, worked examples, hands-on tasks and solutions. Verified scope: GATE DA 2027, Section 4. Enrichment is labelled.</p><button onclick="print()">Print / Save as PDF</button> <a href="index.html#dsa">Back to the interactive course</a>
+<h2>Algorithms, correctness &amp; cost</h2><p>DSA core</p>
+<h3>01 · From a problem to a correct algorithm</h3><p>An algorithm is a finite, unambiguous method for solving a specified problem. Write its input domain, output and preconditions before coding. For maximum(a), decide whether an empty list is valid. Returning zero silently is wrong when every element is negative; a clear error or an agreed sentinel is preferable.</p><p>Correctness has two parts: partial correctness says the result is right if the procedure terminates; termination says it eventually stops. A loop invariant is a statement true before each iteration. Establish it initially, show one iteration preserves it, then combine it with the stopping condition to prove the result.</p><p>For a running maximum, after processing the first k elements, best is the maximum of exactly those k elements. Initialising from a[0] establishes the invariant for k=1. Comparing each next element preserves it. At k=n, the whole input has been processed. The number of remaining elements strictly decreases, proving termination.</p><p>Testing samples cannot prove correctness for all inputs, but carefully selected tests expose errors. Include empty and singleton inputs, all equal values, duplicates, negative values, already sorted and reverse sorted data. Distinguish a violated precondition from an incorrect algorithm on valid input.</p><h4>Worked example</h4><pre>def maximum(a):
+    if not a:
+        raise ValueError(&quot;empty input&quot;)
+    best = a[0]
+    for x in a[1:]:
+        best = max(best, x)
+    return best
+print(maximum([-8, -3, -10]))</pre><pre>-3</pre><p>The prefix maximum changes from -8 to -3 and stays -3. Slicing here allocates a copy; use an index loop if constant auxiliary space is required.</p><aside><b>Trap:</b> A plausible-looking output is not a proof. State exactly which prefix the invariant describes.</aside><h4>Your turn</h4><p>Implement minimum with the same contract without slicing.</p><h4>Worked solution</h4><pre>def minimum(a):
+    if not a: raise ValueError(&quot;empty input&quot;)
+    best = a[0]
+    for i in range(1, len(a)):
+        if a[i] &lt; best: best = a[i]
+    return best
+assert minimum([-8, -3, -10]) == -10</pre>
+<h3>02 · Asymptotic analysis and loop counting</h3><p>Measure cost as a function of input size n under a stated model: count comparisons, assignments or other unit-cost operations. O(g(n)) is an eventual upper bound, Omega(g(n)) a lower bound, and Theta(g(n)) a matching bound. These symbols do not themselves mean worst, best or average case; specify the case separately.</p><p>For a fixed input length, best case is the minimum cost over valid inputs and worst case the maximum. Average case needs a probability model. Expected cost may also average over an algorithm’s random choices. Saying “binary search is O(log n)” permits a constant-time successful first probe; it describes its worst-case upper bound.</p><p>Sequential loops add costs; truly nested full loops multiply. A triangular loop with inner lengths 0,1,...,n-1 has n(n-1)/2 iterations and Theta(n^2) cost. Repeatedly doubling or halving a quantity until it crosses n yields Theta(log n) iterations. A nested loop is not automatically quadratic if one pointer advances only n times overall.</p><p>Drop constants and lower-order terms for asymptotic growth, but retain exact counts when a NAT question asks for them. log bases differ by constants. The common order is 1 &lt; log n &lt; n &lt; n log n &lt; n^2 &lt; 2^n &lt; n!. Assume bounded-size arithmetic unless a question explicitly concerns huge integers.</p><h4>Worked example</h4><pre>n = 5
+pairs = 0
+for i in range(n):
+    for j in range(i): pairs += 1
+x, steps = 1, 0
+while x &lt; n:
+    x *= 2
+    steps += 1
+print(pairs, steps)</pre><pre>10 3</pre><p>The triangular count is 0+1+2+3+4=10. Doubling visits 1,2,4 then stops at 8: three iterations.</p><aside><b>Trap:</b> An upper bound need not be tight: a linear function is also O(n^2). Prefer Theta when the question asks for a tight bound.</aside><h4>Your turn</h4><p>Count all ordered pairs i,j with 0 &lt;= i,j &lt; n for n=5.</p><h4>Worked solution</h4><pre>n = 5
+count = sum(1 for i in range(n) for j in range(n))
+assert count == n*n
+print(count)</pre>
+<h3>03 · Recurrences, stack space and amortisation</h3><p>Recursive cost includes the work outside recursive calls and all recursive children. T(n)=T(n-1)+Theta(1) gives Theta(n); T(n)=T(n/2)+Theta(1) gives Theta(log n); T(n)=2T(n/2)+Theta(n) gives Theta(n log n). A recursion tree reveals work per level and number of levels.</p><p>For T(n)=aT(n/b)+Theta(n^d), compare a with b^d: smaller means Theta(n^d), equal means Theta(n^d log n), larger means Theta(n^(log_b a)), under the usual balanced-subproblem assumptions. Do not force T(n-1) or irregular recurrences into this simplified Master theorem. Sum costs directly when its assumptions fail.</p><p>Time and live memory are different. Depth-first execution of two recursive branches does not keep every call alive simultaneously. Recursion stack space follows maximum depth times per-frame storage. Input storage is usually excluded from auxiliary space; temporary slices and output buffers must be counted according to the question’s convention.</p><p>Amortised cost bounds a whole operation sequence without a probability assumption. A dynamic array append occasionally copies n elements but geometric capacity growth yields O(n) total copying over n appends and O(1) amortised append. A single resizing append is still O(n). This is distinct from expected hash-table lookup.</p><h4>Worked example</h4><pre>def depth(n):
+    if n &lt;= 1: return 1
+    return 1 + depth(n // 2)
+print(depth(16))
+capacity, copies = 1, 0
+for size in range(8):
+    if size == capacity:
+        copies += size
+        capacity *= 2
+print(capacity, copies)</pre><pre>5
+8 7</pre><p>The call chain is 16,8,4,2,1: five frames. Resizes copy 1+2+4=7 items, although most appends copy none.</p><aside><b>Trap:</b> Space from recursive slices can exceed the call-stack-only bound. Analyse the implementation actually shown.</aside><h4>Your turn</h4><p>Write a recurrence for two half-sized calls doing n merge operations and compute total merge work for n=8.</p><h4>Worked solution</h4><pre>def work(n):
+    if n &lt;= 1: return 0
+    return 2*work(n//2) + n
+assert work(8) == 24
+print(work(8))</pre>
+<h2>Arrays, stacks, queues &amp; deques</h2><p>DSA core</p>
+<h3>01 · Arrays, dynamic lists and operation costs</h3><p>An abstract data type specifies behaviour; a data structure specifies a representation. A sequence supports an ordered collection, but an array and a linked list implement it differently. An array stores positions so indexed access is constant time under the standard memory model. Python lists are dynamic arrays of references.</p><p>A list append is amortised O(1); pop() at the end is O(1). Inserting or removing at index i shifts a suffix and costs O(n-i). Searching an unsorted list is O(n). Copying a length-k slice costs O(k) time and space. These costs matter even when Python syntax is one short expression.</p><p>Dynamic capacity is not the same as logical length. A larger reserved buffer avoids reallocating on every append. Arrays have good locality, while linked nodes pay per-node link overhead and traversal. Choose based on the actual mix of operations rather than memorising that one representation is always faster.</p><p>A prefix-sum array P with P[0]=0 and P[i+1]=P[i]+a[i] answers the sum of a[l:r] as P[r]-P[l] in O(1), after O(n) preparation. It uses half-open ranges and O(n) extra space. A point update invalidates later prefixes, so it is suited to static range queries.</p><h4>Worked example</h4><pre>a = [4, -1, 6, 2]
+p = [0]
+for x in a: p.append(p[-1] + x)
+print(p)
+print(p[4] - p[1])</pre><pre>[0, 4, 3, 9, 11]
+7</pre><p>The range [1,4) contains -1,6,2. Subtract the sum before index 1 from the sum before index 4.</p><aside><b>Trap:</b> Python list.pop(0) is linear, even if your queue algorithm uses only one such operation per iteration.</aside><h4>Your turn</h4><p>Answer inclusive range [1,2] using prefix sums.</p><h4>Worked solution</h4><pre>a = [4, -1, 6, 2]
+p = [0]
+for x in a: p.append(p[-1]+x)
+l, r = 1, 2
+assert p[r+1]-p[l] == 5</pre>
+<h3>02 · Stacks: LIFO and expression processing</h3><p>A stack is last-in, first-out. push adds at the top, pop removes the top, and peek reads it. An empty pop is underflow. A fixed-capacity implementation can overflow. A Python list implements the top at its right end with append and pop; using the left end would waste shifting work.</p><p>Balanced brackets are a stack problem because the most recently opened bracket must be the first closed. Push opening symbols. On a closing symbol, reject an empty stack or a mismatched top. Accept only if the stack is empty at the end. Each symbol is processed once: O(n) time and O(n) worst-case space.</p><p>For postfix evaluation, push numbers and, on an operator, pop the right operand first and then the left. Apply left op right. Infix-to-postfix conversion uses an operator stack: respect precedence and associativity, pop higher-precedence operators and equal precedence for left-associative operators, and treat parentheses as boundaries.</p><p>For stack permutations of input 1,2,...,n, simulate pushes until the desired next output is on top, then pop. Once a value is buried below a smaller required output that has already passed, no later push can repair the order. Simulation is safer than trying to infer feasibility visually.</p><h4>Worked example</h4><pre>def balanced(text):
+    stack = []
+    matching = {&#x27;)&#x27;:&#x27;(&#x27;, &#x27;]&#x27;:&#x27;[&#x27;, &#x27;}&#x27;:&#x27;{&#x27;}
+    for ch in text:
+        if ch in &#x27;([{&#x27;: stack.append(ch)
+        elif ch in matching:
+            if not stack or stack.pop() != matching[ch]: return False
+    return not stack
+print(balanced(&#x27;([{}])&#x27;), balanced(&#x27;([)]&#x27;))</pre><pre>True False</pre><p>([)] attempts to close a parenthesis while [ is on top, so it fails immediately.</p><aside><b>Trap:</b> For subtraction and division, reversed pop order changes the answer.</aside><h4>Your turn</h4><p>Evaluate postfix tokens 8 3 - 2 * with a stack.</p><h4>Worked solution</h4><pre>s=[]
+for token in [&#x27;8&#x27;,&#x27;3&#x27;,&#x27;-&#x27;,&#x27;2&#x27;,&#x27;*&#x27;]:
+    if token not in (&#x27;-&#x27;,&#x27;*&#x27;): s.append(int(token))
+    else:
+        right,left=s.pop(),s.pop()
+        s.append(left-right if token==&#x27;-&#x27; else left*right)
+assert s == [10]</pre>
+<h3>03 · Queues, circular buffers and deques</h3><p>A queue is first-in, first-out: enqueue at the rear and dequeue from the front. It models service order and BFS frontiers. collections.deque supports O(1) appends and pops at both ends. A deque permits both ends; it is neither forced FIFO nor forced LIFO.</p><p>A circular array queue reuses slots with modulo arithmetic. One robust convention stores head and size: the next insertion index is (head+size) mod capacity. On deletion, increment head modulo capacity and decrement size. Empty means size=0; full means size=capacity. A different convention wastes one slot to distinguish full from empty: never mix them.</p><p>A queue implemented by two stacks pushes arrivals into an input stack. When output is empty, transfer every input element to it, reversing order. Each element moves at most once between stacks and is popped once: amortised O(1) operations, even though a single dequeue may perform O(n) work.</p><p>Deques also support monotonic-window algorithms: remove expired indices at the front and dominated values at the back. Each index enters and leaves once, yielding O(n) total time. This is a useful extension; basic queue questions usually focus on operation traces, overflow and wraparound.</p><h4>Worked example</h4><pre>capacity = 3
+buf = [None]*capacity
+head, size = 0, 0
+for x in [10,20,30]:
+    buf[(head+size)%capacity] = x
+    size += 1
+head = (head+1)%capacity
+size -= 1
+buf[(head+size)%capacity] = 40
+size += 1
+print([buf[(head+i)%capacity] for i in range(size)])</pre><pre>[20, 30, 40]</pre><p>The slot formerly holding 10 is reused for 40, but logical FIFO order begins at head=1.</p><aside><b>Trap:</b> Equal head and tail indices alone are ambiguous unless your full/empty convention resolves them.</aside><h4>Your turn</h4><p>Use deque to enqueue 4,5, remove 4, add 6 and list the queue.</p><h4>Worked solution</h4><pre>from collections import deque
+q = deque([4,5])
+assert q.popleft()==4
+q.append(6)
+assert list(q)==[5,6]</pre>
+<h2>Linked lists &amp; pointer reasoning</h2><p>DSA core</p>
+<h3>01 · Nodes, head pointers and insertion</h3><p>A singly linked list is a chain of nodes containing data and a next reference. head refers to the first node; None ends an acyclic list. Its nodes need not be adjacent in memory. Reaching position k requires following k links, so random access is O(n), unlike an array.</p><p>Prepending a node is O(1): set new.next to the old head, then set head to new. Inserting after a known node is also O(1): save its old successor in new.next before changing the predecessor’s next. Finding that predecessor may take O(n), so distinguish locating from relinking.</p><p>Appending is O(1) with a maintained tail pointer, otherwise O(n) to locate the end. Empty-list insertion must establish both head and tail; deleting the last element must clear both. A dummy or sentinel head simplifies boundary operations by giving the first real node a predecessor.</p><p>A doubly linked list adds prev references, making deletion of a known node O(1) if head/tail updates are handled. A circular list links its last node back to the first, so traversal stops when it returns to its start rather than when it sees None. Sentinel and circular conventions change the boundary cases.</p><h4>Worked example</h4><pre>class Node:
+    def __init__(self, value, nxt=None): self.value,self.next=value,nxt
+head = Node(2, Node(4))
+head = Node(1, head)
+head.next.next = Node(3, head.next.next)
+values=[]
+p=head
+while p:
+    values.append(p.value)
+    p=p.next
+print(values)</pre><pre>[1, 2, 3, 4]</pre><p>First prepend 1. The node containing 2 is head.next; insert 3 between it and the old successor 4.</p><aside><b>Trap:</b> Overwriting p.next before saving the old successor can disconnect the remaining suffix.</aside><h4>Your turn</h4><p>Build the chain 5 -&gt; 7 -&gt; 9 by prepending values in reverse order.</p><h4>Worked solution</h4><pre>class Node:
+    def __init__(self,x,n=None): self.value,self.next=x,n
+head=None
+for x in [9,7,5]: head=Node(x,head)
+a=[]
+while head: a.append(head.value); head=head.next
+assert a==[5,7,9]</pre>
+<h3>02 · Deletion and iterative reversal</h3><p>To delete a node by value in a singly linked list, keep a predecessor while searching. Relink predecessor.next to current.next. Deleting the head needs a head update or a sentinel. Return a consistent result when the value is absent. Deleting by value is O(n), although the link change itself is O(1).</p><p>Deleting a known non-tail node by copying its successor’s data is a specialised trick, not a general deletion operation: it changes node identity semantics and cannot delete a tail this way. A doubly linked node can be unlinked directly through its prev and next references.</p><p>Iterative reversal maintains prev, current and next. The invariant is that prev heads the reversed processed prefix, while current heads the untouched suffix. Save current.next, reverse current.next, advance prev and current. When current becomes None, prev is the new head. Time is O(n), auxiliary space O(1).</p><p>Recursive reversal can be elegant but uses O(n) call frames, and long lists can exceed Python’s recursion limit. Avoid using an output array if the task asks for in-place pointer reversal. Draw nodes as stable boxes and redraw arrows; do not confuse node data with references.</p><h4>Worked example</h4><pre>class Node:
+    def __init__(self,x,n=None): self.value,self.next=x,n
+head=Node(1,Node(2,Node(3)))
+prev,cur=None,head
+while cur:
+    nxt=cur.next
+    cur.next=prev
+    prev,cur=cur,nxt
+head=prev
+out=[]
+while head: out.append(head.value); head=head.next
+print(out)</pre><pre>[3, 2, 1]</pre><p>At each iteration one arrow reverses. Saving nxt first preserves the path to the still-unprocessed nodes.</p><aside><b>Trap:</b> Updating current before preserving its next link can lose either the suffix or the node being reversed.</aside><h4>Your turn</h4><p>Remove the first node with value 2 from 1 -&gt; 2 -&gt; 3 using a sentinel.</p><h4>Worked solution</h4><pre>class Node:
+    def __init__(self,x,n=None): self.value,self.next=x,n
+dummy=Node(None,Node(1,Node(2,Node(3))))
+p=dummy
+while p.next and p.next.value!=2: p=p.next
+if p.next: p.next=p.next.next
+out=[]; p=dummy.next
+while p: out.append(p.value); p=p.next
+assert out==[1,3]</pre>
+<h3>03 · Fast/slow pointers and cycle detection</h3><p>Two pointers at different speeds solve linked-list questions without indexing. For finding a middle, advance slow once and fast twice until fast cannot continue. On even lengths, the chosen loop convention determines whether you return the first or second middle; state it explicitly.</p><p>Floyd’s cycle algorithm starts slow and fast at the head and repeatedly advances them by one and two. Compare node identity after moving. If fast reaches None, the list is acyclic. Inside a cycle, their relative displacement changes by one modulo cycle length, so they must eventually meet.</p><p>To locate the cycle entry after a meeting, reset one pointer to head and advance both one step until they meet again. If the distance from head to entry is mu and the cycle length is lambda, the first meeting ensures that walking mu more steps from the meeting position reaches entry modulo lambda.</p><p>To measure cycle length, keep one pointer at the meeting node and walk another until it returns. Time for detection and entry finding is O(mu+lambda), auxiliary space O(1). A visited-node set is simpler but uses O(n) memory; equal data values do not imply a cycle.</p><h4>Worked example</h4><pre>class Node:
+    def __init__(self,x): self.value,self.next=x,None
+a,b,c=Node(1),Node(2),Node(3)
+a.next,b.next,c.next=b,c,b
+slow=fast=a
+while fast and fast.next:
+    slow,fast=slow.next,fast.next.next
+    if slow is fast: break
+p=a
+while p is not slow: p,slow=p.next,slow.next
+print(p.value)</pre><pre>2</pre><p>The list enters a two-node cycle at node 2. The two phases identify that node, not merely any repeated value.</p><aside><b>Trap:</b> The entry-finding phase is valid only after confirming a meeting. An acyclic list needs a separate exit path.</aside><h4>Your turn</h4><p>Find the second middle of [1,2,3,4] using slow/fast pointers.</p><h4>Worked solution</h4><pre>class Node:
+    def __init__(self,x,n=None): self.value,self.next=x,n
+h=Node(1,Node(2,Node(3,Node(4))))
+slow=fast=h
+while fast and fast.next: slow,fast=slow.next,fast.next.next
+assert slow.value==3</pre>
+<h2>Hash tables &amp; collision strategies</h2><p>DSA core</p>
+<h3>01 · Hash functions, load factor and chaining</h3><p>A hash table maps keys to bucket indices with a hash function. Equal keys must hash equally; unequal keys may collide. A collision is expected behaviour, not an error. Distinguish hash computation from compression into m buckets, such as h(k)=k mod m in textbook integer examples.</p><p>Separate chaining stores all keys mapping to a bucket in a list or another collection. With n keys and m buckets, load factor alpha=n/m is the average number of keys per bucket. Under a suitable uniform-hashing assumption, lookup costs expected O(1+alpha); if all keys collide, worst-case search is O(n).</p><p>Insertion may first search for an existing key if duplicate keys are disallowed or values must be updated. Deleting from a chain must preserve the remaining entries. A chained table can have alpha greater than one. Resizing changes the bucket count and requires rehashing every stored key.</p><p>Python dict and set provide useful practical hash-table interfaces, but exam problems often specify a custom h, capacity and collision scheme. Trace that scheme exactly rather than assuming Python’s implementation. Keys must have stable equality and hash while stored; mutable lists cannot be dictionary keys.</p><h4>Worked example</h4><pre>m=5
+buckets=[[] for _ in range(m)]
+for key in [12,7,20,17]: buckets[key % m].append(key)
+print(buckets)
+print(17 in buckets[17 % m])</pre><pre>[[20], [], [12, 7, 17], [], []]
+True</pre><p>12,7 and 17 all have remainder2. Chaining keeps all three in bucket2.</p><aside><b>Trap:</b> Expected O(1) requires assumptions about hashing and controlled load; it is not a universal worst-case guarantee.</aside><h4>Your turn</h4><p>Delete 7 from its chain and confirm 17 remains.</p><h4>Worked solution</h4><pre>b=[[] for _ in range(5)]
+for x in [12,7,20,17]: b[x%5].append(x)
+b[7%5].remove(7)
+assert b[2]==[12,17]</pre>
+<h3>02 · Linear, quadratic and double probing</h3><p>Open addressing stores entries in the table itself. On a collision, a deterministic probe sequence searches alternative slots. Linear probing uses (h(k)+i) mod m. Quadratic probing uses (h(k)+c1*i+c2*i^2) mod m. Double hashing uses (h1(k)+i*h2(k)) mod m. The question’s starting i is usually zero but must be checked.</p><p>Linear probing tends to create primary clusters: contiguous occupied runs attract further collisions. Quadratic probing reduces primary clustering but keys with the same initial hash share a probe sequence, called secondary clustering. Quadratic probes do not necessarily visit every slot.</p><p>For double hashing, the step must be nonzero and relatively prime to m to visit all m slots. A prime m with a step in 1..m-1 works. If m=10 and step=2, only five slots are reachable, so insertion can fail despite free slots elsewhere.</p><p>An open-addressed table needs unused capacity; as alpha approaches one, searches become costly. Under ideal uniform probing and 0&lt;alpha&lt;1, unsuccessful search takes at most 1/(1-alpha) expected probes; a successful-search bound is (1/alpha)*ln(1/(1-alpha)). These are model-dependent expectations, not worst-case guarantees. Rehash before the chosen load threshold. Bound every probe loop by a table-size limit or the known cycle length to avoid infinite loops when a key is absent or the table is full.</p><h4>Worked example</h4><pre>m=7
+table=[None]*m
+for key in [10,17,24,5]:
+    for i in range(m):
+        slot=(key % m+i)%m
+        if table[slot] is None:
+            table[slot]=key
+            break
+print(table)</pre><pre>[None, None, None, 10, 17, 24, 5]</pre><p>10 starts at 3;17 probes3 then 4;24 probes3,4,5;5 starts at 5 and goes to 6.</p><aside><b>Trap:</b> A free slot somewhere is insufficient if your probe sequence cannot reach it.</aside><h4>Your turn</h4><p>List a double-hash probe sequence for m=7, h1=3, h2=2.</p><h4>Worked solution</h4><pre>slots=[(3+i*2)%7 for i in range(7)]
+assert len(set(slots))==7
+print(slots)</pre>
+<h3>03 · Deletion tombstones and practical frequency maps</h3><p>Search in open addressing follows the same probe sequence as insertion. An entry that has never been occupied can terminate an unsuccessful search. A deleted slot cannot: other keys may have probed beyond it. Mark deletion with a tombstone so search continues.</p><p>Insertion can remember the first tombstone for later reuse, but a map that must update existing keys should continue probing to check that the key does not already exist farther along the sequence. Otherwise it can accidentally create duplicates. Periodic rebuilding removes accumulated tombstones.</p><p>Frequency maps are a direct application: for each value x, set count[x]=count.get(x,0)+1. Expected O(n) time and O(k) space count n inputs with k distinct keys. Grouping, deduplication and two-sum use the same lookup pattern; worst-case adversarial collision cost differs from expected cost.</p><p>For two-sum, look for target-x among earlier elements before inserting x. This prevents using one element twice when target=2*x. Whether to return indices, values, one pair or all pairs belongs in the contract. A hash map trades memory for avoiding a quadratic pair scan.</p><h4>Worked example</h4><pre>def two_sum(a, target):
+    seen={}
+    for i,x in enumerate(a):
+        if target-x in seen: return seen[target-x],i
+        seen[x]=i
+    return None
+print(two_sum([3,3,8],6))
+print(two_sum([3],6))</pre><pre>(0, 1)
+None</pre><p>The second3 finds the first3 in seen; a lone3 cannot match itself.</p><aside><b>Trap:</b> Replacing a deleted probe slot with an ordinary empty marker can make a later present key appear absent.</aside><h4>Your turn</h4><p>Count frequencies of a,b,a,c,b,a.</p><h4>Worked solution</h4><pre>counts={}
+for x in [&#x27;a&#x27;,&#x27;b&#x27;,&#x27;a&#x27;,&#x27;c&#x27;,&#x27;b&#x27;,&#x27;a&#x27;]: counts[x]=counts.get(x,0)+1
+assert counts=={&#x27;a&#x27;:3,&#x27;b&#x27;:2,&#x27;c&#x27;:1}</pre>
+<h2>Searching &amp; boundary reasoning</h2><p>DSA core</p>
+<h3>01 · Linear search and sentinels</h3><p>Linear search inspects elements one at a time until it finds the target or exhausts the sequence. It needs no sorted order. Best-case successful cost is one comparison; worst-case successful or unsuccessful cost is n comparisons. For a uniformly distributed successful position, the average is (n+1)/2 comparisons.</p><p>Decide whether the result is a Boolean, the first matching index, any matching index or all matches. Returning -1 is a common index convention, but -1 is also a valid Python index, so callers must check it before indexing. Returning None avoids that ambiguity if the contract permits it.</p><p>A sentinel search places a guaranteed matching value at a boundary so the loop does not repeatedly test for the end. It must preserve and restore any replaced input and distinguish an original match from the sentinel. This is a constant-factor technique, not an asymptotic improvement.</p><p>When the data is sorted, a linear search may stop after encountering a larger value. Binary search can do better only if access to the middle is efficient. A linked list cannot jump to its middle in constant time, so binary-search comparison counts do not imply logarithmic running time on a linked list.</p><h4>Worked example</h4><pre>def find_first(a,x):
+    for i,value in enumerate(a):
+        if value==x: return i
+    return None
+print(find_first([9,2,9],9))
+print(find_first([],9))</pre><pre>0
+None</pre><p>The first9 is returned immediately. The empty sequence never enters the loop.</p><aside><b>Trap:</b> If a question counts equality tests, count equality tests only; do not silently mix them with loop-condition tests.</aside><h4>Your turn</h4><p>Return every matching index of 2 in [2,4,2,2].</p><h4>Worked solution</h4><pre>a=[2,4,2,2]
+indices=[i for i,x in enumerate(a) if x==2]
+assert indices==[0,2,3]</pre>
+<h3>02 · Binary search with a precise invariant</h3><p>Binary search requires a sorted random-access sequence and a comparison order consistent with that sorting. Maintain a candidate interval and discard a half after inspecting its middle. For an inclusive interval [lo,hi], loop while lo&lt;=hi and update hi=mid-1 or lo=mid+1 so the interval strictly shrinks.</p><p>The invariant is that any existing occurrence of the target remains within the candidate interval. If a[mid]&lt;target, all indices at or left of mid are too small; if a[mid]&gt;target, all indices at or right of mid are too large. Empty interval proves absence. The time is O(log n), iterative extra space O(1).</p><p>For the common mid=(lo+hi)//2 procedure that probes one element each iteration, the maximum number of probes on n&gt;0 elements is floor(log2 n)+1. Exact comparisons may be more than probes if the code uses both == and &lt; tests. Use the given code and success/failure condition for exact-count questions.</p><p>mid=lo+(hi-lo)//2 avoids overflow in fixed-width languages. Python integers do not overflow that way. Do not mix inclusive and half-open updates: hi=mid with an inclusive loop can stall. Empty inputs, one element and missing values on either end are essential tests.</p><h4>Worked example</h4><pre>def binary_search(a,x):
+    lo,hi=0,len(a)-1
+    while lo&lt;=hi:
+        mid=(lo+hi)//2
+        if a[mid]==x: return mid
+        if a[mid]&lt;x: lo=mid+1
+        else: hi=mid-1
+    return None
+print(binary_search([1,3,5,8,12],8))
+print(binary_search([1,3,5],4))</pre><pre>3
+None</pre><p>The search for 8 probes5 then 8. For4, the candidate interval eventually becomes empty.</p><aside><b>Trap:</b> Binary search on unsorted input has no correctness guarantee even if one sample happens to succeed.</aside><h4>Your turn</h4><p>Record the middle indices when searching for 12 in [1,3,5,8,12].</p><h4>Worked solution</h4><pre>a=[1,3,5,8,12]; lo,hi=0,4; trace=[]
+while lo&lt;=hi:
+    mid=(lo+hi)//2; trace.append(mid)
+    if a[mid]==12: break
+    if a[mid]&lt;12: lo=mid+1
+    else: hi=mid-1
+assert trace==[2,3,4]</pre>
+<h3>03 · Lower bounds, duplicates and binary search on answers</h3><p>A lower bound returns the first index whose value is at least x; an upper bound returns the first index whose value is greater than x. Both may return n. Their difference counts occurrences of x in a sorted list. Membership needs an additional index-in-range and equality test.</p><p>Use [lo,hi) with lo=0,hi=n. For lower bound, everything before lo is less than x and everything from hi onward is at least x. If a[mid]&lt;x, set lo=mid+1; otherwise set hi=mid. Termination at lo=hi identifies the boundary, even when no element equals x.</p><p>More generally, binary search finds the first true position of a monotone predicate with false values followed by true values. Search an answer domain when feasibility is monotone, for example the smallest capacity sufficient to carry a fixed workload. First prove the direction of monotonicity and choose a domain containing a valid answer.</p><p>For minimum integer k with k*k&gt;=x and x&gt;=0, the predicate is monotone. In Python multiplication handles large integers exactly but is not truly unit-cost for arbitrarily large values. For real-valued search, use a stopping tolerance or fixed iteration count rather than expecting exact floating-point equality.</p><h4>Worked example</h4><pre>def lower(a,x):
+    lo,hi=0,len(a)
+    while lo&lt;hi:
+        mid=(lo+hi)//2
+        if a[mid]&lt;x: lo=mid+1
+        else: hi=mid
+    return lo
+print(lower([1,3,3,3,7],3), lower([1,3,3,3,7],9))</pre><pre>1 5</pre><p>The first3 is at 1;9 belongs after the last element at insertion index 5.</p><aside><b>Trap:</b> Any-match binary search does not automatically return the first duplicate.</aside><h4>Your turn</h4><p>Implement upper bound and count occurrences of 3 in [1,3,3,3,7].</p><h4>Worked solution</h4><pre>from bisect import bisect_left, bisect_right
+a=[1,3,3,3,7]
+assert bisect_right(a,3)-bisect_left(a,3)==3
+lo,hi=0,len(a)
+while lo&lt;hi:
+    mid=(lo+hi)//2
+    if a[mid]&lt;=3: lo=mid+1
+    else: hi=mid
+assert lo==4</pre>
+<h2>Selection, bubble &amp; insertion sort</h2><p>DSA core</p>
+<h3>01 · Selection sort and sorting vocabulary</h3><p>Sorting arranges items by a key. Stability preserves the input order of equal keys; in-place usually means O(1) auxiliary array storage, though recursion-stack conventions vary. Adaptivity means performance improves for already or nearly sorted input. These properties are independent of one another.</p><p>Selection sort repeatedly finds the minimum of the unsorted suffix and swaps it into the first unsorted position. After i passes, the prefix of length i contains the i smallest items in final order. It makes n(n-1)/2 key comparisons regardless of initial order and at most n-1 swaps.</p><p>Standard swap-based selection sort is in-place and Theta(n^2) in best and worst cases, and generally unstable. For [2a,2b,1], swapping the minimum 1 with 2a produces [1,2b,2a], reversing the equal-key records. A shifting variant can be stable but is a different implementation.</p><p>When tracing an exam question, record the array after the requested pass, not after every comparison unless asked. “Pass” must refer to the outer loop. A variant selecting maxima from the right has a different intermediate state, even though its final sorted output agrees.</p><h4>Worked example</h4><pre>a=[4,2,3,1]
+for i in range(len(a)-1):
+    k=i
+    for j in range(i+1,len(a)):
+        if a[j]&lt;a[k]: k=j
+    a[i],a[k]=a[k],a[i]
+    print(a)</pre><pre>[1, 2, 3, 4]
+[1, 2, 3, 4]
+[1, 2, 3, 4]</pre><p>One fortunate swap sorts this input, but the remaining selection passes still perform their comparisons.</p><aside><b>Trap:</b> A sorted-looking array does not cause standard selection sort to stop early.</aside><h4>Your turn</h4><p>Count selection-sort key comparisons for n=6.</p><h4>Worked solution</h4><pre>n=6
+comparisons=sum(n-i-1 for i in range(n-1))
+assert comparisons==15</pre>
+<h3>02 · Bubble sort and early termination</h3><p>Bubble sort compares adjacent elements and swaps an inverted pair. A left-to-right pass moves a maximum to the right end. After i complete passes, the i largest elements are fixed in the suffix, so later passes can stop before that suffix.</p><p>The optimised algorithm resets swapped=False at the start of each pass and sets it when a swap occurs. A pass with no swaps proves the remaining prefix is sorted, allowing termination. Its best case is Theta(n), worst case Theta(n^2), and extra space O(1). Without early termination, best-case time remains Theta(n^2).</p><p>Swap only when left&gt;right to preserve stability; swapping equal keys can destroy it. Each adjacent inversion swap reduces the inversion count by one. Therefore the number of swaps performed by standard bubble sort equals the number of strict inversions in the input.</p><p>An inversion is a pair of indices i&lt;j with a[i]&gt;a[j]. Reverse sorted distinct input has n(n-1)/2 inversions. Equal values are not inversions under the strict definition. Direction matters: right-to-left bubbling fixes a minimum at the left and gives different intermediate passes.</p><h4>Worked example</h4><pre>a=[3,1,2]
+swaps=0
+for end in range(len(a)-1,0,-1):
+    changed=False
+    for j in range(end):
+        if a[j]&gt;a[j+1]:
+            a[j],a[j+1]=a[j+1],a[j]
+            changed=True; swaps+=1
+    if not changed: break
+print(a,swaps)</pre><pre>[1, 2, 3] 2</pre><p>The inversions (3,1) and(3,2) disappear in two adjacent swaps.</p><aside><b>Trap:</b> Best-case Theta(n) applies only to a version with an early-stop check.</aside><h4>Your turn</h4><p>List strict inversion pairs for [3,1,2,1].</p><h4>Worked solution</h4><pre>a=[3,1,2,1]
+pairs=[(i,j) for i in range(len(a)) for j in range(i+1,len(a)) if a[i]&gt;a[j]]
+assert len(pairs)==4
+print(pairs)</pre>
+<h3>03 · Insertion sort and nearly sorted data</h3><p>Insertion sort grows a sorted prefix. Store the next key, shift larger prefix elements one position right, and place the key into the gap. The invariant says the processed prefix is sorted and contains the same items as the corresponding original prefix.</p><p>Using a[j]&gt;key rather than &gt;= retains the order of equal keys, so the algorithm is stable. It uses O(1) extra space, Theta(n) best-case time and Theta(n^2) worst-case time. The number of shifts equals the input’s strict inversion count.</p><p>If the input has I inversions, ordinary insertion sort runs in O(n+I), making it useful for small or nearly sorted runs. Binary insertion sort uses binary search to reduce comparisons but still shifts elements in an array, so its worst-case time remains quadratic.</p><p>Selection, bubble and insertion all have quadratic worst cases, but their pass invariants differ. Selection fixes the smallest remaining item; left-to-right bubble fixes a largest item on the right; insertion sorts the prefix without claiming it contains the globally smallest items. This distinction is central to intermediate-array questions.</p><h4>Worked example</h4><pre>a=[4,2,3,1]
+for i in range(1,len(a)):
+    key=a[i]; j=i-1
+    while j&gt;=0 and a[j]&gt;key:
+        a[j+1]=a[j]; j-=1
+    a[j+1]=key
+    print(a)</pre><pre>[2, 4, 3, 1]
+[2, 3, 4, 1]
+[1, 2, 3, 4]</pre><p>The first three elements are sorted after two insertions, although1 still lies outside the prefix.</p><aside><b>Trap:</b> Binary search for the insertion location does not eliminate the cost of shifting an array suffix.</aside><h4>Your turn</h4><p>Count insertion shifts for reverse input [4,3,2,1].</p><h4>Worked solution</h4><pre>a=[4,3,2,1]; shifts=0
+for i in range(1,len(a)):
+    key=a[i]; j=i-1
+    while j&gt;=0 and a[j]&gt;key:
+        a[j+1]=a[j]; j-=1; shifts+=1
+    a[j+1]=key
+assert shifts==6 and a==[1,2,3,4]</pre>
+<h2>Merge sort &amp; quicksort</h2><p>DSA core</p>
+<h3>01 · Merge two sorted sequences and build merge sort</h3><p>Merging combines two sorted sequences using a pointer to each next unused item. Append the smaller front item, advance that pointer, and append any remaining suffix when one side empties. The output prefix always contains the smallest processed items in sorted order. Merging lengths a and b costs O(a+b).</p><p>Merge sort divides the input into two nearly equal parts, recursively sorts them and merges their results. The base case is size zero or one. T(n)=2T(n/2)+Theta(n) gives Theta(n log n) time in best, average and worst cases for the standard implementation.</p><p>To make merging stable, take the left item first on equal keys. An array merge sort usually needs O(n) auxiliary buffer space and O(log n) recursion depth. The Python slicing version below creates temporary lists; peak live storage is O(n), but total allocations across all levels are O(n log n).</p><p>Bottom-up merge sort avoids recursion by merging runs of width1,2,4,... until the width covers the input. Merge sort works well for external sorting and linked lists because merging is sequential. It does not require random pivot choices to guarantee its worst-case bound.</p><h4>Worked example</h4><pre>def merge_sort(a):
+    if len(a)&lt;2: return a[:]
+    mid=len(a)//2
+    left,right=merge_sort(a[:mid]),merge_sort(a[mid:])
+    out=[]; i=j=0
+    while i&lt;len(left) and j&lt;len(right):
+        if left[i]&lt;=right[j]: out.append(left[i]); i+=1
+        else: out.append(right[j]); j+=1
+    return out+left[i:]+right[j:]
+print(merge_sort([5,1,3,1]))</pre><pre>[1, 1, 3, 5]</pre><p>The split yields [5,1] and[3,1], which sort to[1,5] and[1,3]. The final merge takes the left 1 first.</p><aside><b>Trap:</b> Taking from the right on equality can destroy stability even though numeric output remains sorted.</aside><h4>Your turn</h4><p>Merge [1,4,8] and [2,4,9] iteratively.</p><h4>Worked solution</h4><pre>a,b=[1,4,8],[2,4,9]; i=j=0; out=[]
+while i&lt;len(a) and j&lt;len(b):
+    if a[i]&lt;=b[j]: out.append(a[i]); i+=1
+    else: out.append(b[j]); j+=1
+out+=a[i:]+b[j:]
+assert out==[1,2,4,4,8,9]</pre>
+<h3>02 · Quicksort and Lomuto partition</h3><p>Quicksort partitions around a pivot and recursively sorts the resulting sides. In Lomuto partition with the final element as pivot, maintain a boundary i: items before i are &lt;=pivot, items from i to the current scan index are &gt;pivot, and the rest have not been inspected.</p><p>When a scanned value is &lt;=pivot, swap it into index i and advance i. Finally swap the pivot into index i. The pivot is now at a valid final sorted position, with smaller-or-equal values to its left and larger values to its right. Recursion must exclude that pivot index.</p><p>Balanced splits yield Theta(n log n); repeatedly splitting into 0 and n-1 gives Theta(n^2). A fixed endpoint pivot on already sorted distinct input produces the bad case for this partition. Random pivots give expected O(n log n) time, but the worst case remains quadratic.</p><p>Standard in-place quicksort is unstable. The partition needs O(1) working storage, but recursion consumes expected O(log n) stack and O(n) in the naive worst case. Recursing only on the smaller side and iterating on the larger bounds stack depth by O(log n), without fixing the worst-case time.</p><h4>Worked example</h4><pre>def partition(a,lo,hi):
+    pivot=a[hi]; i=lo
+    for j in range(lo,hi):
+        if a[j]&lt;=pivot:
+            a[i],a[j]=a[j],a[i]; i+=1
+    a[i],a[hi]=a[hi],a[i]
+    return i
+a=[4,2,5,1,3]
+p=partition(a,0,len(a)-1)
+print(a,p)</pre><pre>[2, 1, 3, 4, 5] 2</pre><p>The pivot 3 reaches index 2. Its left side[2,1] is not yet sorted; partitioning is not a full sort.</p><aside><b>Trap:</b> Hoare and Lomuto partition return different boundaries. Never reuse one scheme’s recursion bounds with the other.</aside><h4>Your turn</h4><p>Complete recursive quicksort using this Lomuto partition.</p><h4>Worked solution</h4><pre>def sort(a,lo,hi):
+    if lo&gt;=hi: return
+    p=a[hi]; i=lo
+    for j in range(lo,hi):
+        if a[j]&lt;=p: a[i],a[j]=a[j],a[i]; i+=1
+    a[i],a[hi]=a[hi],a[i]
+    sort(a,lo,i-1); sort(a,i+1,hi)
+a=[4,2,5,1,3]; sort(a,0,len(a)-1)
+assert a==[1,2,3,4,5]</pre>
+<h3>03 · Duplicates, lower bounds and choosing a sort</h3><p>Two-way partition schemes can perform poorly with many equal keys. Three-way partition separates values into &lt;pivot, =pivot and &gt;pivot regions. Only the outer regions need recursion. The equal region is finished, avoiding unnecessary work on repeated values.</p><p>Any comparison sort on n distinct keys has n! possible orders to distinguish. A binary comparison decision tree therefore needs height at least ceil(log2(n!))=Omega(n log n) in the worst case. This bound applies to comparison sorting, not every imaginable sorting method.</p><p>Counting sort can run in O(n+k) for integer keys in a known range of size k, trading range-dependent space for fewer comparisons. Stable counting passes support radix sort. These are useful extensions; the DA syllabus explicitly names selection, bubble, insertion, merge and quicksort, which you must trace precisely.</p><p>Choose a sort using the needed guarantee: stable array sorting suggests merge sort or Python’s stable built-in sort; tiny nearly sorted input favours insertion sort; predictable constant extra array storage may favour heapsort; quicksort is often fast but needs pivot care. Python sorted returns a new list; list.sort mutates and returns None.</p><h4>Worked example</h4><pre>a=[3,1,3,2,3,4]
+pivot=3
+less=[x for x in a if x&lt;pivot]
+equal=[x for x in a if x==pivot]
+greater=[x for x in a if x&gt;pivot]
+print(less,equal,greater)</pre><pre>[1, 2] [3, 3, 3] [4]</pre><p>This clear three-list demonstration costs O(n) extra space. An in-place Dutch-flag implementation uses three indices and constant working storage.</p><aside><b>Trap:</b> Do not describe this allocating demonstration as in-place just because its partition idea can be implemented in-place.</aside><h4>Your turn</h4><p>Counting-sort nonnegative keys [3,1,3,0,2] with maximum 3.</p><h4>Worked solution</h4><pre>a=[3,1,3,0,2]; count=[0]*4
+for x in a: count[x]+=1
+out=[x for x,c in enumerate(count) for _ in range(c)]
+assert out==[0,1,2,3,3]</pre>
+<h2>Trees, traversals &amp; search trees</h2><p>DSA core</p>
+<h3>01 · Tree terminology and traversal orders</h3><p>A tree is a connected undirected graph with no cycles. A nonempty tree with n vertices has n-1 edges and exactly one simple path between any two vertices. A rooted tree introduces parent/child relations. A node’s depth is its distance from the root; height is the longest downward path to a leaf. Here height counts edges, so a leaf has height0.</p><p>A binary tree allows at most two children, distinguished as left and right. Full means every node has zero or two children. Complete means all levels except possibly the last are full and the last is filled left to right. Perfect means every internal node has two children and all leaves share a depth. These words are not interchangeable.</p><p>For binary trees of height h, maximum nodes are 2^(h+1)-1, while a skewed tree of that height has h+1 nodes. In a full binary tree, leaves=internal nodes+1. A complete binary tree has height floor(log2 n) for n&gt;0. State whether height counts edges or nodes before substituting formulas.</p><p>Preorder visits root,left,right; inorder left,root,right; postorder left,right,root. Level order uses a queue. Each traversal takes O(n) time. Recursive depth-first traversals use O(h) stack; level order may hold O(width) nodes, which can be O(n). Inorder is sorted only for a binary search tree, not an arbitrary binary tree.</p><h4>Worked example</h4><pre>tree=(&#x27;A&#x27;,(&#x27;B&#x27;,None,None),(&#x27;C&#x27;,(&#x27;D&#x27;,None,None),None))
+def walk(t,order):
+    if t is None: return []
+    x,left,right=t
+    if order==&#x27;pre&#x27;: return [x]+walk(left,order)+walk(right,order)
+    if order==&#x27;in&#x27;: return walk(left,order)+[x]+walk(right,order)
+    return walk(left,order)+walk(right,order)+[x]
+for order in [&#x27;pre&#x27;,&#x27;in&#x27;,&#x27;post&#x27;]: print(&#x27;&#x27;.join(walk(tree,order)))</pre><pre>ABCD
+BADC
+BDCA</pre><p>VisitA before both subtrees for preorder, betweenB and theC subtree for inorder, and after both subtrees for postorder. This simple list-concatenation implementation can cost more than linear on skewed trees; an append-to-output traversal avoids that overhead.</p><aside><b>Trap:</b> A complete tree need not be full, and a full tree need not be complete.</aside><h4>Your turn</h4><p>Write a linear-time inorder traversal using an output list and append.</p><h4>Worked solution</h4><pre>t=(&#x27;A&#x27;,(&#x27;B&#x27;,None,None),(&#x27;C&#x27;,(&#x27;D&#x27;,None,None),None)); out=[]
+def visit(t):
+    if t:
+        visit(t[1]); out.append(t[0]); visit(t[2])
+visit(t)
+assert out==[&#x27;B&#x27;,&#x27;A&#x27;,&#x27;D&#x27;,&#x27;C&#x27;]</pre>
+<h3>02 · Reconstructing trees and binary search insertion</h3><p>With distinct keys, preorder plus inorder uniquely determines a binary tree: the first preorder item is the root; locate it in inorder to separate left and right subtrees; recurse on matching segments. Postorder plus inorder also works, using the last postorder item as root.</p><p>Preorder plus postorder does not uniquely determine an arbitrary binary tree, because a lone child may be left or right. Duplicate labels also destroy the simple uniqueness argument unless extra identity information is supplied. For reconstruction, a map from value to inorder index avoids repeated linear searches.</p><p>A binary search tree (BST) has every left-subtree key less than the node key and every right-subtree key greater, assuming distinct keys. This is a global subtree property, not just a parent-child comparison. If duplicates are allowed, specify whether to count them at a node or place them on a chosen side.</p><p>Search and insertion follow comparisons from the root and cost O(h). Balanced height gives O(log n); sorted insertion into an ordinary BST can create a chain with O(n) height. Inorder traversal lists its keys sorted. For a fixed insertion order, draw each insertion path; never assume the resulting tree is balanced.</p><h4>Worked example</h4><pre>class Node:
+    def __init__(self,k): self.key,self.left,self.right=k,None,None
+def insert(t,k):
+    if t is None: return Node(k)
+    if k&lt;t.key: t.left=insert(t.left,k)
+    elif k&gt;t.key: t.right=insert(t.right,k)
+    return t
+def inorder(t,out):
+    if t: inorder(t.left,out); out.append(t.key); inorder(t.right,out)
+root=None
+for k in [5,2,8,1,3]: root=insert(root,k)
+out=[]; inorder(root,out)
+print(out)</pre><pre>[1, 2, 3, 5, 8]</pre><p>5 is root,2 and 8 become its children, then 1 and 3 attach below2. Duplicate insertion is ignored in this contract.</p><aside><b>Trap:</b> Checking only child keys is insufficient: a descendant can violate an ancestor’s bound.</aside><h4>Your turn</h4><p>Reconstruct the root and left/right inorder segments for preorder A B D E C and inorder D B E A C.</p><h4>Worked solution</h4><pre>pre=list(&#x27;ABDEC&#x27;); ino=list(&#x27;DBEAC&#x27;)
+root=pre[0]; split=ino.index(root)
+assert root==&#x27;A&#x27; and ino[:split]==list(&#x27;DBE&#x27;) and ino[split+1:]==[&#x27;C&#x27;]</pre>
+<h3>03 · BST deletion, successor and balanced-tree ideas</h3><p>Deleting a BST node has three structural cases. A leaf is removed directly. A node with one child is replaced by that child. A node with two children can copy its inorder successor’s key, then delete that successor from the right subtree; the successor has no left child.</p><p>The successor is the minimum of a nonempty right subtree. Without a right subtree, it is the lowest ancestor for which the node lies in the left subtree. A predecessor is symmetric. Deletion must return the possibly changed subtree root, including when deleting the overall root.</p><p>BST correctness depends on keeping all ancestor bounds valid. A validator should pass an allowed (low,high) range down the tree; merely checking left.key&lt;root.key&lt;right.key misses deeper violations. Search, insertion and deletion are all O(h), not automatically O(log n).</p><p>Balanced search trees maintain height logarithmic through structural rules. An AVL tree requires left and right subtree heights to differ by at most one; rotations preserve inorder order while restoring balance. LL/RR cases use one rotation and LR/RL two. Detailed AVL and red-black implementation is enrichment beyond the named DA tree basics, but recognising height versus node count is valuable.</p><h4>Worked example</h4><pre>def delete(t,key):
+    if t is None: return None
+    k,left,right=t
+    if key&lt;k: return (k,delete(left,key),right)
+    if key&gt;k: return (k,left,delete(right,key))
+    if left is None: return right
+    if right is None: return left
+    s=right
+    while s[1] is not None: s=s[1]
+    return (s[0],left,delete(right,s[0]))
+t=(5,(2,None,None),(8,(6,None,None),(9,None,None)))
+print(delete(t,5))</pre><pre>(6, (2, None, None), (8, None, (9, None, None)))</pre><p>6 is the minimum in5’s right subtree. It replaces5, and the old6 node is then removed. This immutable-tuple version copies the O(h) search path.</p><aside><b>Trap:</b> Returning a changed subtree without assigning it back to its parent leaves the original tree unchanged.</aside><h4>Your turn</h4><p>Delete a root with only one child and verify the child becomes the root.</p><h4>Worked solution</h4><pre>def remove_root(t):
+    k,left,right=t
+    if left is None: return right
+    if right is None: return left
+    raise ValueError(&#x27;two-child case needs successor&#x27;)
+assert remove_root((5,(2,None,None),None))==(2,None,None)</pre>
+<h2>Heaps &amp; priority queues</h2><p>DSA supporting topic</p>
+<h3>01 · Binary heaps and sift operations</h3><p>A min-heap is a complete binary tree where every parent key is no greater than its children. Only the root is guaranteed to be a global minimum; siblings and subtrees are not fully sorted. A max-heap reverses the comparison. The completeness property keeps height O(log n).</p><p>In a zero-based array, children of i are2i+1 and 2i+2 and its parent is(i-1)//2 for i&gt;0. Insertion appends at the next leaf position and sifts up while parent order is violated. Extract-min replaces the root with the last leaf, removes that leaf, then sifts down toward the smaller child.</p><p>Peek is O(1), insert and extract are O(log n), and searching for an arbitrary value is O(n) in the worst case. A priority queue is the ADT; a heap is an implementation. It can support schedulers, top-k selection and Dijkstra’s frontier.</p><p>Python heapq implements a min-heap. For max-priority behaviour portable across versions, store negated numeric priorities. Tuples compare lexicographically; use a counter as a tie-breaker when tasks themselves cannot be compared. Never assume list iteration over a heap yields sorted order.</p><h4>Worked example</h4><pre>import heapq
+h=[]
+for x in [7,2,9,1]: heapq.heappush(h,x)
+print(h[0])
+print([heapq.heappop(h) for _ in range(len(h))])</pre><pre>1
+[1, 2, 7, 9]</pre><p>The root tracks the minimum as insertions sift upward. Repeated extraction, not ordinary iteration, yields sorted order.</p><aside><b>Trap:</b> A heap is not a BST: it has parent-child priority order but no left-smaller/right-larger search rule.</aside><h4>Your turn</h4><p>Keep the largest three values of [4,8,1,7,6] in a min-heap.</p><h4>Worked solution</h4><pre>import heapq
+h=[]
+for x in [4,8,1,7,6]:
+    heapq.heappush(h,x)
+    if len(h)&gt;3: heapq.heappop(h)
+assert sorted(h)==[6,7,8]</pre>
+<h3>02 · Bottom-up heap construction and heapsort</h3><p>Bottom-up heap construction sifts down every internal node from the last one toward the root. Leaves are already heaps. When a node is processed, both child subtrees satisfy heap order, so one sift-down repairs the entire subtree.</p><p>Although one sift-down can take O(log n), most nodes lie near the leaves. At most about n/2^(h+1) nodes have height h, so total work is bounded by n times the convergent sum of h/2^h. Thus bottom-up heapify is O(n), while n separate heap insertions have O(n log n) worst-case cost.</p><p>Heapsort builds a max-heap, swaps the root with the last active element, reduces the active heap size and restores order. The sorted suffix grows from right to left. It takes O(n log n) time in the standard worst case, O(1) auxiliary space with iterative sift-down, and is generally unstable.</p><p>The active heap boundary is separate from total array length. A sift-down that accidentally enters the sorted suffix corrupts the result. Heapify is also useful before repeated priority operations: avoid paying for n individual pushes when all data is already available.</p><h4>Worked example</h4><pre>def sift(a,i,n):
+    while 2*i+1&lt;n:
+        c=2*i+1
+        if c+1&lt;n and a[c+1]&gt;a[c]: c+=1
+        if a[i]&gt;=a[c]: break
+        a[i],a[c]=a[c],a[i]; i=c
+a=[4,1,3,2]
+for i in range(len(a)//2-1,-1,-1): sift(a,i,len(a))
+for end in range(len(a)-1,0,-1):
+    a[0],a[end]=a[end],a[0]
+    sift(a,0,end)
+print(a)</pre><pre>[1, 2, 3, 4]</pre><p>Each extraction fixes a largest remaining item in the suffix. Passing end as the heap size excludes that fixed item.</p><aside><b>Trap:</b> Multiplying n by the maximum sift height gives a loose O(n log n) bound for heapify; summing actual heights yields the tight O(n) bound.</aside><h4>Your turn</h4><p>Heapify [9,1,5,2] with heapq and verify each parent is no larger than its children.</p><h4>Worked solution</h4><pre>import heapq
+a=[9,1,5,2]; heapq.heapify(a)
+assert all(a[(i-1)//2]&lt;=a[i] for i in range(1,len(a)))</pre>
+<h2>Graph fundamentals &amp; representations</h2><p>DSA core</p>
+<h3>01 · Graph vocabulary and counting facts</h3><p>A graph G=(V,E) consists of vertices and edges. Undirected edges join unordered pairs; directed edges have a tail and head. Weighted edges attach a cost. A simple graph has no self-loops or parallel edges. Count formulas depend on those assumptions.</p><p>An undirected simple graph on n vertices has at most n(n-1)/2 edges; a directed simple graph without self-loops has at most n(n-1). The undirected degree sum is2|E|, because each edge contributes two endpoints. In a directed graph, total indegree=total outdegree=|E|.</p><p>A walk may repeat vertices and edges; a path here means no repeated vertices; a cycle returns to its start without other repeated vertices. An undirected connected graph has a path between every pair. A connected component is a maximal connected vertex set. In directed graphs, strong connectivity requires reachability in both directions; weak connectivity ignores directions.</p><p>A directed acyclic graph is a DAG. An undirected forest is a collection of trees and, with n vertices and c components, has n-c edges. A bipartite graph splits vertices into two groups with edges only across groups; an undirected graph is bipartite exactly when it has no odd cycle.</p><h4>Worked example</h4><pre>edges=[(0,1),(1,2),(2,3),(3,0)]
+degree=[0]*4
+for u,v in edges:
+    degree[u]+=1; degree[v]+=1
+print(degree,sum(degree),2*len(edges))</pre><pre>[2, 2, 2, 2] 8 8</pre><p>A four-cycle gives every vertex degree2. The degree sum counts each of its four edges twice.</p><aside><b>Trap:</b> An undirected edge appears twice in an adjacency list but is still one edge in |E|.</aside><h4>Your turn</h4><p>Compute maximum edges for a simple undirected graph with 6 vertices.</p><h4>Worked solution</h4><pre>n=6
+assert n*(n-1)//2==15</pre>
+<h3>02 · Adjacency lists, matrices and edge lists</h3><p>An adjacency list stores each vertex’s outgoing neighbours. It takes O(V+E) space and enumerates neighbours of u in O(deg(u)). A matrix stores one entry per ordered vertex pair and uses O(V^2) space. Testing a specific edge is O(1) in a matrix but typically O(deg(u)) in an unsorted neighbour list.</p><p>An undirected adjacency matrix is symmetric. A directed one need not be. A weighted representation must distinguish no edge from a zero-weight edge: use infinity or None for absence, not an ambiguous zero. A diagonal zero usually represents a zero-length path, not necessarily a self-loop.</p><p>An edge list stores triples(u,v,w), useful when an algorithm scans all edges, as Bellman-Ford does. For an undirected graph, either store both directions for relaxation or explicitly relax both ways. Isolated vertices must still appear in the vertex set even if no edge names them.</p><p>Representation changes traversal complexity: scanning every row of a matrix costs O(V^2), while adjacency-list BFS/DFS takes O(V+E). Sparse graphs favour lists; dense graphs can justify matrices. State whether parallel edges are retained, collapsed or combined by minimum weight.</p><h4>Worked example</h4><pre>n=4
+edges=[(0,1),(1,2)]
+adj=[[] for _ in range(n)]
+mat=[[False]*n for _ in range(n)]
+for u,v in edges:
+    adj[u].append(v); adj[v].append(u)
+    mat[u][v]=mat[v][u]=True
+print(adj)
+print(mat[0][2],mat[1][2])</pre><pre>[[1], [0, 2], [1], []]
+False True</pre><p>Vertex3 is isolated but preserved as an empty list. The matrix makes direct edge tests immediate.</p><aside><b>Trap:</b> A zero edge weight is a valid weight; do not confuse it with absence.</aside><h4>Your turn</h4><p>Build directed adjacency lists for 0-&gt;1 and 2-&gt;1.</p><h4>Worked solution</h4><pre>adj=[[] for _ in range(3)]
+for u,v in [(0,1),(2,1)]: adj[u].append(v)
+assert adj==[[1],[],[1]]</pre>
+<h3>03 · Reachability, components and bipartite colouring</h3><p>To count connected components of an undirected graph, launch a traversal from every still-unvisited vertex and increment a counter each time. A single traversal from one source reaches only its own component; isolated vertices each form a component.</p><p>Bipartite testing assigns one of two colours. Start an uncoloured component arbitrarily with colour0 and assign each newly discovered neighbour the opposite colour. An edge joining equal colours proves failure. Perform this across all components, not just the component containing vertex 0.</p><p>A tree is bipartite because root-depth parity gives a valid two-colouring. An odd cycle cannot alternate two colours back to its start; an even cycle can. A self-loop immediately violates bipartiteness. The test costs O(V+E) on adjacency lists.</p><p>Directed reachability is not symmetric. A DFS following outgoing edges can answer whether v is reachable from u, but repeated such searches are not directly a strong-component algorithm. Kosaraju/Tarjan algorithms are enrichment; distinguish their purpose from ordinary undirected components.</p><h4>Worked example</h4><pre>from collections import deque
+def bipartite(adj):
+    colour={}
+    for start in range(len(adj)):
+        if start in colour: continue
+        colour[start]=0; q=deque([start])
+        while q:
+            u=q.popleft()
+            for v in adj[u]:
+                if v not in colour: colour[v]=1-colour[u]; q.append(v)
+                elif colour[v]==colour[u]: return False
+    return True
+print(bipartite([[1,2],[0,2],[0,1]]))
+print(bipartite([[1,3],[0,2],[1,3],[0,2]]))</pre><pre>False
+True</pre><p>The triangle fails because two adjacent vertices receive the same colour. The four-cycle alternates consistently.</p><aside><b>Trap:</b> A graph with one bipartite component and a separate triangle is not bipartite.</aside><h4>Your turn</h4><p>Count components of the undirected graph [[1],[0],[]].</p><h4>Worked solution</h4><pre>adj=[[1],[0],[]]; seen=set(); components=0
+for s in range(len(adj)):
+    if s in seen: continue
+    components+=1; stack=[s]; seen.add(s)
+    while stack:
+        for v in adj[stack.pop()]:
+            if v not in seen: seen.add(v); stack.append(v)
+assert components==2</pre>
+<h2>BFS, DFS &amp; topological order</h2><p>DSA core</p>
+<h3>01 · Breadth-first search and shortest-hop paths</h3><p>BFS explores in nondecreasing number of edges from a source. Mark the source discovered, enqueue it, then repeatedly dequeue a vertex and discover its unseen neighbours. Mark a vertex when enqueuing, not when removing it, so multiple incoming edges do not create duplicate queue entries.</p><p>Store dist[source]=0 and dist[v]=dist[u]+1 when v is first discovered from u. The queue contains vertices in distance layers, so the first discovery is a shortest-hop distance. Parent pointers reconstruct one shortest path; equal-length alternatives depend on neighbour order.</p><p>With adjacency lists, each reachable vertex is enqueued once and each outgoing edge scanned once: O(V+E) time and O(V) extra space. To traverse a disconnected graph fully, restart from unvisited vertices. Distances for unreachable vertices remain a sentinel, such as -1 or infinity.</p><p>BFS optimises the number of edges, which equals total cost only when all edges have the same positive weight. With arbitrary weights, a one-edge route can be more expensive than a two-edge route. Do not apply ordinary BFS to a weighted shortest-path task unless that assumption is justified.</p><h4>Worked example</h4><pre>from collections import deque
+adj=[[1,2],[3],[3],[]]
+dist=[-1]*4; parent=[None]*4
+dist[0]=0; q=deque([0])
+while q:
+    u=q.popleft()
+    for v in adj[u]:
+        if dist[v]==-1:
+            dist[v]=dist[u]+1; parent[v]=u; q.append(v)
+path=[]; v=3
+while v is not None: path.append(v); v=parent[v]
+print(dist)
+print(path[::-1])</pre><pre>[0, 1, 1, 2]
+[0, 1, 3]</pre><p>Vertex3 can be reached through 1 or2. Because1 is processed first, this traversal chooses parent1.</p><aside><b>Trap:</b> Different valid BFS orders can yield different parent trees while retaining the same distances.</aside><h4>Your turn</h4><p>Change neighbour order at 0 to[2,1] and predict parent[3].</p><h4>Worked solution</h4><pre>from collections import deque
+a=[[2,1],[3],[3],[]]; p={0:None}; q=deque([0])
+while q:
+    u=q.popleft()
+    for v in a[u]:
+        if v not in p: p[v]=u; q.append(v)
+assert p[3]==2</pre>
+<h3>02 · Depth-first search, finishing times and cycles</h3><p>DFS follows a branch as far as possible before backtracking. Recursion implicitly stores the continuation for each vertex; an explicit stack can store vertices or frames. Neighbour order determines a particular valid traversal, so an exam question must specify or imply that order for a unique trace.</p><p>Use white for undiscovered, grey for active and black for finished. In directed DFS, an edge to a grey vertex is a back edge and proves a directed cycle. An edge to a black vertex does not by itself prove a cycle. Finish a vertex only after all its outgoing edges have been explored.</p><p>In an undirected simple graph, ignore the edge back to the immediate parent when detecting a cycle; that is the same tree edge viewed in reverse. A visited neighbour other than the parent indicates a cycle. Parallel edges require edge identities or adjusted logic, because a second parent edge can form a multigraph cycle.</p><p>DFS costs O(V+E) on adjacency lists and uses O(V) visited/stack space. Discovery and finishing intervals are nested for ancestor/descendant vertices and disjoint otherwise. DFS does not generally find the shortest-hop path. In Python, use iterative frames for very deep graphs rather than assuming recursion can handle arbitrary V.</p><h4>Worked example</h4><pre>adj=[[1,2],[2],[0],[]]
+colour=[0]*4; order=[]; cycle=False
+def dfs(u):
+    global cycle
+    colour[u]=1; order.append(u)
+    for v in adj[u]:
+        if colour[v]==0: dfs(v)
+        elif colour[v]==1: cycle=True
+    colour[u]=2
+for u in range(4):
+    if colour[u]==0: dfs(u)
+print(order,cycle)</pre><pre>[0, 1, 2, 3] True</pre><p>The edge2-&gt;0 reaches an active ancestor and exposes a directed cycle. A later traversal includes isolated3.</p><aside><b>Trap:</b> For directed cycle detection, “visited” alone loses the distinction between active and finished vertices.</aside><h4>Your turn</h4><p>Trace recursive preorder DFS on 0-&gt;[1,2],1-&gt;[3],2-&gt;[],3-&gt;[].</p><h4>Worked solution</h4><pre>a=[[1,2],[3],[],[]]; seen=set(); order=[]
+def dfs(u):
+    seen.add(u); order.append(u)
+    for v in a[u]:
+        if v not in seen: dfs(v)
+dfs(0)
+assert order==[0,1,3,2]</pre>
+<h3>03 · Topological sorting and dependency scheduling</h3><p>A topological order of a directed graph places u before v for every edge u-&gt;v. Such an order exists exactly when the graph is a DAG. It need not be unique: unrelated tasks can be scheduled in either order. It is not a numerical sorting of vertex labels.</p><p>Kahn’s algorithm counts indegrees and queues all zero-indegree vertices. Remove one, append it to the order and decrement indegrees of its outgoing neighbours. Newly zero-indegree vertices become eligible. If fewer than V vertices are output, a directed cycle prevented completion.</p><p>DFS gives another method: in a DAG, reverse the finishing order. Check for cycles before treating this as a topological order; reversing any DFS output is not sufficient. Both approaches take O(V+E) time using adjacency lists.</p><p>The order is unique if Kahn’s algorithm has exactly one eligible choice at every step. Topological order also permits dynamic programming on a DAG, including shortest paths with negative edges, because every predecessor is processed before a vertex. This connects graph traversal to dependency resolution and build systems.</p><h4>Worked example</h4><pre>from collections import deque
+adj=[[2],[2],[3],[]]
+indeg=[0]*4
+for row in adj:
+    for v in row: indeg[v]+=1
+q=deque(i for i,d in enumerate(indeg) if d==0); order=[]
+while q:
+    u=q.popleft(); order.append(u)
+    for v in adj[u]:
+        indeg[v]-=1
+        if indeg[v]==0: q.append(v)
+print(order,len(order)==len(adj))</pre><pre>[0, 1, 2, 3] True</pre><p>0 and 1 are initially eligible, so swapping them gives another valid order.2 must precede3.</p><aside><b>Trap:</b> A partial Kahn output is not a topological order of the full graph when a cycle remains.</aside><h4>Your turn</h4><p>Validate [1,0,2,3] against edges0-&gt;2,1-&gt;2,2-&gt;3.</p><h4>Worked solution</h4><pre>order=[1,0,2,3]; pos={v:i for i,v in enumerate(order)}
+assert all(pos[u]&lt;pos[v] for u,v in [(0,2),(1,2),(2,3)])</pre>
+<h2>Shortest-path algorithms</h2><p>DSA core</p>
+<h3>01 · Relaxation, path reconstruction and Dijkstra</h3><p>A shortest path minimises total edge weight. Maintain a tentative distance d[v], initialising the source to 0 and others to infinity. Relaxing(u,v,w) means replacing d[v] with d[u]+w and parent[v] with u if that candidate is smaller. Each finite label represents a path actually found.</p><p>Dijkstra repeatedly settles the reachable vertex with minimum tentative distance and relaxes its outgoing edges. Nonnegative weights ensure no future route through a farther unsettled vertex can improve the settled label. Zero weights are allowed; negative edges invalidate this greedy proof.</p><p>Using a binary heap and adjacency lists, a decrease-key version takes O((V+E)log V). Python’s usual lazy version pushes improved pairs and skips stale entries; it takes O((V+E)log(E+1)) time and may hold O(E) entries. For simple graphs, the log factor is O(log V). A dense array-based implementation costs O(V^2).</p><p>To reconstruct a reachable path, follow parents backward from target to source and reverse. Distinguish an unreachable target from a source-to-source path of length 0. With equal-cost paths, strict improvement keeps the earlier parent; never infer unique shortest paths from a unique distance.</p><h4>Worked example</h4><pre>import heapq
+adj=[[(1,4),(2,1)],[(3,1)],[(1,2),(3,5)],[]]
+d=[float(&#x27;inf&#x27;)]*4; d[0]=0; heap=[(0,0)]
+while heap:
+    du,u=heapq.heappop(heap)
+    if du!=d[u]: continue
+    for v,w in adj[u]:
+        if du+w&lt;d[v]:
+            d[v]=du+w; heapq.heappush(heap,(d[v],v))
+print(d)</pre><pre>[0, 3, 1, 4]</pre><p>The route0-&gt;2-&gt;1 costs 3, improving the direct cost 4; then 1-&gt;3 gives cost 4. The old heap entry(4,1) is ignored as stale.</p><aside><b>Trap:</b> Choosing a neighbour with the smallest individual edge is not Dijkstra. Choose the globally smallest tentative total distance.</aside><h4>Your turn</h4><p>Use relaxation to compare direct cost 10 with a path of edges3 and 4.</p><h4>Worked solution</h4><pre>d={&#x27;s&#x27;:0,&#x27;a&#x27;:3,&#x27;t&#x27;:10}
+if d[&#x27;a&#x27;]+4&lt;d[&#x27;t&#x27;]: d[&#x27;t&#x27;]=d[&#x27;a&#x27;]+4
+assert d[&#x27;t&#x27;]==7</pre>
+<h3>02 · Bellman–Ford and negative-cycle detection</h3><p>Negative edges can make a later route improve an earlier label. Bellman–Ford relaxes every edge repeatedly. In a graph with no reachable negative cycle, a shortest walk can be reduced to a simple path with at most V-1 edges, so V-1 complete passes suffice.</p><p>The dynamic-programming invariant is that after i full passes, distances are no worse than the best source paths using at most i edges. In-place updates may propagate farther in one pass, depending on edge order, but never weaken that guarantee. A pass with no changes allows early termination.</p><p>If an edge can still improve after V-1 passes, a negative cycle is reachable from the source. To identify every vertex with distance unbounded below, propagate reachability from vertices relaxed on the extra pass. An unreachable negative cycle does not affect source distances.</p><p>Bellman–Ford costs O(VE) time and O(V) distance/parent storage. In an undirected graph represented in both directions, any negative edge creates a negative closed walk by travelling back and forth; finite shortest-walk distances in that component cease to exist. Always state whether the problem permits repeated vertices or specifically requests simple paths.</p><h4>Worked example</h4><pre>edges=[(0,1,4),(0,2,5),(1,2,-2),(2,3,3)]
+n=4; d=[float(&#x27;inf&#x27;)]*n; d[0]=0
+for _ in range(n-1):
+    changed=False
+    for u,v,w in edges:
+        if d[u]+w&lt;d[v]: d[v]=d[u]+w; changed=True
+    if not changed: break
+negative=any(d[u]+w&lt;d[v] for u,v,w in edges)
+print(d,negative)</pre><pre>[0, 4, 2, 5] False</pre><p>The negative edge1-&gt;2 improves5 to 2, and 2-&gt;3 then gives5. No extra relaxation is possible.</p><aside><b>Trap:</b> A negative edge is not itself a negative cycle in a directed graph.</aside><h4>Your turn</h4><p>Detect the reachable negative cycle0-&gt;1 weight 1,1-&gt;2 weight-3,2-&gt;1 weight 1.</p><h4>Worked solution</h4><pre>e=[(0,1,1),(1,2,-3),(2,1,1)]; d=[0,float(&#x27;inf&#x27;),float(&#x27;inf&#x27;)]
+for _ in range(2):
+    for u,v,w in e:
+        if d[u]+w&lt;d[v]: d[v]=d[u]+w
+assert any(d[u]+w&lt;d[v] for u,v,w in e)</pre>
+<h3>03 · Floyd–Warshall for all pairs</h3><p>Floyd–Warshall computes distances between every pair. Initialise D[i][i]=0, each existing edge with its weight, and absent edges to infinity. For parallel edges retain the minimum. A negative self-loop must retain its negative value rather than being overwritten by a diagonal zero.</p><p>At stage k, allow vertex k as an intermediate and update D[i][j]=min(D[i][j],D[i][k]+D[k][j]). The invariant says all internal vertices of considered paths come from the already allowed set. The k loop must be outermost in this standard in-place dynamic program.</p><p>Time is O(V^3), space O(V^2). It handles negative edges, but if D[k][k]&lt;0 after completion, a negative cycle exists. A pair(i,j) is unbounded below if i can reach such a k and k can reach j; not every pair is necessarily affected.</p><p>To reconstruct paths, maintain a next-hop matrix and set next[i][j]=next[i][k] when an improvement via k occurs. Plain distances alone do not encode the route. For Boolean reachability, replacing min/+ with OR/AND gives Warshall’s transitive-closure recurrence.</p><h4>Worked example</h4><pre>inf=float(&#x27;inf&#x27;)
+d=[[0,4,10],[inf,0,3],[inf,inf,0]]
+for k in range(3):
+    for i in range(3):
+        for j in range(3):
+            d[i][j]=min(d[i][j],d[i][k]+d[k][j])
+print(d[0][2])
+print(any(d[i][i]&lt;0 for i in range(3)))</pre><pre>7
+False</pre><p>Allowing vertex 1 as an intermediate replaces the direct cost 10 with 4+3=7.</p><aside><b>Trap:</b> Arbitrarily permuting the three loops can break the allowed-intermediate invariant.</aside><h4>Your turn</h4><p>Compute reachability closure for 0-&gt;1-&gt;2 with Boolean Warshall.</p><h4>Worked solution</h4><pre>r=[[True,True,False],[False,True,True],[False,False,True]]
+for k in range(3):
+    for i in range(3):
+        for j in range(3): r[i][j]=r[i][j] or (r[i][k] and r[k][j])
+assert r[0][2]</pre>
+<h3>04 · DAG paths, 0–1 BFS and choosing the right method</h3><p>On a DAG, process vertices in topological order and relax all outgoing edges. Every possible predecessor has already been processed, so one pass suffices even with negative weights. The time is O(V+E). Acyclicity, not nonnegative weights, makes this order valid.</p><p>When edge weights are only0 or1, 0–1 BFS uses a deque: push an improved neighbour to the front for weight 0 and to the back for weight 1. The frontier stays ordered by distance, yielding O(V+E) time with the standard algorithm. Ordinary FIFO BFS would count edges rather than their0/1 costs.</p><p>Choose by the input: equal positive weights -&gt; BFS; DAG -&gt; topological relaxation; arbitrary nonnegative weights -&gt; Dijkstra; negative edges with source queries -&gt; Bellman–Ford; dense all-pairs queries -&gt; Floyd–Warshall. Negative cycles require reporting unbounded distances for affected pairs rather than a normal minimum.</p><p>Shortest-path trees and minimum spanning trees solve different problems. A shortest-path tree preserves distances from one source. A minimum spanning tree minimises the total chosen edge weight while connecting all vertices. Neither objective generally implies the other.</p><h4>Worked example</h4><pre>adj=[[(1,2),(2,5)],[(2,-4)],[]]
+order=[0,1,2]
+d=[0,float(&#x27;inf&#x27;),float(&#x27;inf&#x27;)]
+for u in order:
+    for v,w in adj[u]: d[v]=min(d[v],d[u]+w)
+print(d)</pre><pre>[0, 2, -2]</pre><p>Topological processing handles the negative edge1-&gt;2 safely because no later vertex can lead back into an earlier dependency.</p><aside><b>Trap:</b> A negative edge does not rule out linear-time shortest paths when the graph is a DAG.</aside><h4>Your turn</h4><p>Use 0–1 BFS to find distances in0-&gt;1(1),0-&gt;2(0),2-&gt;1(0).</p><h4>Worked solution</h4><pre>from collections import deque
+a=[[(1,1),(2,0)],[],[(1,0)]]; d=[0,float(&#x27;inf&#x27;),float(&#x27;inf&#x27;)]; q=deque([0])
+while q:
+    u=q.popleft()
+    for v,w in a[u]:
+        if d[u]+w&lt;d[v]:
+            d[v]=d[u]+w
+            if w==0: q.appendleft(v)
+            else: q.append(v)
+assert d==[0,0,0]</pre>
+<h2>Advanced patterns &amp; practical projects</h2><p>Enrichment beyond named DA topics</p>
+<h3>01 · Greedy methods, disjoint sets and minimum spanning trees</h3><p>A greedy algorithm commits to a locally attractive choice. Correctness needs a proof, often an exchange argument or a cut property. Choosing the smallest coin repeatedly can fail for denominations1,3,4 on target6; greedy4+1+1 loses to 3+3. Never assume a local rule is globally optimal.</p><p>A minimum spanning tree (MST) connects a weighted undirected connected graph with minimum total edge weight. Kruskal sorts edges by weight and adds an edge only if it joins different current components. A disjoint-set union structure tracks those components. A disconnected graph yields a minimum spanning forest.</p><p>Union by size/rank plus path compression gives almost constant amortised disjoint-set operations, commonly written O(alpha(V)). Kruskal’s sorting dominates at O(E log E). Prim instead grows a tree by the cheapest edge crossing from the chosen vertices to the rest, with a heap implementation typically O(E log V).</p><p>The cut property justifies choosing a lightest edge across a cut respected by the current forest. Tied weights can allow multiple MSTs; distinct weights guarantee uniqueness. MSTs are enrichment here, clearly separate from the explicitly listed shortest-path topic and its different objective.</p><h4>Worked example</h4><pre>edges=[(1,0,1),(2,1,2),(5,0,2),(3,2,3)]
+parent=list(range(4)); size=[1]*4
+def find(x):
+    while x!=parent[x]: parent[x]=parent[parent[x]]; x=parent[x]
+    return x
+total=0; chosen=[]
+for w,u,v in sorted(edges):
+    a,b=find(u),find(v)
+    if a==b: continue
+    if size[a]&lt;size[b]: a,b=b,a
+    parent[b]=a; size[a]+=size[b]; total+=w; chosen.append((u,v))
+print(total,chosen)</pre><pre>6 [(0, 1), (1, 2), (2, 3)]</pre><p>The edge0--2 of weight 5 would close a cycle and is skipped. The selected tree has total weight 6.</p><aside><b>Trap:</b> MST minimises total network cost, not each source-to-destination distance.</aside><h4>Your turn</h4><p>Show the greedy coin counterexample for target6 using coins1,3,4.</p><h4>Worked solution</h4><pre>remaining=6; used=[]
+for coin in [4,3,1]:
+    while remaining&gt;=coin: used.append(coin); remaining-=coin
+assert len(used)==3 and 3+3==6</pre>
+<h3>02 · Dynamic programming and backtracking</h3><p>Dynamic programming stores answers to overlapping subproblems. Define a state, a recurrence, base cases and an evaluation order before coding. Memoisation caches a recursive solution; tabulation fills a table iteratively. The state must contain all information needed to determine future choices.</p><p>For minimum coins to form amount s, dp[0]=0 and dp[s]=1+min(dp[s-c]) over usable denominations c&lt;=s. Use infinity for unreachable states. With amount A and k coin types this takes O(Ak) time and O(A) space. This is pseudo-polynomial in the numerical amount, not polynomial in its bit length.</p><p>Backtracking explores choices and reverses them when returning. Generating all subsets of n items requires2^n outputs, so exponential work is unavoidable for explicit enumeration. Pruning rejects branches that cannot lead to valid solutions, but does not automatically make the worst case polynomial.</p><p>Keep these techniques separate from the DA syllabus’s named divide-and-conquer sorting: merge sort solves disjoint subproblems; coin change reuses overlapping states. Dynamic programming and advanced backtracking are enrichment for deeper problem-solving, not additional claimed official syllabus headings.</p><h4>Worked example</h4><pre>coins=[1,3,4]; amount=6
+dp=[0]+[float(&#x27;inf&#x27;)]*amount
+for s in range(1,amount+1):
+    for c in coins:
+        if c&lt;=s: dp[s]=min(dp[s],1+dp[s-c])
+print(dp)
+print(dp[amount])</pre><pre>[0, 1, 2, 1, 1, 2, 2]
+2</pre><p>At amount 6, using a3 leaves amount 3, which already costs one coin, so two coins suffice.</p><aside><b>Trap:</b> Caching by an incomplete state can return a correct answer for the wrong subproblem.</aside><h4>Your turn</h4><p>Generate all subsets of [1,2,3] iteratively.</p><h4>Worked solution</h4><pre>subsets=[[]]
+for x in [1,2,3]: subsets += [s+[x] for s in subsets]
+assert len(subsets)==8 and [1,2,3] in subsets</pre>
+<h3>03 · Build a route planner and an exam-solving workflow</h3><p>Build a small campus or delivery-route planner. Define locations as vertices and nonnegative travel times as weighted directed edges. Validate that every endpoint exists and weights meet the chosen algorithm’s assumptions. Preserve isolated vertices and distinguish one-way roads from two-way roads.</p><p>Use an adjacency list for storage, Dijkstra for fastest routes, and parent links for route reconstruction. Test a direct route, a cheaper indirect route, equal alternatives, an unreachable destination and source=target. Compare small nonnegative graphs against Bellman–Ford or Floyd–Warshall as an independent correctness check.</p><p>For exam traces, write the representation and convention first: zero/one indexing, inclusive/half-open intervals, neighbour order, pivot scheme, and height definition. Draw a state table with iteration, active structure, changed values and invariant. Count exactly the operation requested; comparisons, swaps and probes are different quantities.</p><p>A useful mastery loop is predict -&gt; trace by hand -&gt; execute -&gt; change an edge case -&gt; explain the invariant without notes. Move errors into the mistake notebook, then retry after a delay. Completing a lesson is a progress marker, not proof that you can solve unseen questions; use the authenticated PYQ bank for that next step.</p><h4>Worked example</h4><pre>import heapq
+def route(graph,source,target):
+    d={source:0}; parent={source:None}; heap=[(0,source)]
+    while heap:
+        cost,u=heapq.heappop(heap)
+        if cost!=d[u]: continue
+        if u==target: break
+        for v,w in graph[u]:
+            if w&lt;0: raise ValueError(&#x27;nonnegative weights required&#x27;)
+            if cost+w&lt;d.get(v,float(&#x27;inf&#x27;)):
+                d[v]=cost+w; parent[v]=u; heapq.heappush(heap,(d[v],v))
+    if target not in d: return None
+    path=[]; u=target
+    while u is not None: path.append(u); u=parent[u]
+    return d[target],path[::-1]
+g={&#x27;A&#x27;:[(&#x27;B&#x27;,5),(&#x27;C&#x27;,1)],&#x27;B&#x27;:[(&#x27;D&#x27;,2)],&#x27;C&#x27;:[(&#x27;B&#x27;,2)],&#x27;D&#x27;:[],&#x27;E&#x27;:[]}
+print(route(g,&#x27;A&#x27;,&#x27;D&#x27;))
+print(route(g,&#x27;A&#x27;,&#x27;E&#x27;))</pre><pre>(5, [&#x27;A&#x27;, &#x27;C&#x27;, &#x27;B&#x27;, &#x27;D&#x27;])
+None</pre><p>The indirect path costs 1+2+2=5;E is unreachable. This demonstration assumes valid endpoints and nonnegative input; validate the whole graph before early exit in production.</p><aside><b>Trap:</b> Checking only edges visited before an early exit is not a full input validation pass.</aside><h4>Your turn</h4><p>Add input validation that rejects negative weights anywhere in the graph.</p><h4>Worked solution</h4><pre>def validate_graph(g):
+    for u,edges in g.items():
+        for v,w in edges:
+            if v not in g or w&lt;0: raise ValueError(&#x27;invalid graph&#x27;)
+    return True
+assert validate_graph({&#x27;A&#x27;:[(&#x27;B&#x27;,2)],&#x27;B&#x27;:[]})
+try: validate_graph({&#x27;A&#x27;:[],&#x27;B&#x27;:[(&#x27;B&#x27;,-1)]})
+except ValueError: pass
+else: raise AssertionError(&#x27;negative edge was missed&#x27;)</pre>
+</html>

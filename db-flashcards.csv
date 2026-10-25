@@ -1,0 +1,61 @@
+﻿Front,Back,Topic
+A relation has 6 attributes and 20 tuples. Its degree is?,6. Degree counts attributes; cardinality counts tuples.,Model the data
+An M:N relationship with its own mark attribute maps to…,A separate relationship table. Store both entity keys and mark in the relationship table.,Model the data
+Mandatory participation on a child’s 1:N foreign key needs…,NOT NULL in addition to the reference. NOT NULL prevents an absent parent reference in that child row.,Model the data
+NOT UNKNOWN evaluates to…,UNKNOWN. Negation does not turn missing information into knowledge.,Model the data
+A derived age is usually safer computed from…,Birth date and reference date. Age changes with time; its reference date matters.,Model the data
+Projection under relational set semantics…,Removes duplicates. A relation is a set.,Relational algebra
+A natural join matches…,All same-named attributes. Natural join equates all common attribute names.,Relational algebra
+Which join retains unmatched left rows?,Left outer join. Unmatched right attributes are NULL-extended.,Relational algebra
+"With no required values, every candidate in a universal query…",Qualifies. No counterexample exists: vacuous truth.,Relational algebra
+Filtering a right column in WHERE after a left join can…,Remove NULL-extended rows. UNKNOWN is rejected by WHERE.,Relational algebra
+TRC primarily describes…,Conditions on the desired result. It is a declarative predicate language.,Tuple relational calculus
+FOR ALL x P(x) is equivalent to…,NOT EXISTS x NOT P(x). A universal claim holds when there is no counterexample.,Tuple relational calculus
+"Which variable supplies output in {s | Student(s) AND EXISTS e P(s,e)}?",s. s is free; e is existentially bound.,Tuple relational calculus
+“Every student takes some course” permits…,Different courses for different students. The existential witness is inside the universal scope.,Tuple relational calculus
+Domain independence means results ignore…,"Unused values added to the ambient universe. The query depends on its database, not arbitrary external domain elements.",Tuple relational calculus
+COUNT(*) on an empty ungrouped input gives…,0. COUNT returns zero; SUM would return NULL.,SQL foundations
+"AVG(10,NULL,20) conceptually is…",15. AVG ignores NULL inputs.,SQL foundations
+UNION ALL differs from UNION by…,Preserving duplicates. UNION normally removes duplicate result rows.,SQL foundations
+BETWEEN 10 AND 20 includes…,Both 10 and 20. BETWEEN is inclusive.,SQL foundations
+Which clause logically precedes GROUP BY?,WHERE. Rows are filtered before groups are formed.,SQL foundations
+Binding a parameter primarily separates…,Data values from SQL syntax. This avoids treating a user value as executable SQL.,SQL in practice
+Atomicity means…,A transaction’s changes succeed together or not at all. Atomicity concerns the logical unit of work.,SQL in practice
+A CTE is scoped to…,Its statement. WITH defines names for one statement.,SQL in practice
+"Ranks for scores 90,90,80 using DENSE_RANK are…","1,1,2. Dense ranks do not leave gaps.",SQL in practice
+Joining facts before understanding grain risks…,Double counting. Many-to-many matches multiply measure rows.,SQL in practice
+"Under A->B,B->C, A+ is…",ABC. Repeated closure steps add B then C.,Dependencies and keys
+A prime attribute belongs to…,At least one candidate key. Prime is defined across all candidate keys.,Dependencies and keys
+"To test FD redundancy, remove it and…",Check whether remaining FDs imply it. Implication is determined through closure.,Dependencies and keys
+AB and AC are lossless if…,A->B or A->C is implied. Intersection A must determine one whole component.,Dependencies and keys
+Reflexivity permits X->Y when…,Y is a subset of X. Such an FD is trivial.,Dependencies and keys
+1NF excludes…,Repeating groups in cells. Atomicity is relative to the modeled domains.,Normal forms
+3NF permits a non-superkey determinant when the right attribute is…,Prime. The prime-attribute exception distinguishes 3NF from BCNF.,Normal forms
+BCNF implies…,3NF. Higher forms add conditions beyond FDs.,Normal forms
+Independent hobby and language facts illustrate…,A multivalued dependency. Independence requires all combinations for a fixed person.,Normal forms
+Relational normalization and z-score normalization…,Solve different problems. One restructures relations; the other rescales numbers.,Normal forms
+"B=1000,R=300 unspanned: records per block?",3. Floor(B/R) counts whole records.,Files and indexes
+A heap file is…,Not ordered by a search key. Heap file refers to unordered record organization.,Files and indexes
+A search key is…,"Any indexed attribute set, not necessarily a candidate key. Index terminology differs from relational key terminology.",Files and indexes
+A cached root generally saves…,One index-page I/O. Only the cached page’s storage read is avoided.,Files and indexes
+A covering index can avoid…,A data-page lookup. The query’s required columns are already in the index.,Files and indexes
+City is usually a…,Nominal attribute. Its category labels have no intrinsic order.,Data types and cleaning
+Celsius temperature is conventionally…,"Interval. Differences are meaningful, but zero is not absence of temperature.",Data types and cleaning
+Fit imputation parameters on…,Training data. Held-out information must not influence fitted preprocessing.,Data types and cleaning
+Unseen categories need…,An explicit handling policy. Keep training mappings stable.,Data types and cleaning
+"Before removing duplicate sales rows, check…",Whether they are distinct legitimate transactions. Identical values need not identify the same event.,Data types and cleaning
+"Scale 15 from [10,30] to [0,1].",0.25. (15−10)/(30−10)=1/4.,Normalize and discretize
+Z-score standardization guarantees a Gaussian distribution?,No. An affine transformation does not change arbitrary distribution shape into normality.,Normalize and discretize
+Strict decimal scaling of max magnitude 100 needs divisor…,1000. The transformed maximum must be less than 1.,Normalize and discretize
+Repeated boundary values can make equal-frequency binning…,Ambiguous without a tie rule. Equal counts and identical-value grouping may conflict.,Normalize and discretize
+A future min–max-scaled value can exceed 1 when…,It exceeds the fitted training maximum. Training parameters remain fixed.,Normalize and discretize
+Sampling without replacement prevents…,Repeated selection of the same unit. Units are not drawn again.,Sampling and compression
+Stratified sampling selects…,Units within each stratum. Every stratum is sampled by design.,Sampling and compression
+Disproportionately sampled strata may require…,Weights for population estimates. Unweighted results reflect the sampling mix.,Sampling and compression
+RLE performs best on…,"Long consecutive repeated runs. Runs, not overall symbol frequencies alone, matter.",Sampling and compression
+"Original=1000 bytes, compressed=250. Original/compressed ratio?",4. State the ratio convention explicitly.,Sampling and compression
+Star schema dimensions are usually…,Relatively denormalized around a central fact. Snowflakes normalize dimension hierarchies.,Warehousing and OLAP
+One row per sale line describes the…,Fact grain. Grain states what a fact row represents.,Warehousing and OLAP
+Fixing one dimension value is…,Slice. A slice selects a subcube at a fixed dimension value.,Warehousing and OLAP
+Balance is often not additive over…,Time. Summing snapshots across time is generally meaningless.,Warehousing and OLAP
+Means 10 with count 2 and 30 with count 8 combine to…,26. (10*2+30*8)/(2+8)=26.,Warehousing and OLAP

@@ -1,0 +1,6 @@
+GATE Lab / DA 2027
+Open index.html.
+Python: 41 lessons. DSA: 39 lessons. Databases & warehousing: 36 lessons.
+Lessons, quizzes, flashcards and visual models run offline. Python and SQL runtime loading and official paper links need internet. Downloaded Python/SQL files run locally with Python/SQLite.
+Export progress before moving browsers or deploying on GitHub Pages.
+See github-pages.html for source/deployment instructions.

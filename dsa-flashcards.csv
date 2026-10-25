@@ -1,0 +1,66 @@
+﻿Front,Back,Topic
+A loop invariant must hold when?,Before each iteration — Initialization and preservation make it available at termination.,"Algorithms, correctness & cost"
+T(n)=T(n-1)+1 has tight growth?,Theta(n) — There are n successive constant-work levels.,"Algorithms, correctness & cost"
+Two consecutive n-iteration loops cost?,Theta(n) — Their counts add to 2n.,"Algorithms, correctness & cost"
+A loop doubles i from 1 while i<n. Its growth is?,Theta(log n) — After k iterations i is 2^k.,"Algorithms, correctness & cost"
+O(n) is a statement about what?,An upper growth bound — Big-O does not itself specify which input case is being analysed.,"Algorithms, correctness & cost"
+A stack removes which item?,Most recently pushed — LIFO removes the top.,"Arrays, stacks, queues & deques"
+A queue removes which item?,Oldest enqueued — FIFO preserves arrival order.,"Arrays, stacks, queues & deques"
+The efficient Python queue operation is?,deque.popleft() — Deque removal from the left is constant-time.,"Arrays, stacks, queues & deques"
+"Circular queue: capacity5, head4, size 2. Next insertion index?",1 — (4+2) mod 5 is1.,"Arrays, stacks, queues & deques"
+Postfix 9 4 - 2 * evaluates to?,"10 — Compute9-4 first, then multiply by 2.","Arrays, stacks, queues & deques"
+Random access to the kth singly linked node takes?,O(k) traversals — Follow next pointers from the head.,Linked lists & pointer reasoning
+Prepending to a singly linked list takes?,O(1) — Change new.next and head.,Linked lists & pointer reasoning
+Appending with a maintained tail takes?,O(1) — The tail identifies the attachment point.,Linked lists & pointer reasoning
+Deleting a known doubly linked node generally needs?,Constant link updates — Its predecessor and successor are directly available.,Linked lists & pointer reasoning
+"During reversal, prev denotes?",The reversed processed prefix — Current points at the untouched suffix.,Linked lists & pointer reasoning
+A hash collision means?,Two keys map to one bucket — Unequal keys may share a hash or bucket.,Hash tables & collision strategies
+"For n=15,m=10, load factor is?",1.5 — Alpha=n/m.,Hash tables & collision strategies
+Can separate chaining have alpha>1?,Yes — Buckets can each contain multiple entries.,Hash tables & collision strategies
+Linear probing mainly suffers from?,Primary clustering — Contiguous runs attract more collisions.,Hash tables & collision strategies
+Deleting an open-address entry should usually leave?,A tombstone — Search must continue through the old collision chain.,Hash tables & collision strategies
+Linear search requires sorted input?,No — It can inspect arbitrary sequences.,Searching & boundary reasoning
+"With a uniform successful position among n items, expected linear-search comparisons are?",(n+1)/2 — Average the counts1 through n.,Searching & boundary reasoning
+Binary search needs which combination for logarithmic running time?,Sorted order and efficient midpoint access — Both elimination and access assumptions matter.,Searching & boundary reasoning
+Inclusive binary-search loop condition is?,lo<=hi — A single remaining candidate must still be examined.,Searching & boundary reasoning
+"For n=15, maximum midpoint probes in standard binary search is?",4 — floor(log2 15)+1=4.,Searching & boundary reasoning
+Standard selection sort makes how many key comparisons on n items?,"n(n-1)/2 — Suffix lengths are n-1,n-2,...,1.","Selection, bubble & insertion sort"
+Standard selection sort is generally?,Unstable — Distant swaps can reverse equal keys.,"Selection, bubble & insertion sort"
+One left-to-right bubble pass fixes what?,A maximum at the right end — The largest encountered value bubbles right.,"Selection, bubble & insertion sort"
+Early-stop bubble best-case time is?,Theta(n) — One no-swap pass verifies sorted order.,"Selection, bubble & insertion sort"
+Insertion sort’s processed prefix is?,Sorted but not necessarily globally smallest — Later keys can be smaller than every processed one.,"Selection, bubble & insertion sort"
+Merging sorted lengths p and q takes?,O(p+q) — Each pointer advances at most its run length.,Merge sort & quicksort
+Standard merge sort worst-case time is?,Theta(n log n) — Balanced levels each perform linear merging work.,Merge sort & quicksort
+Stable merging resolves equal keys by choosing?,The earlier left-run record — That preserves original equal-key order.,Merge sort & quicksort
+Lomuto partition puts the pivot where?,"At a valid final sorted position — Its rank determines the split, not a balance guarantee.",Merge sort & quicksort
+Endpoint-pivot quicksort on sorted distinct data can take?,Theta(n^2) — Each split can have sizes0 and n-1.,Merge sort & quicksort
+Leaf height under the edge-count convention is?,0 — The longest downward path has zero edges.,"Trees, traversals & search trees"
+A perfect binary tree of height3 has nodes?,15 — 2^(3+1)-1=15.,"Trees, traversals & search trees"
+A full binary tree with 7 internal nodes has leaves?,8 — Leaves=internal nodes+1.,"Trees, traversals & search trees"
+Inorder traversal of a distinct-key BST yields?,Sorted keys — The left-root-right property applies recursively.,"Trees, traversals & search trees"
+Preorder begins with?,The root — Preorder visits root before subtrees.,"Trees, traversals & search trees"
+"In a min-heap, the root is?",A minimum — Parent order holds along every path.,Heaps & priority queues
+Zero-based children of index i are?,2i+1 and 2i+2 — These are the complete-tree array positions.,Heaps & priority queues
+Heap insertion needs at most?,O(log n) sift-up work — The new item can travel one root-to-leaf path.,Heaps & priority queues
+Extract-min first replaces the root with?,The last leaf — This preserves complete-tree shape before sift-down.,Heaps & priority queues
+Bottom-up heapify is?,Theta(n) — Most nodes have small subtree height.,Heaps & priority queues
+An undirected simple graph with 5 vertices has at most edges?,10 — Choose an unordered pair of distinct vertices.,Graph fundamentals & representations
+Sum of undirected degrees equals?,2E — Every edge contributes two endpoints.,Graph fundamentals & representations
+Total directed indegree equals?,E — Each directed edge has one head.,Graph fundamentals & representations
+Adjacency-list space is?,O(V+E) — Store vertices plus their incident/outgoing entries.,Graph fundamentals & representations
+Matrix edge lookup takes?,O(1) — Access the cell for the vertex pair.,Graph fundamentals & representations
+BFS uses which frontier?,Queue — FIFO exploration produces distance layers.,"BFS, DFS & topological order"
+DFS recursion implicitly uses?,A stack — Active calls retain the return path.,"BFS, DFS & topological order"
+BFS distances are shortest when edges have?,Equal positive weight or unit cost — Ordinary BFS minimises number of edges.,"BFS, DFS & topological order"
+"With adjacency lists, full BFS/DFS time is?",O(V+E) — Each vertex and edge is handled a bounded number of times.,"BFS, DFS & topological order"
+"For directed DFS, a grey-neighbour edge is?",A cycle witness — It reaches an active ancestor.,"BFS, DFS & topological order"
+Relaxation replaces d[v] when?,d[u]+w<d[v] — Only a cheaper discovered route improves the bound.,Shortest-path algorithms
+Dijkstra settles the vertex with?,Smallest tentative total distance — The global frontier minimum is the greedy choice.,Shortest-path algorithms
+Dijkstra permits zero-weight edges?,"Yes — Its assumption is nonnegative, not strictly positive.",Shortest-path algorithms
+Bellman–Ford uses at most ordinary passes?,V-1 — A simple shortest path has at most V-1 edges.,Shortest-path algorithms
+An improvement on an extra Bellman–Ford pass indicates?,A reachable negative cycle — No simple finite optimal path can need more than V-1 edges.,Shortest-path algorithms
+A greedy choice needs what to establish correctness?,A proof such as exchange or cut reasoning — Local attractiveness alone is insufficient.,Advanced patterns & practical projects
+"For coins1,3,4 and target6, the minimum count is?",2 — 3+3 beats greedy4+1+1.,Advanced patterns & practical projects
+Kruskal processes edges by?,Increasing weight — It repeatedly considers a lightest remaining candidate.,Advanced patterns & practical projects
+Disjoint-set union answers whether vertices are?,In the same current component — It tracks partition membership.,Advanced patterns & practical projects
+Path compression changes what?,Parent pointers toward representatives — It accelerates later find operations.,Advanced patterns & practical projects

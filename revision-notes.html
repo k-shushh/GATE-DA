@@ -1,0 +1,506 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GATE Lab - Printable revision notes</title><style>body{max-width:850px;margin:auto;padding:35px;font:16px/1.7 Segoe UI,sans-serif;color:#1d302c}h1,h2,h3{color:#1c6554}h2{margin-top:45px;border-top:1px solid #ddd;padding-top:25px}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:18px;background:#f1f5ee;font-size:12px}aside{background:#faeee5;padding:14px}button,a{color:#1c6554}@media print{button{display:none}h2{break-before:page}pre{break-inside:avoid}body{font-size:10pt;padding:0}}</style><h1>GATE Lab / Revision notes</h1><p>Full lesson notes with worked examples. Use Print and Save as PDF for a full-length personal copy.</p><button onclick="print()">Print / Save as PDF</button><p><a href="index.html#downloads">Back to the interactive guide</a></p>
+<h2>Think like Python</h2>
+<h3>01 · From a file to a running program</h3><p>A program is a sequence of instructions that transforms input into output. An algorithm is the method; Python is one language for expressing it. Before writing code, state the input, the expected result, and what counts as a valid input.</p><p>Save code as a .py file and run it with python filename.py (or py filename.py on Windows). A REPL evaluates one interaction at a time; a script runs top to bottom. In a script, an expression alone does not display its value: use print. Our browser lab runs real Python in a separate worker.</p><p>Indentation defines blocks. Use four spaces consistently, a colon before an indented suite, and # for a comment. Names are case-sensitive; total and Total differ. Choose meaningful identifiers and avoid shadowing built-ins such as list, str and sum. A newline usually ends a statement; brackets permit readable multi-line expressions.</p><p>Syntax errors prevent parsing. Runtime errors happen while executing valid syntax. Logic errors produce the wrong result without an exception. Debug by first predicting the state, then comparing it to observed output; do not randomly edit until a test passes.</p><pre>price = 120
+quantity = 3
+subtotal = price * quantity
+discount = 0.10
+total = subtotal * (1 - discount)
+print(f&quot;Total: {total:.2f}&quot;)</pre><p>Output:</p><pre>Total: 324.00</pre><p>First multiply 120 by 3. Then apply the remaining fraction 0.9. The f-string formats the numeric value with two digits after the decimal point; formatting does not change the stored number.</p><aside>10% is written as 0.10, not 10. Python does not infer units such as rupees or percentages.</aside><p><b>Your turn:</b> Change the quantity to 5 and discount to 20%. Predict the total before running.</p>
+<h3>02 · Names, objects and types</h3><p>A name refers to an object; it is not a permanently typed storage box. x = 3 binds x to an integer object. x = &quot;three&quot; later rebinds that name to a string. Objects have types; names can refer to different types over time. Assignment itself does not copy an object.</p><p>The main scalar types are int (arbitrary precision within memory limits), float (binary floating point), bool (True or False), complex and NoneType. None is a singleton used to represent absence, not zero or an empty string. Test it with is None.</p><p>Use type(x) to inspect a type and isinstance(x, T) for a type relationship. bool is a subclass of int, so isinstance(True, int) is True. Numeric conversions are explicit when needed: int(&quot;12&quot;) is 12; int(&quot;12.5&quot;) fails; int(-2.9) is -2 because conversion truncates toward zero.</p><p>Parallel assignment evaluates the right side before binding the left side. This makes a, b = b, a a correct swap. Two names referring to the same mutable object matter later: changing that object through either name is visible through both.</p><pre>a = 7
+b = a
+a = a + 1
+print(a, b)
+a, b = b, a
+print(a, b)
+print(type(3).__name__, int(-2.9), None is None)</pre><p>Output:</p><pre>8 7
+7 8
+int -2 True</pre><p>a + 1 creates a new integer value and rebinds a. b still refers to 7. Swapping then uses the old pair of values simultaneously.</p><aside>Do not use is to compare numeric or string values. Object reuse is an implementation detail; use == for equal values.</aside><p><b>Your turn:</b> Start with x=2,y=5. Swap them without a temporary name, then print their types.</p>
+<h3>03 · Arithmetic and the negative-number trap</h3><p>Use +, -, *, /, //, %, and ** for addition, subtraction, multiplication, true division, floor division, remainder, and exponentiation. True division of integers produces a float. Floor division rounds the quotient toward negative infinity; int conversion instead truncates toward zero.</p><p>For nonzero b, integer division obeys a == (a // b) * b + a % b. The remainder is zero or has the sign of b. Therefore -7 // 3 is -3 and -7 % 3 is 2. This identity is safer than memorising a rule from another language.</p><p>Exponentiation associates right-to-left: 2 ** 3 ** 2 is 2 ** 9. Unary minus on the left is applied after exponentiation: -2 ** 2 is -4. Parenthesise intentionally. Multiplication/division bind before addition/subtraction; operators at the same arithmetic level usually associate left-to-right.</p><p>Binary floats approximate most decimal fractions. Do not assume 0.1 + 0.2 == 0.3. Use math.isclose for measured quantities with suitable tolerances, Decimal constructed from strings for decimal arithmetic, or Fraction for exact rational arithmetic. Python integers do not have fixed 32-bit overflow, but huge integer operations are not constant-time.</p><pre>import math
+print(-7 // 3, -7 % 3)
+print((-7 // 3) * 3 + (-7 % 3))
+print(-2 ** 2, (-2) ** 2, 2 ** 3 ** 2)
+print(0.1 + 0.2 == 0.3, math.isclose(0.1 + 0.2, 0.3))</pre><p>Output:</p><pre>-3 2
+-7
+-4 4 512
+False True</pre><p>The quotient -3 and remainder 2 reconstruct -7. Parentheses change whether the minus sign is part of the base. isclose checks approximate equality rather than identical binary representations.</p><aside>/ and // are not interchangeable. Also, ^ is bitwise XOR, not exponentiation.</aside><p><b>Your turn:</b> For a=7,b=-3, calculate quotient and remainder by hand, then check the identity.</p>
+<h3>04 · Comparisons, truth and bits</h3><p>Comparisons ==, !=, &lt;, &lt;=, &gt; and &gt;= produce Booleans. Chained comparisons such as 0 &lt;= x &lt; 10 express a range. Membership in asks whether a container contains a value (for a dict, it tests keys). is asks whether two references identify the same object.</p><p>False values include False, None, numeric zero and empty containers. Nonempty strings are true, including &quot;False&quot; and &quot;0&quot;. and and or short-circuit and return an operand, not necessarily a bool: [] or [1] returns [1]; 0 and dangerous_call() returns 0 without making the call.</p><p>A practical precedence ladder is: indexing/calls; exponentiation; unary arithmetic; multiplication/division/remainder; addition/subtraction; shifts; bitwise &amp;, ^, |; comparisons and membership/identity; not; and; or. Use parentheses for clarity rather than relying on obscure precedence.</p><p>For integers, &amp; intersects set bits, | combines them, ^ toggles differing bits, and &lt;&lt; or &gt;&gt; shifts. For nonnegative x, x &lt;&lt; k equals x * 2**k. Python signed integers behave as though they have infinitely extended sign bits: ~x equals -x-1 and -3 &gt;&gt; 1 is -2. Bitwise &amp; is not a replacement for Boolean and.</p><pre>print(bool(&quot;False&quot;), bool([]))
+print(0 or 7, 3 and 8)
+print(0 &lt; 4 &lt; 5)
+print(6 &amp; 3, 6 | 3, 6 ^ 3, 1 &lt;&lt; 3)
+print(~5, -3 &gt;&gt; 1)</pre><p>Output:</p><pre>True False
+7 8
+True
+2 7 5 8
+-6 -2</pre><p>6 is binary 110 and 3 is 011. AND keeps 010, OR yields 111, XOR yields 101. These correspond to 2, 7, and 5.</p><aside>A fallback such as value or default replaces all false values, including legitimate zero. Use an explicit None check when zero must survive.</aside><p><b>Your turn:</b> Write a safe test for a nonempty list whose first element is positive.</p>
+<h2>Control the flow</h2>
+<h3>01 · Decisions and input contracts</h3><p>An if/elif/else chain selects the first true branch and skips the remaining branches. Separate if statements are independent and may all execute. Put the most specific conditions before more general ones when their ranges overlap.</p><p>input() returns a string, even when the user types digits. Parse with int or float only after deciding what inputs you accept. Our lab has an input-lines box: one line is consumed by each input call. For self-contained examples we often use literal inputs so the behaviour is reproducible.</p><p>Express preconditions explicitly. A percentage score should usually lie between 0 and 100; reject invalid values rather than silently classifying them. Boundary values deserve separate tests: just below, equal to, and just above each threshold.</p><p>A conditional expression is value_if_true if condition else value_if_false. It is useful for one short choice; deeply nested conditional expressions obscure logic. match/case (Python 3.10+) performs structural pattern matching, not arbitrary Boolean selection; ordinary if statements are enough for this course.</p><pre>score = 78
+if not 0 &lt;= score &lt;= 100:
+    print(&quot;Invalid&quot;)
+elif score &gt;= 80:
+    print(&quot;Distinction&quot;)
+elif score &gt;= 60:
+    print(&quot;Pass&quot;)
+else:
+    print(&quot;Revise&quot;)
+print(&quot;even&quot; if score % 2 == 0 else &quot;odd&quot;)</pre><p>Output:</p><pre>Pass
+even</pre><p>78 misses the 80 threshold, reaches the 60 threshold, and prints Pass. Only one branch runs. The separate expression then classifies parity.</p><aside>if x == 1 or 2 is almost always wrong: it means (x == 1) or 2 and is always truthy. Use x in (1, 2).</aside><p><b>Your turn:</b> Classify a year as leap if divisible by 400, or divisible by 4 but not 100. Test 1900, 2000, 2024.</p>
+<h3>02 · for, range and while</h3><p>A for loop takes successive values from an iterable. range(start, stop, step) is a compact sequence of integers excluding stop. Defaults are start=0 and step=1; step cannot be zero. A negative step is needed to count down. range(5, 0, -2) yields 5, 3, 1.</p><p>A while loop repeats while its condition is true. Identify the initial state, condition, body and update. Prove that each iteration makes progress toward termination. A missing update is a common cause of infinite loops.</p><p>An accumulator combines values (sum, product, maximum); a counter counts events. Choose the initial value from the operation identity: 0 for addition, 1 for multiplication. For a maximum over potentially negative numbers, initialise from the first value or use None, not automatically 0.</p><p>An invariant is a statement that stays true before each iteration. In a running sum over a sequence, total equals the sum of all elements already visited. Initially no elements are visited and total=0; each update preserves the claim; at termination it proves correctness.</p><pre>total = 0
+for number in range(1, 6):
+    total += number
+    print(number, total)
+n = 13
+bits = 0
+while n &gt; 0:
+    bits += 1
+    n //= 2
+print(&quot;bits:&quot;, bits)</pre><p>Output:</p><pre>1 1
+2 3
+3 6
+4 10
+5 15
+bits: 4</pre><p>The first loop adds 1 through 5. The while loop visits n=13,6,3,1 before reaching zero, giving four binary digits.</p><aside>range endpoints are excluded. range(1, n) does not include n. An empty range executes the body zero times.</aside><p><b>Your turn:</b> Compute the sum of odd integers from 1 to 99 with a loop. Then derive it without a loop.</p>
+<h3>03 · break, continue, else and nested loops</h3><p>break exits the nearest enclosing loop. continue skips the rest of the current iteration and proceeds to the next one. pass does nothing; it is a syntactic placeholder, not a skip instruction.</p><p>A loop else runs when the loop finishes without break, including when the loop executes zero times. It is useful for unsuccessful searches. A return inside a function exits the whole function and therefore does not execute the loop else.</p><p>For nested loops, draw one row per outer-loop value and count inner iterations. If the inner loop runs i times for i=0..n-1, the total is n(n-1)/2, not n. A break inside the inner loop does not exit the outer loop.</p><p>Avoid changing list length while iterating over it: shifted positions can be skipped. Construct a filtered list or iterate over a deliberate copy. If updating a while-loop variable, ensure a continue cannot accidentally bypass the update.</p><pre>n = 17
+for divisor in range(2, int(n ** 0.5) + 1):
+    if n % divisor == 0:
+        print(&quot;composite&quot;)
+        break
+else:
+    print(&quot;prime&quot; if n &gt;= 2 else &quot;not prime&quot;)
+count = 0
+for i in range(4):
+    for j in range(i):
+        count += 1
+print(count)</pre><p>Output:</p><pre>prime
+6</pre><p>No divisor 2, 3 or 4 divides 17, so the else executes. The nested-loop counts are 0+1+2+3=6. For very large integers, math.isqrt is safer than a floating-point square root.</p><aside>The else belongs to the loop at the same indentation, not the inner if.</aside><p><b>Your turn:</b> Return the first negative number in a list, or None if no negative exists.</p>
+<h2>Work with text</h2>
+<h3>01 · Strings and slicing</h3><p>A str is an immutable sequence of Unicode code points. Index 0 selects the first element; -1 selects the last. Indexing outside the sequence raises IndexError. len counts code points, which need not equal the number of visually perceived characters.</p><p>s[start:stop:step] selects indices beginning at start and ending before stop. For positive steps, omitted bounds cover left to right; for negative steps they cover right to left. Slices clip out-of-range bounds and can be empty. A zero step raises ValueError.</p><p>s[::-1] reverses the sequence. s[-1:0:-1] includes the last character and excludes index 0. The omitted stop in s[::-1] is not the same as an explicit -1 in s[:-1:-1]; explicit negative indices are normalised first.</p><p>Strings cannot be edited in place. To replace a character, construct a new string from pieces. The original string is unaffected. Raw string literals make backslashes easier to write, but cannot end in a single unescaped backslash. Escape sequences such as \n represent one newline character.</p><pre>s = &quot;PYTHON&quot;
+print(s[0], s[-1])
+print(s[1:5:2])
+print(s[::-1])
+print(s[-1:0:-1])
+print(s[99:], s[:99])</pre><p>Output:</p><pre>P N
+YH
+NOHTYP
+NOHTY
+ PYTHON</pre><p>Indices 1 and 3 spell YH. Reversal visits 5,4,3,2,1,0. Excluding index 0 omits the P. The last print begins with a space because its first argument is an empty string.</p><aside>A slice never changes the source string. Negative step does not automatically reverse arbitrary start/stop choices.</aside><p><b>Your turn:</b> Extract every second character from &quot;abcdefgh&quot; starting at index 1, then reverse the result.</p>
+<h3>02 · Methods, parsing and formatting</h3><p>strip removes specified characters from the two ends, not a substring from the middle. split() with no separator collapses runs of whitespace; split(&quot;,&quot;) treats each comma as a delimiter and can preserve empty fields. separator.join(strings) assembles strings with separators.</p><p>lower and casefold support case normalisation; casefold is more aggressive for Unicode comparisons. startswith, endswith, find, count and replace support common text tasks. find returns -1 when absent; index raises ValueError. Never treat a find result directly as Boolean because 0 is a valid found index.</p><p>f-strings evaluate expressions inside braces. Use format specifications such as :.2f for two decimal places or :&gt;8 for right alignment. repr exposes quotes and escape characters, while str produces a user-facing representation.</p><p>Parsing is a pipeline: normalise, split, validate, convert, then compute. Do not use eval to parse untrusted data. For structured formats use csv or json. CSV fields can contain quoted commas, so naive split(&quot;,&quot;) is appropriate only when the input contract excludes them.</p><pre>raw = &quot;  Alice, 82, 91, 87  &quot;
+parts = raw.strip().split(&quot;,&quot;)
+name = parts[0].strip()
+marks = [int(piece) for piece in parts[1:]]
+mean = sum(marks) / len(marks)
+print(f&quot;{name}: {mean:.2f}&quot;)
+print(&quot;-&quot;.join([&quot;DA&quot;, &quot;Python&quot;, &quot;2027&quot;]))</pre><p>Output:</p><pre>Alice: 86.67
+DA-Python-2027</pre><p>The first field remains text; the other fields become integers. The average is 260/3. Formatting rounds the displayed result without modifying mean.</p><aside>strip(&quot;ab&quot;) removes any a or b at either end; it does not remove exactly the prefix &quot;ab&quot;. Use removeprefix for that purpose.</aside><p><b>Your turn:</b> Normalise &quot;  Learn   PYTHON today  &quot; into &quot;learn python today&quot;.</p>
+<h3>03 · Text algorithms and edge cases</h3><p>A palindrome reads identically forwards and backwards. First define the comparison rule: are spaces, punctuation and letter case significant? The preprocessing policy is part of the algorithm, not an afterthought.</p><p>A character histogram maps each character to a count. Comparing histograms tests whether two strings are anagrams under the chosen normalisation. Sorting also works but usually costs O(n log n), versus expected O(n) counting with a hash table.</p><p>A two-pointer palindrome check advances from both ends and can stop at the first mismatch. It uses O(1) extra space on the existing string. Constructing s[::-1] uses O(n) additional space. Normalisation may itself require O(n) space.</p><p>For repeated concatenation of many strings, collect pieces in a list and join once. Repeatedly creating a larger immutable string can require quadratic total copying. Always test empty text, one character, repeated characters, and mixed case.</p><pre>def palindrome(text):
+    clean = &quot;&quot;.join(c.casefold() for c in text if c.isalnum())
+    left, right = 0, len(clean) - 1
+    while left &lt; right:
+        if clean[left] != clean[right]:
+            return False
+        left += 1
+        right -= 1
+    return True
+print(palindrome(&quot;Never odd or even&quot;))
+print(palindrome(&quot;Python&quot;))</pre><p>Output:</p><pre>True
+False</pre><p>The first string normalises to neveroddoreven. Each mirrored pair matches. Python fails on its first pair, p and n.</p><aside>The empty string is usually a palindrome under the standard definition; document that decision rather than allowing a test to surprise you.</aside><p><b>Your turn:</b> Count vowels in text without counting uppercase vowels differently.</p>
+<h3>04 · Unicode, bytes and safe conversion</h3><p>Text and binary data are different abstractions. str represents Unicode code points; bytes represents integers from 0 to 255. Encoding turns text into bytes using a named encoding such as UTF-8. Decoding reverses that operation when the bytes are valid for the encoding.</p><p>A character can occupy multiple bytes in UTF-8. Therefore len(text) and len(text.encode(&quot;utf-8&quot;)) can differ. Indexing bytes gives an integer; slicing bytes gives bytes. bytearray is a mutable binary sequence.</p><p>ord converts a one-character string to its code point; chr performs the inverse. Alphabetical order in Python strings is based on code-point lexicographic comparisons, not human-language collation. Visually identical text may use different Unicode sequences; unicodedata.normalize helps when a defined normalisation policy is needed.</p><p>Specify encoding explicitly for portable file processing. A UnicodeDecodeError means the bytes do not satisfy the chosen decoding rules. Ignoring errors can silently discard data; prefer detecting the actual encoding or reporting the problem. JSON and CSV parsing happen after bytes have been decoded into text.</p><pre>text = &quot;café&quot;
+data = text.encode(&quot;utf-8&quot;)
+print(len(text), len(data))
+print(data[0], data.decode(&quot;utf-8&quot;) == text)
+print(ord(&quot;A&quot;), chr(66))
+mutable = bytearray(b&quot;abc&quot;)
+mutable[0] = 65
+print(bytes(mutable))</pre><p>Output:</p><pre>4 5
+99 True
+65 B
+b&#x27;Abc&#x27;</pre><p>The final character occupies two bytes in UTF-8, so four code points use five bytes. The first byte is 99, the code for c. Changing bytearray position zero to 65 changes a to A.</p><aside>Do not assume a character is one byte, or that len counts visual grapheme clusters.</aside><p><b>Your turn:</b> Round-trip the string &quot;naïve&quot; through UTF-8 and compare its text length with its byte length.</p>
+<h2>Lists, tuples &amp; memory</h2>
+<h3>01 · Sequence operations and list methods</h3><p>A list is a mutable ordered sequence; a tuple is an immutable ordered sequence. Both support indexing, slicing, iteration, membership, concatenation and repetition. A one-element tuple needs a comma: (5,) is a tuple, (5) is an integer.</p><p>append(x) adds one object; extend(iterable) appends its elements. insert(i,x) inserts before index i. pop(i) removes and returns an item; remove(x) removes the first equal value. del can delete an index or slice. clear empties the list.</p><p>sort and reverse mutate a list and return None. sorted(iterable) creates a new list. Slicing creates a new outer sequence. Slice assignment such as a[1:3] = [9] can change list length; extended-slice assignment needs the same number of replacement elements as selected positions.</p><p>Sequence unpacking requires matching lengths unless a starred target absorbs remaining elements: first, *middle, last = values. Membership in a list typically scans; indexing is constant-time in the usual Python list model.</p><pre>a = [1, 2]
+a.append([3, 4])
+print(a)
+b = [1, 2]
+b.extend([3, 4])
+print(b)
+removed = b.pop(1)
+result = b.reverse()
+print(removed, b, result)
+print((5,), type((5)).__name__)</pre><p>Output:</p><pre>[1, 2, [3, 4]]
+[1, 2, 3, 4]
+2 [4, 3, 1] None
+(5,) int</pre><p>append keeps the nested list as one element. extend iterates through its two values. pop(1) removes 2; reverse changes b and returns None.</p><aside>a = a.sort() loses the reference to the sorted list by rebinding a to None.</aside><p><b>Your turn:</b> Remove duplicates from [3,1,3,2,1] while preserving the first occurrence order.</p>
+<h3>02 · Aliasing, shallow and deep copies</h3><p>a = [1,2]; b = a gives two names for one list. b.append(3) changes the shared object. b = [9] instead rebinds b to a different object and leaves a unchanged. Distinguish an arrow change (rebinding) from an object change (mutation).</p><p>b = a[:] or a.copy() creates a new outer list, but nested objects remain shared. A shallow copy is sufficient when inner objects will not be mutated or are immutable. deepcopy recursively copies nested structure while tracking objects already copied.</p><p>Equality == asks whether values compare equal; identity is asks whether the objects are the same. A shallow copy usually satisfies a == b and a is not b initially. Independent outer lists can still refer to identical inner objects.</p><p>With lists, += generally extends the existing object, whereas a = a + values creates a new list and rebinds a. Aliases observe the first operation but continue pointing to the old list after the second. These details explain many Python output questions.</p><pre>from copy import deepcopy
+a = [[1], [2]]
+b = a[:]
+c = deepcopy(a)
+b[0].append(9)
+b[1] = [7]
+print(a)
+print(b)
+print(c)
+print(a is b, a[0] is b[0])</pre><p>Output:</p><pre>[[1, 9], [2]]
+[[1, 9], [7]]
+[[1], [2]]
+False True</pre><p>b[0].append changes the inner list shared with a. b[1]=[7] replaces only one reference in b. c contains separately copied nested lists.</p><aside>A shallow copy protects the outer container, not arbitrary nested objects.</aside><p><b>Your turn:</b> Create aliases x and y for [1], execute x += [2], then x = x + [3]. Predict y after each line.</p>
+<h3>03 · Matrices and nested-container traps</h3><p>A matrix can be represented as a list of row lists. matrix[r][c] first selects a row, then a column. Define whether ragged rows are permitted; many matrix algorithms require equal row lengths.</p><p>[[0] * columns] * rows repeats references to the same row. Mutating one row through any position appears in every row. [[0] * columns for _ in range(rows)] evaluates the inner expression separately for each row and creates independent row objects.</p><p>Tuple immutability prevents replacing its element references, but a tuple may contain a mutable list whose contents can change. Consequently not every tuple is hashable: a tuple containing a list cannot be a dict key.</p><p>For a rectangular matrix, transpose swaps row and column positions. zip(*matrix) groups corresponding row elements and returns tuples; by default it stops at the shortest row. Use explicit shape validation if dropping values would be a bug.</p><pre>bad = [[0] * 3] * 2
+good = [[0] * 3 for _ in range(2)]
+bad[0][1] = 5
+good[0][1] = 5
+print(bad)
+print(good)
+t = ([1], 2)
+t[0].append(3)
+print(t)
+print(list(zip(*[[1, 2], [3, 4]])))</pre><p>Output:</p><pre>[[0, 5, 0], [0, 5, 0]]
+[[0, 5, 0], [0, 0, 0]]
+([1, 3], 2)
+[(1, 3), (2, 4)]</pre><p>Both entries in bad reference the same row. good has two rows. Mutating the list inside t changes the list, not which object the tuple points to.</p><aside>[[0]] * n repeats references, not independent lists. Multiplication is safe for the row of immutable integers, but not for the outer repeated row.</aside><p><b>Your turn:</b> Create a 3×3 identity matrix with independent rows.</p>
+<h2>Dictionaries &amp; sets</h2>
+<h3>01 · Dictionaries and hashable keys</h3><p>A dict maps unique keys to values. A new assignment to an existing key replaces its value; it does not create another entry. Modern Python preserves insertion order. Replacing a value does not move its key; deleting and reinserting does.</p><p>Keys must be hashable: their hash must remain stable and equality must agree with hashing. Integers, strings and tuples of hashable elements work. Lists, dicts and mutable sets do not. frozenset is immutable and hashable. True, 1 and 1.0 compare equal and address the same dictionary key.</p><p>d[k] raises KeyError if absent. d.get(k, default) returns a fallback without inserting. setdefault inserts a fallback when absent. in d checks keys; d.values() and d.items() expose values and key-value pairs. These views reflect later changes.</p><p>A hash table first uses a hash to narrow down where a key might be, then checks equality. Collisions are possible and must be resolved. Lookup, insertion and deletion are expected O(1) under suitable hashing, but can be O(n) in the worst case; hashing a long fresh string itself costs work.</p><pre>counts = {}
+for word in [&quot;data&quot;, &quot;python&quot;, &quot;data&quot;]:
+    counts[word] = counts.get(word, 0) + 1
+print(counts)
+print(&quot;python&quot; in counts, 2 in counts)
+d = {True: &quot;first&quot;, 1: &quot;second&quot;, 1.0: &quot;third&quot;}
+print(len(d), d[True])</pre><p>Output:</p><pre>{&#x27;data&#x27;: 2, &#x27;python&#x27;: 1}
+True False
+1 third</pre><p>Each repeated word updates a count. True, 1, and 1.0 identify equal numeric keys, so the final dict has one entry with the last value.</p><aside>get does not insert. Also, adding or removing keys while iterating a dictionary can raise RuntimeError; iterate a copy or collect changes first.</aside><p><b>Your turn:</b> Build a histogram for [2,2,3,1,3,3] without Counter.</p>
+<h3>02 · Sets and choosing the right container</h3><p>A set stores distinct hashable elements and supports membership, union |, intersection &amp;, difference -, and symmetric difference ^. Its iteration order is not a language-level insertion-order guarantee. Sort a set when you need deterministic ordered output.</p><p>{} creates an empty dictionary; set() creates an empty set. add inserts one element; update inserts elements from an iterable. remove raises KeyError when missing; discard does not. A subset test &lt;= includes equality; a proper subset test &lt; excludes equality.</p><p>Use a list for ordered sequences with duplicates, tuple for a fixed record, dict for key-to-value association, and set for uniqueness and membership. Order-preserving deduplication can use dict.fromkeys(values) when the values are hashable.</p><p>A set trades memory for fast expected membership. Building a set of n elements is expected O(n); repeatedly converting a list into a set inside a loop defeats the intended benefit. For unhashable records, choose a hashable key or a different comparison method.</p><pre>a, b = {1, 2, 3}, {3, 4}
+print(sorted(a | b))
+print(sorted(a &amp; b))
+print(sorted(a - b))
+print(sorted(a ^ b))
+print(list(dict.fromkeys([3, 1, 3, 2, 1])))</pre><p>Output:</p><pre>[1, 2, 3, 4]
+[3]
+[1, 2]
+[1, 2, 4]
+[3, 1, 2]</pre><p>Intersection keeps only 3. Symmetric difference keeps elements in exactly one set. dict.fromkeys retains the first insertion order of unique keys.</p><aside>Do not answer a question with a fixed set print order unless the question explicitly imposes one.</aside><p><b>Your turn:</b> Find IDs present in yesterday=[1,2,3] but absent today=[2,4].</p>
+<h3>03 · Counting and grouping patterns</h3><p>Counting stores one aggregate per key. Grouping stores a collection per key. collections.Counter handles counts; defaultdict(list) creates an empty list when a missing key is indexed. Ordinary dict plus setdefault is another option.</p><p>The two-sum pattern scans values while storing what has been seen. For each x, check whether target-x occurred earlier; then insert x. Checking before insertion prevents reusing the same position. This gives expected O(n) time and O(n) space.</p><p>To group anagrams, choose a canonical key: a sorted character tuple, or a fixed-alphabet frequency tuple. The key must preserve exactly the equivalence relation you intend. Case and punctuation handling must be explicit.</p><p>When using a mutable default value, create a new object for each group. dict.fromkeys(keys, []) gives every key the same list, much like repeated matrix rows. A comprehension {k: [] for k in keys} creates independent lists.</p><pre>from collections import Counter, defaultdict
+print(Counter(&quot;banana&quot;)[&quot;a&quot;])
+groups = defaultdict(list)
+for name, team in [(&quot;Asha&quot;, &quot;red&quot;), (&quot;Dev&quot;, &quot;blue&quot;), (&quot;Ira&quot;, &quot;red&quot;)]:
+    groups[team].append(name)
+print(dict(groups))
+def two_sum(values, target):
+    seen = {}
+    for i, x in enumerate(values):
+        if target - x in seen:
+            return seen[target - x], i
+        seen[x] = i
+    return None
+print(two_sum([3, 3, 8], 6))</pre><p>Output:</p><pre>3
+{&#x27;red&#x27;: [&#x27;Asha&#x27;, &#x27;Ira&#x27;], &#x27;blue&#x27;: [&#x27;Dev&#x27;]}
+(0, 1)</pre><p>The first 3 is stored at index 0; when the second 3 arrives, its complement has already been seen. The two indices are distinct.</p><aside>Do not initialise all grouping buckets with the same shared list.</aside><p><b>Your turn:</b> Group [&quot;ant&quot;,&quot;apple&quot;,&quot;bat&quot;,&quot;bee&quot;] by first letter.</p>
+<h2>Functions, scope &amp; recursion</h2>
+<h3>01 · Parameters, return and contracts</h3><p>A function packages a reusable computation. Define inputs, output, side effects and invalid-input behaviour. def creates a function object and binds its name; the body runs when called. return ends the call and sends a value to its caller.</p><p>A function without an executed value-return returns None. Printing and returning are different: printing is an output side effect; return makes a value available for further computation. Multiple return values are usually a tuple that the caller unpacks.</p><p>Parameters are local names bound to the argument objects. Mutating a passed list can affect the caller; rebinding the parameter cannot rebind the caller name. This model is often called call by object sharing; it is more precise than saying all arguments are copied.</p><p>A pure function gives the same output for the same inputs without changing external state. Pure cores are easier to test. Keep input parsing and printing near the edges of a program and computation inside functions.</p><pre>def summary(values):
+    if not values:
+        raise ValueError(&quot;at least one value required&quot;)
+    return min(values), max(values), sum(values) / len(values)
+low, high, mean = summary([2, 4, 9])
+print(low, high, mean)
+def touch(items):
+    items.append(3)
+    items = [99]
+a = [1, 2]
+print(touch(a))
+print(a)</pre><p>Output:</p><pre>2 9 5.0
+None
+[1, 2, 3]</pre><p>touch mutates the shared list, then rebinds only its local name. Its implicit return is None. summary returns a tuple of three values.</p><aside>A function that prints a result is not automatically usable as a numeric expression.</aside><p><b>Your turn:</b> Write safe_mean(values), returning None for an empty sequence.</p>
+<h3>02 · Arguments and the mutable-default trap</h3><p>Arguments may be positional or named. Defaults are evaluated when the def statement executes, not on every call. A mutable default can therefore retain modifications across calls. Use None as a sentinel and create a fresh object inside the function.</p><p>*args collects additional positional arguments into a tuple; **kwargs collects additional keyword arguments into a dict. At a call site, *sequence and **mapping unpack arguments. Positional-only parameters precede /; keyword-only parameters follow * or *args.</p><p>A default is a reference to the object at definition time. Reassigning a separate name later does not update that reference. Passing the same parameter both positionally and by keyword raises TypeError.</p><p>Prefer an explicit, small signature over accepting arbitrary arguments without validation. Document whether a function mutates inputs and what types it expects. Type annotations help readers and tools but do not automatically enforce types at runtime.</p><pre>def collect_bad(x, bucket=[]):
+    bucket.append(x)
+    return bucket
+print(collect_bad(1))
+print(collect_bad(2))
+def collect(x, bucket=None):
+    if bucket is None:
+        bucket = []
+    bucket.append(x)
+    return bucket
+print(collect(1), collect(2))
+def scale(x, *, factor=2):
+    return x * factor
+print(scale(3, factor=4))</pre><p>Output:</p><pre>[1]
+[1, 2]
+[1] [2]
+12</pre><p>collect_bad reuses its one default list. collect creates a new list on each omitted-bucket call. factor is keyword-only.</p><aside>The bad example is intentionally wrong for independent collections; shared defaults can be deliberate, but should not be accidental.</aside><p><b>Your turn:</b> Implement total(*values, offset=0) and call it with an unpacked list.</p>
+<h3>03 · Scope, closures and name lookup</h3><p>For ordinary function bodies, name lookup follows Local, Enclosing function scopes, Global module scope, and Built-ins (LEGB). Assignment in a function normally makes that name local throughout the function, even before the assignment executes.</p><p>Reading a local name before it has been bound raises UnboundLocalError. global targets a module-level name; nonlocal targets an already existing binding in an enclosing function. Neither is needed merely to mutate an object reached through a name.</p><p>A closure retains access to its enclosing bindings after the outer function returns. It does not freeze the values of loop variables at creation time. Several lambdas can therefore all observe the final loop value.</p><p>Capture a value deliberately with a default parameter, or build each closure in a helper call with a distinct local binding. Avoid unnecessary globals: explicit parameters make dependencies visible and tests independent.</p><pre>x = 10
+def outer():
+    count = 0
+    def step():
+        nonlocal count
+        count += 1
+        return count
+    return step
+counter = outer()
+print(counter(), counter(), x)
+late = [lambda: i for i in range(3)]
+early = [lambda i=i: i for i in range(3)]
+print([f() for f in late])
+print([f() for f in early])</pre><p>Output:</p><pre>1 2 10
+[2, 2, 2]
+[0, 1, 2]</pre><p>counter retains one count binding and increments it twice. The late lambdas share the loop binding; the early lambdas each store a default value.</p><aside>A name is not automatically global because it has not yet been assigned on the current execution path. Assignment anywhere in the function normally classifies it as local.</aside><p><b>Your turn:</b> Create make_multiplier(k) returning a function that multiplies its input by k.</p>
+<h3>04 · Recursion: descent, base case, unwind</h3><p>A recursive function solves a problem using smaller instances of itself. You need a base case, a reduction that reaches it, and a rule that combines the smaller answer. A base case alone is not enough if some inputs move away from it.</p><p>Every active call has its own local parameters and pending work. For factorial(4), the multiplication by 4 waits for factorial(3), which waits for factorial(2), and so on. Returning from the base case unwinds these pending operations in reverse order.</p><p>Distinguish printing before a recursive call from printing after it. Before-call output appears during descent; after-call output appears during unwind. Draw frames and return values rather than trying to simulate everything mentally.</p><p>A linear-depth recursive routine uses O(n) call-stack space even if each frame has only a few variables. Python has a recursion limit and does not generally eliminate tail calls. Iteration is preferable for very deep simple recurrences.</p><pre>def factorial(n):
+    if n &lt; 0:
+        raise ValueError(&quot;n must be nonnegative&quot;)
+    if n == 0:
+        return 1
+    return n * factorial(n - 1)
+print(factorial(4))
+def trace(n):
+    if n == 0:
+        return
+    print(&quot;enter&quot;, n)
+    trace(n - 1)
+    print(&quot;leave&quot;, n)
+trace(3)</pre><p>Output:</p><pre>24
+enter 3
+enter 2
+enter 1
+leave 1
+leave 2
+leave 3</pre><p>factorial reaches 0 then returns 1, 1, 2, 6 and 24. trace prints enter on descent and leave on unwind.</p><aside>Do not forget the recursive call consumes stack space. Raising the recursion limit is not a substitute for choosing an appropriate algorithm.</aside><p><b>Your turn:</b> Write recursive sum_digits(n) for nonnegative integers, using // and %.</p>
+<h3>05 · Repeated work and memoisation</h3><p>A branching recursion can solve the same subproblem many times. Naive Fibonacci computes fib(n-1) and fib(n-2), whose recursion trees overlap. Its running time grows exponentially, although the maximum stack depth is only O(n).</p><p>Memoisation stores answers by input so each distinct subproblem is computed once. functools.cache provides an unbounded memo table for hashable arguments. Cached functions should be deterministic for their arguments; mutable external state can make cached answers stale.</p><p>Bottom-up dynamic programming computes smaller results first. Fibonacci needs only the previous two values, so an iterative implementation can use O(1) auxiliary variables. For huge integers, arithmetic bit costs and output size still grow.</p><p>Euclid’s gcd recursion uses gcd(a,b)=gcd(b,a%b), ending at b=0. Its argument shrinks rapidly; it is an example where recursive depth is logarithmic rather than linear. Recursion cost depends on the actual reduction and branching, not the presence of def calling itself.</p><pre>from functools import cache
+@cache
+def fib(n):
+    if n &lt; 2:
+        return n
+    return fib(n - 1) + fib(n - 2)
+print(fib(10))
+def fib_loop(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+def gcd(a, b):
+    return abs(a) if b == 0 else gcd(b, a % b)
+print(fib_loop(10), gcd(48, 18))</pre><p>Output:</p><pre>55
+55 6</pre><p>The memoised function evaluates each argument from 0 to 10 once. The loop advances the pair (F(k),F(k+1)). Euclid follows (48,18)→(18,12)→(12,6)→(6,0).</p><aside>A cache is useful only when repeated calls reuse results; it also consumes memory and requires hashable inputs.</aside><p><b>Your turn:</b> Compare fib_loop with fib for every n from 0 through 20.</p>
+<h2>Write expressive Python</h2>
+<h3>01 · Comprehensions and iteration helpers</h3><p>A comprehension describes a new collection from an iterable: [expression for x in source if condition]. Read it as a loop plus optional filtering. Dict and set comprehensions use braces with key:value or element expressions.</p><p>Nested comprehension clauses follow the same left-to-right order as nested loops. [x for row in matrix for x in row] flattens rows. A conditional expression before for transforms every item; an if after for filters items out.</p><p>enumerate supplies index-value pairs; zip aligns multiple iterables and by default stops at the shortest. zip(..., strict=True) (Python 3.10+) raises if lengths differ. Use unpacking instead of manually indexing parallel arrays when possible.</p><p>any short-circuits at the first true item; all at the first false item. any([]) is False and all([]) is True. sum can count Boolean predicates because True and False act as 1 and 0 in arithmetic.</p><pre>values = [-2, -1, 0, 1, 2]
+print([x * x for x in values if x &gt; 0])
+print([&quot;+&quot; if x &gt; 0 else &quot;-&quot; for x in values])
+print([(i, value) for i, value in enumerate([&quot;a&quot;, &quot;b&quot;], start=1)])
+print(list(zip([1, 2, 3], [&quot;x&quot;, &quot;y&quot;])))
+print(any([]), all([]))</pre><p>Output:</p><pre>[1, 4]
+[&#x27;-&#x27;, &#x27;-&#x27;, &#x27;-&#x27;, &#x27;+&#x27;, &#x27;+&#x27;]
+[(1, &#x27;a&#x27;), (2, &#x27;b&#x27;)]
+[(1, &#x27;x&#x27;), (2, &#x27;y&#x27;)]
+False True</pre><p>The first expression filters; the second maps all five inputs. zip creates only two pairs because one input ends.</p><aside>Dense comprehensions can hide logic. Use an ordinary loop when there are several updates, exceptions, or side effects.</aside><p><b>Your turn:</b> Flatten [[1,2],[],[3,4]] and keep only even values.</p>
+<h3>02 · Iterators and generators</h3><p>An iterable can provide an iterator with iter(). An iterator produces the next value with next() and raises StopIteration when exhausted. A list is reusable; a particular iterator is consumed as it advances.</p><p>A generator function contains yield. Calling it creates a generator without immediately executing the body. Each next resumes until the next yield; local state is suspended between yields. return ends iteration.</p><p>A generator expression uses parentheses and computes values lazily. This avoids materialising a large intermediate list when the consumer processes values one at a time. The source itself may still occupy memory.</p><p>map, filter, zip and enumerate produce lazy iterator objects in Python 3. Converting to list consumes them. To iterate twice, recreate the iterator or deliberately materialise it. Laziness also means errors may occur during consumption rather than construction.</p><pre>def squares(n):
+    for i in range(n):
+        yield i * i
+g = squares(4)
+print(next(g))
+print(list(g))
+print(list(g))
+it = iter([10, 20])
+print(next(it), next(it), next(it, &quot;done&quot;))</pre><p>Output:</p><pre>0
+[1, 4, 9]
+[]
+10 20 done</pre><p>The first next consumes 0. list consumes the remaining three values. The exhausted generator subsequently produces no values. The default argument to next avoids StopIteration.</p><aside>A generator is not an automatically reusable list. Saving it does not save all its produced values.</aside><p><b>Your turn:</b> Write a generator yielding running totals of [2,5,-1].</p>
+<h3>03 · Functions as values and stable sorting</h3><p>Functions can be passed as arguments, returned, or stored in containers. lambda creates a function from one expression; def is clearer for multi-step logic. A key function transforms each item into the value used for ordering.</p><p>sorted returns a new list; list.sort mutates. Python sorting is stable: elements with equal keys retain their original relative order. A tuple key compares lexicographically, letting you express primary and secondary criteria.</p><p>To sort by descending score then ascending name, use key=lambda row: (-row[1], row[0]). reverse=True reverses the full ordering, which is different when only one criterion should descend.</p><p>min and max also accept key and, for an iterable, a default for empty input. Sorting all n elements to find one minimum does unnecessary O(n log n) work compared with one O(n) scan. Think about what result is actually required.</p><pre>rows = [(&quot;Ira&quot;, 80), (&quot;Dev&quot;, 90), (&quot;Asha&quot;, 90)]
+print(sorted(rows, key=lambda row: (-row[1], row[0])))
+print(rows)
+print(max(rows, key=lambda row: row[1]))
+words = [&quot;aa&quot;, &quot;b&quot;, &quot;cc&quot;, &quot;d&quot;]
+print(sorted(words, key=len))</pre><p>Output:</p><pre>[(&#x27;Asha&#x27;, 90), (&#x27;Dev&#x27;, 90), (&#x27;Ira&#x27;, 80)]
+[(&#x27;Ira&#x27;, 80), (&#x27;Dev&#x27;, 90), (&#x27;Asha&#x27;, 90)]
+(&#x27;Dev&#x27;, 90)
+[&#x27;b&#x27;, &#x27;d&#x27;, &#x27;aa&#x27;, &#x27;cc&#x27;]</pre><p>Scores descend through negation, then names ascend. max returns the first maximum encountered. Stable sorting preserves b before d and aa before cc.</p><aside>reverse=True does not mean reverse only the first component of a tuple key.</aside><p><b>Your turn:</b> Sort [&quot;pear&quot;,&quot;fig&quot;,&quot;apple&quot;,&quot;kiwi&quot;] by length, breaking ties alphabetically.</p>
+<h2>Build reliable programs</h2>
+<h3>01 · Exceptions and debugging deliberately</h3><p>Read a traceback from its final exception line, then inspect the relevant frames and source lines. SyntaxError concerns parsing; NameError an unresolved name; TypeError an unsuitable operation/type; ValueError an unsuitable value; IndexError an invalid sequence index; KeyError an absent mapping key.</p><p>try handles only exceptions raised in its suite. except should name the specific exceptions you can meaningfully handle. else runs when the try suite succeeds; finally runs during normal exit and exception unwinding. A return in finally can suppress an earlier return or exception and should generally be avoided.</p><p>raise communicates a failed contract. Use ValueError for an invalid value and TypeError for an incompatible type when writing a reusable API. Do not hide every error with except: pass; unexpected failures then become much harder to diagnose.</p><p>Debug systematically: reproduce with the smallest input, state the expected result, inspect intermediate values using repr, change one hypothesis at a time, and add a regression test. Assertions express programmer expectations, but may be removed in optimised execution; do not use them as the only validation for user input.</p><pre>def parse_nonnegative(text):
+    value = int(text)
+    if value &lt; 0:
+        raise ValueError(&quot;negative value&quot;)
+    return value
+for text in [&quot;12&quot;, &quot;oops&quot;, &quot;-3&quot;]:
+    try:
+        value = parse_nonnegative(text)
+    except ValueError:
+        print(&quot;invalid:&quot;, text)
+    else:
+        print(&quot;accepted:&quot;, value)</pre><p>Output:</p><pre>accepted: 12
+invalid: oops
+invalid: -3</pre><p>The second input fails conversion; the third fails the explicit range check. Both are handled as invalid user values.</p><aside>Catching Exception around an entire application can conceal coding errors. Handle failures close to where recovery makes sense.</aside><p><b>Your turn:</b> Convert a list of strings into integers, collecting invalid entries separately.</p>
+<h3>02 · Tests and edge cases</h3><p>A test compares observed behaviour to a specification. Include typical examples, boundaries, empty input, singleton input, duplicates, negative values, and invalid input where relevant. A function that passes one demonstration is not established as correct.</p><p>Use assertions for small development checks and unittest or another test runner for a growing project. Each test should be independent. Test returned values and intended mutation, not merely whether execution produces no exception.</p><p>Properties can catch errors beyond fixed examples: sorting should preserve length and element counts, reversing twice should recover the sequence, and normalising an already normalised value should leave it unchanged. Randomised tests can help, but use a seed for reproducibility.</p><p>Use a simple trusted method as an oracle for small inputs, then compare a faster implementation. Testing increases confidence; an invariant or proof explains why an algorithm works for all valid inputs. Both are useful for exam reasoning.</p><pre>def unique_in_order(values):
+    return list(dict.fromkeys(values))
+cases = [([], []), ([1], [1]), ([2, 1, 2, 3, 1], [2, 1, 3])]
+for values, expected in cases:
+    before = values[:]
+    assert unique_in_order(values) == expected
+    assert values == before
+print(&quot;3 cases passed&quot;)</pre><p>Output:</p><pre>3 cases passed</pre><p>The second assertion checks a non-mutation promise. A correct output is insufficient if the function unexpectedly damages its input.</p><aside>Do not generate expected answers using the same buggy algorithm under test.</aside><p><b>Your turn:</b> Write tests for a palindrome function, including empty text and mixed case.</p>
+<h3>03 · Files, JSON, CSV and context managers</h3><p>Use with open(path, mode, encoding=&quot;utf-8&quot;) as f to close a file even when processing raises an exception. r reads, w truncates or creates, a appends, and x creates only if absent. Binary modes use bytes rather than text strings.</p><p>read loads content; iterating over a file reads lines progressively. write returns the number of characters written and does not append a newline automatically. Relative paths are resolved from the current working directory, not necessarily the script directory.</p><p>json encodes structured objects such as lists and dicts. JSON object keys are strings; JSON has no tuple or set type. csv handles delimiters and quoting correctly; use newline=&quot;&quot; when opening CSV files. Never use eval to load a data file.</p><p>The browser lab uses a temporary virtual filesystem, separate from your computer. Each run starts fresh. Download the .py example and run it locally to create persistent local files. Explicitly choosing paths and encoding avoids many portability surprises.</p><pre>import json, csv, io
+data = {&quot;topic&quot;: &quot;Python&quot;, &quot;scores&quot;: [8, 9, 10]}
+with open(&quot;progress.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(data, f)
+with open(&quot;progress.json&quot;, encoding=&quot;utf-8&quot;) as f:
+    restored = json.load(f)
+print(restored[&quot;scores&quot;])
+text = &#x27;name,score\n&quot;Rao, A&quot;,90\nDev,80\n&#x27;
+rows = list(csv.DictReader(io.StringIO(text)))
+print(rows[0][&quot;name&quot;], rows[0][&quot;score&quot;])</pre><p>Output:</p><pre>[8, 9, 10]
+Rao, A 90</pre><p>The quoted comma belongs inside the first name. csv recognises that structure; a plain comma split would incorrectly create three fields. CSV values remain strings until explicitly converted.</p><aside>Opening an existing file with w erases its previous content. Know the mode before writing.</aside><p><b>Your turn:</b> Round-trip a list of two student records through JSON and verify equality.</p>
+<h3>04 · Modules and a practical workflow</h3><p>A module is a Python file with its own namespace. import math binds the module name; from math import sqrt binds a particular attribute. Avoid wildcard imports because they obscure where names came from. Do not name your own file random.py or json.py when you need the standard module.</p><p>A script commonly puts orchestration in main() and calls it under if __name__ == &quot;__main__&quot;. When imported, the module can expose reusable functions without automatically running its command-line workflow. Top-level code still executes on first import.</p><p>Use python -m venv .venv to create a project environment and python -m pip install package to install into the chosen interpreter. Record dependencies for reproducibility. This course’s examples use the standard library; NumPy and pandas are useful later, but not prerequisites here.</p><p>Develop in a cycle: write a small specification, implement one function, run tests, inspect failures, refactor, and document. Use version control for meaningful checkpoints. A docstring explains a function’s contract; comments should explain a non-obvious reason rather than restating every line.</p><pre>import math
+def distance(x1, y1, x2, y2):
+    &quot;&quot;&quot;Return Euclidean distance between two 2D points.&quot;&quot;&quot;
+    return math.hypot(x2 - x1, y2 - y1)
+def main():
+    print(distance(0, 0, 3, 4))
+if __name__ == &quot;__main__&quot;:
+    main()</pre><p>Output:</p><pre>5.0</pre><p>math.hypot computes the length robustly. The guard runs main when executed as a script. Imported callers can use distance without that print.</p><aside>A module name can be shadowed by a local file or variable of the same name.</aside><p><b>Your turn:</b> Extract a reusable clamp(x,low,high) function with validation and three tests.</p>
+<h2>Objects &amp; advanced tools</h2>
+<h3>01 · Classes and independent state</h3><p>A class defines a type whose instances combine state and behaviour. __init__ initialises a new instance; self refers to the instance receiving a method call. Calling item.method(x) supplies item as self automatically.</p><p>Instance attributes belong to one object; class attributes are shared through the class. Put per-instance mutable collections inside __init__. A shared class-level list can accidentally mix the state of every instance.</p><p>Methods can enforce invariants: a bank balance or queue length should stay valid after each operation. Python conventions such as a leading underscore communicate internal implementation details; they are not strict access-control barriers.</p><p>Use a class when related state and operations form a coherent concept. A simple transformation may be clearer as a function. For data records, dataclasses reduce boilerplate; a mutable dataclass field should use field(default_factory=list), not a shared list.</p><pre>class StudyLog:
+    def __init__(self, name):
+        self.name = name
+        self.minutes = []
+    def add(self, minutes):
+        if minutes &lt; 0:
+            raise ValueError(&quot;negative duration&quot;)
+        self.minutes.append(minutes)
+    def total(self):
+        return sum(self.minutes)
+a, b = StudyLog(&quot;Asha&quot;), StudyLog(&quot;Dev&quot;)
+a.add(25)
+a.add(30)
+print(a.total(), b.total())</pre><p>Output:</p><pre>55 0</pre><p>Each constructor call creates a separate list. Adding to a does not change b. Methods protect the nonnegative-duration contract.</p><aside>Defining minutes=[] on the class would share one list unless each instance explicitly overrides it.</aside><p><b>Your turn:</b> Add an average method that returns zero when no sessions exist.</p>
+<h3>02 · Protocols, composition and inheritance</h3><p>Python often cares about supported behaviour rather than an exact class. An iterable supplies iteration; a sized object supports len; a context manager supports with. This behavioural approach is often called duck typing.</p><p>Special methods let objects participate in language operations: __len__, __iter__, __repr__, __eq__, and others. Implement only meaningful operations and keep their contracts consistent. If you define equality for mutable objects, do not casually make them hashable.</p><p>Composition places one object inside another to reuse behaviour. Inheritance expresses an is-a relationship and lets subclasses override methods; super() follows the method resolution order. Prefer a simple design over a deep hierarchy.</p><p>Equality and identity remain different for objects. Unless a class defines value equality, two separately created instances typically compare unequal. dataclass can generate value-based comparison and a useful representation; frozen prevents normal field reassignment but is not deep immutability of nested objects.</p><pre>from dataclasses import dataclass, field
+@dataclass
+class Playlist:
+    name: str
+    tracks: list = field(default_factory=list)
+    def __len__(self):
+        return len(self.tracks)
+    def __iter__(self):
+        return iter(self.tracks)
+p = Playlist(&quot;Focus&quot;, [&quot;alpha&quot;, &quot;beta&quot;])
+print(len(p), list(p))
+print(Playlist(&quot;Empty&quot;) == Playlist(&quot;Empty&quot;))</pre><p>Output:</p><pre>2 [&#x27;alpha&#x27;, &#x27;beta&#x27;]
+True</pre><p>len and list use the protocols implemented by the object. dataclass-generated equality compares fields of matching class instances.</p><aside>A frozen dataclass containing a list still contains a mutable list; shallow freezing does not recursively freeze everything.</aside><p><b>Your turn:</b> Model a Point(x,y) record and compare two equal coordinate pairs.</p>
+<h3>03 · Decorators, context and advanced boundaries</h3><p>A decorator takes a function (or class) and returns a replacement. @decorate above def f is roughly f = decorate(f). A wrapper can add timing, validation, logging or caching. functools.wraps preserves useful metadata of the wrapped function.</p><p>A closure lets the wrapper remember the original function. Accepting *args and **kwargs forwards a flexible signature. Always return the wrapped function’s result unless deliberately changing the contract.</p><p>A context manager brackets an operation with setup and cleanup. with is useful for files and resources; contextlib.contextmanager can implement one using a generator with a single yield and cleanup in finally.</p><p>Advanced Python also includes async/await, concurrency, descriptors and metaclasses. They are professional specialisations, not individually named DA programming subtopics. This course gives the foundations needed to learn them; it does not treat every Python library or implementation detail as a GATE requirement.</p><pre>from functools import wraps
+def announce(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        print(&quot;calling&quot;, fn.__name__)
+        return fn(*args, **kwargs)
+    return wrapper
+@announce
+def square(x):
+    return x * x
+print(square(5))</pre><p>Output:</p><pre>calling square
+25</pre><p>The decorator replaces square with a wrapper that retains the original function. The wrapper logs and then returns 25 to print.</p><aside>A wrapper that forgets return silently converts successful function results into None.</aside><p><b>Your turn:</b> Write a decorator that rejects negative first arguments and preserves the original result.</p>
+<h2>Reason about algorithms</h2>
+<h3>01 · Time and space from code</h3><p>Choose the input size first: n might be list length, number of vertices, or number of digits. Count dominant operations as a function of n. Big-O is an asymptotic upper bound; Theta is a tight growth bound; Omega is a lower bound. State best, average or worst case where needed.</p><p>Sequential loops add costs; nested loops do not always multiply by n blindly. A triangular loop has n(n-1)/2 iterations and is Theta(n²). A loop halving its positive integer counter has Theta(log n) iterations. An early return can make best and worst cases different.</p><p>Under the standard list model, indexing and len are O(1), append is amortised O(1), and front insertion/removal is O(n). A length-k slice allocates O(k) space and takes O(k) time. Membership in a list is O(n), whereas hash containers offer expected O(1) lookup with caveats.</p><p>Auxiliary space excludes the input unless stated otherwise. Include recursion stack and allocated slices. Complexity statements often assume constant-cost arithmetic on bounded-size values; Python’s arbitrary-precision integers can violate that assumption for huge numbers.</p><pre>def operations(n):
+    count = 0
+    for i in range(n):
+        for j in range(i):
+            count += 1
+    return count
+for n in [0, 1, 4, 8]:
+    print(n, operations(n), n * (n - 1) // 2)</pre><p>Output:</p><pre>0 0 0
+1 0 0
+4 6 6
+8 28 28</pre><p>Exact counts agree with the triangular-number formula. Doubling a large n approximately quadruples this count.</p><aside>O(n²) does not mean exactly n² operations. Also, O(n) can be a valid but loose upper bound for an O(1) routine.</aside><p><b>Your turn:</b> Count iterations of repeated integer halving for n=1,2,8,9.</p>
+<h3>02 · Prefix sums and sliding windows</h3><p>For repeated range-sum queries, precompute prefix[0]=0 and prefix[i+1]=prefix[i]+a[i]. Then the sum over the half-open interval [left,right) is prefix[right]-prefix[left]. Building costs O(n); each query costs O(1).</p><p>A fixed-width sliding window updates the previous sum by removing the outgoing value and adding the incoming value. This avoids recomputing each width-k sum from scratch. Keep the invariant that the variable equals the current window’s sum.</p><p>Validate k: it should be positive and no larger than the input length for the usual full-window problem. Initialise the best sum from the first real window rather than zero so all-negative inputs work.</p><p>Two pointers can also solve variable-window problems, but the rule for moving pointers needs a proof. For example, expanding a sum window is monotone for nonnegative values; negative values can invalidate a strategy that assumes every expansion increases the sum.</p><pre>a = [2, -1, 4, 3, -2]
+prefix = [0]
+for x in a:
+    prefix.append(prefix[-1] + x)
+print(prefix)
+print(prefix[4] - prefix[1])
+k = 3
+window = best = sum(a[:k])
+for right in range(k, len(a)):
+    window += a[right] - a[right-k]
+    best = max(best, window)
+print(best)</pre><p>Output:</p><pre>[0, 2, 1, 5, 8, 6]
+6
+6</pre><p>The query covers a[1:4], whose sum is -1+4+3=6. Width-three sums are 5,6,5, so the maximum is 6.</p><aside>A half-open [left,right) query excludes right. Prefix arrays have n+1 entries for this convention.</aside><p><b>Your turn:</b> Implement maximum sum of any two consecutive elements in [-8,-3,-5].</p>
+<h3>03 · Linear and binary search</h3><p>Linear search examines elements until it finds a match. It works on unsorted sequences and costs O(n) in the worst case. Specify whether you want any occurrence, the first occurrence, or all occurrences.</p><p>Binary search needs an ordered search space and a predicate that divides it consistently. With half-open bounds [lo,hi), use mid=(lo+hi)//2 and discard a half while preserving the invariant that the answer lies in the retained interval.</p><p>A lower-bound search returns the first index where a[i]&gt;=target. If all elements are smaller, it returns n. It handles duplicates naturally. Membership is then pos&lt;n and a[pos]==target. bisect_left implements this position search in the standard library.</p><p>Each iteration shrinks the interval, giving O(log n) comparisons. Searching by slicing recursively can add copying costs; indices avoid this. Inserting into a list at the located position still takes O(n) shifting time.</p><pre>def lower_bound(a, target):
+    lo, hi = 0, len(a)
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if a[mid] &lt; target:
+            lo = mid + 1
+        else:
+            hi = mid
+    return lo
+a = [1, 3, 3, 7]
+for target in [0, 3, 5, 9]:
+    print(target, lower_bound(a, target))</pre><p>Output:</p><pre>0 0
+3 1
+5 3
+9 4</pre><p>For 3 the first eligible position is 1. For 5 it is 3, before 7. For 9 no eligible element exists, so return len(a)=4.</p><aside>Binary search on unsorted data is not correct merely because the code terminates.</aside><p><b>Your turn:</b> Test lower_bound against bisect_left on empty, singleton and duplicate-containing lists.</p>
+<h2>Data structures in Python</h2>
+<h3>01 · Stack and queue behaviour</h3><p>A stack is last-in, first-out. A list supports push via append and pop from the end. A queue is first-in, first-out; collections.deque supports append and popleft efficiently. Using list.pop(0) shifts remaining elements and costs O(n).</p><p>Stacks model pending work, undo history and matched delimiters. To check balanced parentheses, push opening symbols, and require each closing symbol to match the most recent opening one. At the end the stack must be empty.</p><p>Queues model tasks waiting in arrival order and breadth-first exploration. Always define what happens when removing from an empty container. For a bounded circular queue, head and tail indices wrap modulo capacity; distinguish full and empty states explicitly.</p><p>The abstract data type specifies behaviour; a representation implements it. A linked list or array can implement a stack or queue with different performance trade-offs. Do not confuse the FIFO/LIFO contract with one specific Python class.</p><pre>from collections import deque
+stack = []
+stack.append(&quot;A&quot;); stack.append(&quot;B&quot;)
+print(stack.pop())
+queue = deque([&quot;A&quot;, &quot;B&quot;])
+print(queue.popleft())
+def balanced(text):
+    stack, pairs = [], {&#x27;)&#x27;: &#x27;(&#x27;, &#x27;]&#x27;: &#x27;[&#x27;, &#x27;}&#x27;: &#x27;{&#x27;}
+    for c in text:
+        if c in &quot;([{&quot;: stack.append(c)
+        elif c in pairs:
+            if not stack or stack.pop() != pairs[c]: return False
+    return not stack
+print(balanced(&quot;([{}])&quot;), balanced(&quot;([)]&quot;))</pre><p>Output:</p><pre>B
+A
+True False</pre><p>A stack removes B because it arrived last; the queue removes A because it arrived first. The mismatched delimiter example fails when ) expects ( but [ is on top.</p><aside>Ignoring the empty-stack case can turn an invalid string into an IndexError rather than a clean False.</aside><p><b>Your turn:</b> Use a deque to simulate serving three named tasks in arrival order.</p>
+<h3>02 · Linked nodes and binary trees</h3><p>A singly linked list stores a value and a reference to the next node. Accessing the k-th item requires following links, so it is O(k). Inserting after a known node is O(1); finding that node may cost O(n).</p><p>A binary tree has at most two children per node. Preorder visits root-left-right; inorder visits left-root-right; postorder visits left-right-root. These are recursive definitions that naturally map to call frames.</p><p>A binary search tree maintains an ordering rule: left keys are smaller and right keys larger, with a declared duplicate policy. Inorder traversal yields sorted keys. Search costs O(h), where h is height; a skewed tree may have h=O(n).</p><p>A heap is different from a BST: the parent priority is no greater than its children in a min-heap, but sibling/subtree keys are not globally ordered. heapq supports O(log n) push/pop and O(n) heap construction. These are bridges; full tree algorithms require additional deliberate practice.</p><pre>class Node:
+    def __init__(self, value, left=None, right=None):
+        self.value, self.left, self.right = value, left, right
+def inorder(node):
+    if node is None:
+        return []
+    return inorder(node.left) + [node.value] + inorder(node.right)
+root = Node(4, Node(2, Node(1), Node(3)), Node(6))
+print(inorder(root))
+import heapq
+heap = [7, 2, 5, 1]
+heapq.heapify(heap)
+print([heapq.heappop(heap) for _ in range(4)])</pre><p>Output:</p><pre>[1, 2, 3, 4, 6]
+[1, 2, 5, 7]</pre><p>Inorder recursively completes the left subtree before the root. heapify establishes the heap property, and repeated pops produce ascending values. The simple traversal uses concatenation for clarity; a generator avoids repeated list copies.</p><aside>A BST is not automatically balanced. O(log n) search requires a logarithmic-height tree.</aside><p><b>Your turn:</b> Rewrite inorder as a generator using yield from.</p>
+<h3>03 · Graphs, visited state and BFS</h3><p>A graph consists of vertices and edges. An adjacency list maps each vertex to its neighbours and typically uses O(V+E) space; an adjacency matrix uses O(V²). Directed edges need not be symmetric; undirected edges appear in both adjacency lists.</p><p>Breadth-first search uses a queue and discovers vertices in distance layers. Mark a vertex visited when enqueuing, not only when removing it, to prevent duplicate work. In an unweighted graph, the first discovered distance is a shortest path length in number of edges.</p><p>Depth-first search explores deeply using recursion or an explicit stack. Both BFS and DFS need visited state for cyclic graphs. With adjacency lists they run in O(V+E) over the visited graph. Traversal order within a layer depends on neighbour order.</p><p>BFS does not solve arbitrary weighted shortest paths. Dijkstra requires nonnegative edge weights; negative weights need other reasoning. This lesson provides Python implementation literacy; the full graph/shortest-path syllabus remains a separate DSA study unit.</p><pre>from collections import deque
+graph = {&#x27;A&#x27;: [&#x27;B&#x27;, &#x27;C&#x27;], &#x27;B&#x27;: [&#x27;A&#x27;, &#x27;D&#x27;], &#x27;C&#x27;: [&#x27;A&#x27;, &#x27;D&#x27;], &#x27;D&#x27;: [&#x27;B&#x27;, &#x27;C&#x27;]}
+def bfs(graph, start):
+    distance, queue = {start: 0}, deque([start])
+    while queue:
+        u = queue.popleft()
+        for v in graph[u]:
+            if v not in distance:
+                distance[v] = distance[u] + 1
+                queue.append(v)
+    return distance
+print(bfs(graph, &#x27;A&#x27;))</pre><p>Output:</p><pre>{&#x27;A&#x27;: 0, &#x27;B&#x27;: 1, &#x27;C&#x27;: 1, &#x27;D&#x27;: 2}</pre><p>A discovers B and C at distance 1. B discovers D at distance 2. When C sees D, it is already recorded and is not enqueued again.</p><aside>A graph may be disconnected. A traversal from one start visits only its reachable component.</aside><p><b>Your turn:</b> Add an isolated vertex E and verify it is absent from bfs(graph,&quot;A&quot;).</p>
+<h2>Build, explain, revise</h2>
+<h3>01 · Project: a study-session analyser</h3><p>Goal: take records with topic and minutes, reject malformed values, and report total minutes per topic. Separate validation, aggregation and presentation. This is a useful pattern for logs, expenses and analytics pipelines.</p><p>Define the contract: each row has a string topic and a nonnegative integer duration. Because bool subclasses int, a strict integer-duration check can use type(value) is int if True should be rejected.</p><p>The aggregation is a dict keyed by normalised topic. Normalisation strips extra spaces and folds case; an empty result is invalid. Keep rejected row indices so the user can repair the data instead of silently losing it.</p><p>Extend the project with CSV input, JSON output and a command-line interface after the pure aggregation function works. Test the pure function first; testing it should not require real files or keyboard input.</p><pre>def analyse(rows):
+    totals, rejected = {}, []
+    for i, row in enumerate(rows):
+        topic, minutes = row.get(&#x27;topic&#x27;), row.get(&#x27;minutes&#x27;)
+        if not isinstance(topic, str) or not topic.strip() or type(minutes) is not int or minutes &lt; 0:
+            rejected.append(i)
+            continue
+        topic = &#x27; &#x27;.join(topic.casefold().split())
+        totals[topic] = totals.get(topic, 0) + minutes
+    return totals, rejected
+rows = [{&#x27;topic&#x27;:&#x27; Python &#x27;, &#x27;minutes&#x27;:25}, {&#x27;topic&#x27;:&#x27;python&#x27;, &#x27;minutes&#x27;:35}, {&#x27;topic&#x27;:&#x27;loops&#x27;,&#x27;minutes&#x27;:-1}]
+print(analyse(rows))</pre><p>Output:</p><pre>({&#x27;python&#x27;: 60}, [2])</pre><p>Two normalised Python rows combine into 60 minutes. The negative duration is rejected with its original index. The contract assumes every row is a mapping; add validation if arbitrary objects are allowed.</p><aside>A silent skip hides data quality problems. Keep a useful error trail.</aside><p><b>Your turn:</b> Add tests for an empty list, an empty topic, a Boolean duration, and repeated normalised topics.</p>
+<h3>02 · Project: a text-frequency report</h3><p>Goal: extract words, count them, and display a deterministic top-k report. Decide what a word means. This example uses runs of ASCII letters for an explicitly English-only input contract; multilingual tokenisation requires a different policy.</p><p>Use re.findall to extract tokens, casefold to normalise, Counter to count, and a tuple sort key for frequency descending then word ascending. Tie rules are part of a reproducible report.</p><p>Complexity has several stages: tokenisation is proportional to text length for this simple pattern, counting is expected linear in token count, and sorting u unique words costs O(u log u). Memory includes tokens and counts; streaming can reduce token storage.</p><p>Extensions: ignore a configurable stop-word set, read UTF-8 files, export JSON, and compare reports from two documents. Keep the core report function independent of filesystem access. For huge inputs, consider iterating regex matches rather than materialising every token.</p><pre>import re
+from collections import Counter
+def top_words(text, k=3):
+    if k &lt; 0:
+        raise ValueError(&#x27;negative k&#x27;)
+    tokens = re.findall(r&#x27;[a-z]+&#x27;, text.casefold())
+    counts = Counter(tokens)
+    return sorted(counts.items(), key=lambda item: (-item[1], item[0]))[:k]
+print(top_words(&#x27;Learn Python. Learn by doing. Python helps!&#x27;, 3))</pre><p>Output:</p><pre>[(&#x27;learn&#x27;, 2), (&#x27;python&#x27;, 2), (&#x27;by&#x27;, 1)]</pre><p>learn and python tie at count 2 and sort alphabetically. The one-count words follow, with by first alphabetically.</p><aside>A plain split() retains punctuation, so &quot;python&quot; and &quot;python.&quot; may be counted separately.</aside><p><b>Your turn:</b> Add an optional stop-word set and verify that uppercase stop words are handled under a documented policy.</p>
+<h3>03 · Project: your exam tracing workflow</h3><p>For an output question, first identify types and aliases. Draw one object for each mutable container and arrows from names. Then trace statements in order. Record mutations separately from rebinding and remember that function default objects may survive between calls.</p><p>For a loop question, record the state immediately before the body, any output inside the body, and the update. For recursion, draw each call frame and the expression waiting for its result. For a complexity question, identify input size and count actual iterations or copies.</p><p>Predict before running. The runner is a verification tool, not a replacement for reasoning. If the prediction is wrong, classify the cause: language rule, state-tracing error, boundary error, complexity model, or arithmetic. Reattempt the question after a delay.</p><p>Completion criteria: explain each lesson without notes; pass its check; implement its hands-on task from a blank editor; solve unseen mixed questions; and justify your answer under time pressure. A checked lesson is a record of activity, not a guarantee of mastery. Review missed cards after 1, 3 and 7 days as a simple starting routine.</p><pre>def update(items):
+    alias = items
+    copy = items[:]
+    alias.append(3)
+    copy.append(4)
+    return copy
+a = [1, 2]
+b = update(a)
+print(a, b, a is b)</pre><p>Output:</p><pre>[1, 2, 3] [1, 2, 4] False</pre><p>items and alias refer to a. copy is a new outer list. Each append therefore affects a different list. The returned list becomes b.</p><aside>Do not assume an output option is correct because it resembles a previously seen example. Trace this exact program.</aside><p><b>Your turn:</b> Write your own short program containing one alias, one copy, and one rebinding. Predict every output and explain the arrows.</p>
+</html>
