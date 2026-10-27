@@ -1,6 +1,18 @@
-GATE Lab / DA 2027
-Open index.html.
-Python: 41 lessons. DSA: 39 lessons. Databases & warehousing: 36 lessons.
-Lessons, quizzes, flashcards and visual models run offline. Python and SQL runtime loading and official paper links need internet. Downloaded Python/SQL files run locally with Python/SQLite.
-Export progress before moving browsers or deploying on GitHub Pages.
-See github-pages.html for source/deployment instructions.
+GATE LAB - DA 2027
+
+Open index.html to study. All five tracks are in this same site.
+New: Linear Algebra (36 lessons) and Calculus & Optimization (21 lessons).
+
+For a local server, run in this folder:
+python -m http.server 8767 --bind 127.0.0.1
+Then visit http://127.0.0.1:8767/ and stop with Ctrl+C.
+
+Use Downloads & backups for PDFs, formula sheets, full notes,
+Python examples, flashcards and progress export/import.
+
+Python and SQL execution need internet to load their runtimes.
+Lessons, quizzes, cards and visualizations work offline.
+
+GitHub deployment instructions: github-pages.html
+This edition uses the repository root, not dist/.
+This local update does not itself change the public GitHub Pages site.

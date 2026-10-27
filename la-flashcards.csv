@@ -1,0 +1,61 @@
+﻿Topic,Front,Back
+Vectors & geometric intuition,"2(1,−1)+3(0,2) equals…","(2,4). Scale each vector, then add corresponding components."
+Vectors & geometric intuition,"The Euclidean norm of (1,2,2) is…","3. Square, sum and take a square root: √9=3."
+Vectors & geometric intuition,A 4×3 matrix maps…,R³ to R⁴. Columns count input coordinates; rows count output coordinates.
+Vectors & geometric intuition,Normalizing two nonorthogonal vectors…,Does not generally make them orthogonal. Scaling nonzero vectors does not change their angle.
+Vectors & geometric intuition,"For nonzero u,v, |uᵀv|=||u||||v|| implies…",Linear dependence. This is the equality case of Cauchy–Schwarz.
+"Spaces, subspaces & bases",Which subset of R² is a subspace?,x+y=0. The homogeneous linear constraint is closed under addition and scaling.
+"Spaces, subspaces & bases",Three vectors in R² are always…,Linearly dependent. There are more vectors than the ambient dimension.
+"Spaces, subspaces & bases",The dimension of polynomials of degree at most 3 is…,"4. A basis is 1,x,x²,x³."
+"Spaces, subspaces & bases","For basis (1,1),(1,−1), coordinates of (4,2) are…","(3,1). Solve a+b=4 and a−b=2."
+"Spaces, subspaces & bases",Two independent vectors in R³ form…,"A basis for their two-dimensional span. They span a plane through zero, not all of R³."
+Matrix operations & blocks,A is 2×3 and B is 3×4. AB is…,2×4. The inner dimensions match and the outer dimensions remain.
+Matrix operations & blocks,"For invertible A,B, (AB)⁻¹ equals…",B⁻¹A⁻¹. Multiply to check cancellation in the correct order.
+Matrix operations & blocks,"The inverse of diag(2,5) is…","diag(1/2,1/5). Invert each nonzero diagonal entry."
+Matrix operations & blocks,"The Schur complement of invertible A in [[A,B],[C,D]] is…",D−CA⁻¹B. Eliminate the lower-left block using A.
+Matrix operations & blocks,"For A=[[1,2],[0,1]], A² is…","[[1,4],[0,1]]. Use matrix multiplication; it is not entrywise squaring."
+Special matrices,A real symmetric matrix satisfies…,Aᵀ=A. Symmetry mirrors entries across the diagonal.
+Special matrices,An orthogonal square matrix Q has inverse…,Qᵀ. QᵀQ=I.
+Special matrices,"If P²=P, possible eigenvalues are…",0 and 1. Apply P² to an eigenvector: λ²=λ.
+Special matrices,"For idempotent P, rank(P) equals…",trace(P). Its eigenvalues are 0 and 1 and it is diagonalizable.
+Special matrices,"For real skew-symmetric K, xᵀKx is…","0. The scalar equals its transpose, which is its negative."
+Systems & Gaussian elimination,A homogeneous linear system always has…,At least the zero solution. A0=0 for every matrix.
+Systems & Gaussian elimination,A consistent system with n variables and rank r has…,n−r free variables. Each pivot fixes one variable in terms of the free variables.
+Systems & Gaussian elimination,"For x+y=3 and x−y=1, x is…",2. Adding equations gives 2x=4.
+Systems & Gaussian elimination,A zero first pivot in a nonsingular matrix calls for…,A suitable row swap. A nonzero entry lower in the column can serve as pivot.
+Systems & Gaussian elimination,"If xₚ solves Ax=b, every solution is…",xₚ+z with Az=0. Subtract two solutions to obtain a null vector.
+"Rank, nullity & fundamental spaces",A 3×5 matrix of rank 2 has nullity…,3. Rank plus nullity equals the number of columns.
+"Rank, nullity & fundamental spaces",Row rank and column rank are…,Always equal. Both equal the number of pivots.
+"Rank, nullity & fundamental spaces","For A:m×n and B:n×p, rank(AB) is at most…","min(rank A,rank B). The product cannot create directions unavailable in either factor."
+"Rank, nullity & fundamental spaces",null(A) is orthogonal to…,row(A). Ax=0 says x is orthogonal to each row.
+"Rank, nullity & fundamental spaces",Full column rank means…,Ax=0 has only x=0. The nullity is zero.
+Determinants & invertibility,Swapping two rows changes a determinant by…,A factor −1. The determinant is alternating in rows.
+Determinants & invertibility,"For a 3×3 A with det A=2, det(3A) is…",54. Scaling all three rows contributes 3³×2.
+Determinants & invertibility,det(Aᵀ) equals…,det(A). Transpose preserves the determinant.
+Determinants & invertibility,A zero determinant for square A means…,"A is singular. The columns are dependent, but the matrix may contain many nonzero entries."
+Determinants & invertibility,det(A+B) in general is…,Not determined by det(A) and det(B) alone. Determinants are not additive as matrix functions.
+Orthogonality & least squares,Projection of b onto nonzero a is…,a(aᵀb)/(aᵀa). The coefficient minimizes the squared residual.
+Orthogonality & least squares,An orthogonal projection residual is…,"Perpendicular to the target subspace. At the closest point, no target-space direction reduces the residual."
+Orthogonality & least squares,"For full-column-rank A, the projector onto col(A) is…",A(AᵀA)⁻¹Aᵀ. Normal equations determine the coefficient of the closest vector.
+Orthogonality & least squares,Normal equations for min ||Ax−b||² are…,AᵀAx=Aᵀb. Differentiate or impose residual orthogonality.
+Orthogonality & least squares,Least-squares fitted vector Ax is…,Unique even if coefficients are not. Orthogonal projection onto a subspace is unique; null directions can change coefficients without changing the fit.
+Eigenvalues & eigenvectors,An eigenvector must be…,Nonzero. Zero satisfies every eigenvalue equation and therefore cannot identify a direction.
+Eigenvalues & eigenvectors,The sum of eigenvalues with algebraic multiplicities equals…,Trace. The trace is invariant under similarity and is the sum of roots.
+Eigenvalues & eigenvectors,A real symmetric matrix is…,Orthogonally diagonalizable. The spectral theorem supplies an orthonormal eigenbasis.
+Eigenvalues & eigenvectors,Distinct eigenvalues guarantee…,Linearly independent corresponding eigenvectors. Orthogonality needs extra assumptions such as symmetry.
+Eigenvalues & eigenvectors,Similar matrices share…,"Eigenvalues, rank, trace and determinant. Similarity changes coordinates; singular values need not be preserved by a nonorthogonal basis change."
+Quadratic forms & curvature,The symmetric matrix for x²+6xy+4y² is…,"[[1,3],[3,4]]. Each symmetric off-diagonal entry contributes one copy of the cross term."
+Quadratic forms & curvature,Eigenvalues 0 and 4 make a form…,Positive semidefinite but not definite. It is nonnegative with a nonzero flat direction.
+Quadratic forms & curvature,Positive semidefiniteness via minors requires…,All principal minors nonnegative. The semidefinite criterion requires more than the leading subset.
+Quadratic forms & curvature,"For SPD A, minimizer of ½xᵀAx−bᵀx solves…",Ax=b. Gradient Ax−b vanishes and positive curvature gives uniqueness.
+Quadratic forms & curvature,"For eigenvalues 1 and 4, ellipse xᵀAx=1 has semiaxis lengths…",1 and 1/2. An axis length is the reciprocal square root of its eigenvalue.
+"LU, pivoting & stable solves","In Doolittle LU, the diagonal of L contains…",Ones. This normalization fixes the scaling ambiguity.
+"LU, pivoting & stable solves","For PA=LU, solving Ax=b starts with…",Ly=Pb. Permutation must also be applied to b.
+"LU, pivoting & stable solves","After a later pivot row swap, stored L multipliers…",Must be swapped in previously completed columns. This preserves the factorization identity.
+"LU, pivoting & stable solves","For A=[[9,3],[3,5]], Cholesky L is…","[[3,0],[1,2]]. Multiply LLᵀ to obtain A."
+"LU, pivoting & stable solves","For a fixed dense A and many b values, prefer…","Factor once, reuse triangular solves. The expensive factorization can be amortized."
+"SVD, pseudoinverse & low-rank models",Singular values are square roots of eigenvalues of…,AᵀA. AᵀA is symmetric positive semidefinite.
+"SVD, pseudoinverse & low-rank models",Rank equals the number of…,Positive singular values. Count nonzero singular values with multiplicity.
+"SVD, pseudoinverse & low-rank models","For diag(−3,2), singular values are…","3,2. They are nonnegative square roots of 9 and 4."
+"SVD, pseudoinverse & low-rank models","For singular values 5,3,1, rank-one squared Frobenius error is…",10. Sum squares of discarded singular values: 3²+1².
+"SVD, pseudoinverse & low-rank models","Before interpreting SVD as covariance PCA, usually…",Center feature columns. PCA variation is measured about the mean; scaling is a separate choice.

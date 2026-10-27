@@ -1,0 +1,371 @@
+<!doctype html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Calculus & Optimization · Complete notes</title><style>body{font:16px/1.8 system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#20322f;background:#fffefa}h1,h2,h3{line-height:1.3;color:#2b416d}h1{font-size:42px}h2{margin-top:55px;border-top:1px solid #ccd3df;padding-top:28px}h3{margin-top:36px}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:20px;background:#eef2f7;border-radius:8px;font:13px/1.7 monospace}.formula{font:21px/1.8 Georgia,serif;background:#eef1fb;padding:20px;border-left:3px solid #7783c7}aside{background:#f2f6e9;padding:18px;margin:20px 0}a{color:#4255a0}li{margin:8px 0}button{padding:10px 16px}@media print{button,nav{display:none}body{font-size:10pt}h2{break-before:page}pre,aside{break-inside:avoid}}</style><h1>Calculus & Optimization</h1><p>Complete lessons, hand-worked examples, Python checks, practice tasks and answers.</p><button onclick="print()">Print / Save PDF</button><nav><a href="index.html#calc">← Interactive track</a></nav>
+<h2>Essential formula reference</h2>
+<h3>Derivative table</h3><div class="formula" style="white-space:pre-line">(xʳ)′=r xʳ⁻¹; (c)′=0
+(eˣ)′=eˣ; (aˣ)′=aˣ ln a
+(ln|x|)′=1/x; (logₐx)′=1/(x ln a)
+(sin x)′=cos x; (cos x)′=−sin x
+(tan x)′=sec²x; (cot x)′=−csc²x
+(sec x)′=sec x tan x; (csc x)′=−csc x cot x
+(arcsin x)′=1/√(1−x²); (arccos x)′=−1/√(1−x²)
+(arctan x)′=1/(1+x²)</div><p>Use radians. For exponent/log base a require a&gt;0,a≠1. Respect each real domain; ln|x| excludes zero, inverse sine/cosine formulas require |x|&lt;1, and denominators must be nonzero.</p>
+<h3>Rules that combine derivatives</h3><div class="formula" style="white-space:pre-line">(au+bv)′=au′+bv′
+(uv)′=u′v+uv′
+(u/v)′=(u′v−uv′)/v²
+(f(g(x)))′=f′(g(x))g′(x)
+(f⁻¹)′(y)=1/f′(x), y=f(x)
+(uᵛ)′=uᵛ(v′ln u+v u′/u)</div><p>a,b are constants. Quotient rule needs v≠0; inverse derivative needs a locally differentiable inverse and f′≠0; the logarithmic power formula assumes u&gt;0.</p>
+<h3>Limits worth recalling</h3><div class="formula" style="white-space:pre-line">sin x/x→1; tan x/x→1 as x→0
+(1−cos x)/x²→1/2
+(eˣ−1)/x→1; ln(1+x)/x→1
+(1+x)¹⁄ˣ→e
+lim f/g = lim f′/g′ under L’Hôpital hypotheses</div><p>The first four lines concern x→0. L’Hôpital requires an appropriate 0/0 or ∞/∞ form, differentiability near the point, nonzero denominator derivative and an existing derivative-ratio limit; it is not a universal quotient rule for limits.</p>
+<h3>Taylor and standard series</h3><div class="formula" style="white-space:pre-line">Tₙ(x)=Σₖ₌₀ⁿ f⁽ᵏ⁾(a)(x−a)ᵏ/k!
+|Rn|≤M|x−a|ⁿ⁺¹/(n+1)! if |f⁽ⁿ⁺¹⁾|≤M between a and x
+eˣ=1+x+x²/2!+x³/3!+…
+sin x=x−x³/3!+x⁵/5!−…
+cos x=1−x²/2!+x⁴/4!−…
+ln(1+x)=x−x²/2+x³/3−…
+1/(1−x)=1+x+x²+…
+(1+x)ᵅ=1+αx+α(α−1)x²/2!+…</div><p>Exponential, sine and cosine series hold for all real x. Logarithm: −1&lt;x≤1. Geometric: |x|&lt;1. General non-terminating binomial series: |x|&lt;1, with endpoints checked separately.</p>
+<h3>Extrema and iteration</h3><div class="formula" style="white-space:pre-line">Interior differentiable extremum ⇒ f′=0
+f′=0,f″&gt;0 ⇒ strict local minimum
+f′=0,f″&lt;0 ⇒ strict local maximum
+GD: xnext=x−ηf′(x)
+Newton optimization: xnext=x−f′(x)/f″(x)
+f=½ax²,a&gt;0: GD convergence if 0&lt;η&lt;2/a</div><p>f″=0 is inconclusive. For global extrema on a closed bounded interval, compare endpoints, stationary points and nondifferentiable points. Newton needs nonzero curvature and does not guarantee a minimum.</p>
+<h3>Supporting bridge: integrals and gradients</h3><div class="formula" style="white-space:pre-line">∫xᵖdx=xᵖ⁺¹/(p+1)+C, p≠−1
+∫dx/x=ln|x|+C; ∫eˣdx=eˣ+C
+∫sin x dx=−cos x+C; ∫cos x dx=sin x+C
+∫ₐᵇf=F(b)−F(a) if F′=f
+∫u dv=uv−∫v du
+∇(½xᵀAx−bᵀx)=Ax−b for A=Aᵀ
+∇½||Mx−y||²=Mᵀ(Mx−y)</div><p>These are supporting topics for probability and ML. Antiderivatives apply on valid real-domain intervals. The definite integral is signed accumulation; a general non-symmetric quadratic uses its symmetric part.</p>
+<h2>Functions &amp; algebra refresh</h2><p>Domains, graphs, composition, exponentials, logarithms and trigonometry</p>
+<h3>01 · Functions, domains and graphs</h3>
+<p>A real function assigns exactly one output to each input in its domain. The domain is the allowed input set, the codomain is the declared target set, and the range is the set actually attained. A graph plots pairs (x,f(x)); a vertical line can meet it at most once for each input.</p>
+<p>Find a domain before manipulating a formula. A denominator cannot be zero, a real square root needs a nonnegative argument, and a logarithm needs a positive argument. Intersect all restrictions. Cancellation can simplify a formula without restoring an input excluded by the original expression.</p>
+<p>A function is even if f(−x)=f(x), odd if f(−x)=−f(x), when both signs belong to the domain. f(x−a)+b shifts a graph right by a and up by b. A negative multiplier outside reflects it vertically. Piecewise formulas must specify which branch owns a boundary.</p>
+<p>Read intervals carefully: open endpoints are excluded; closed endpoints are included. A maximum must be attained in the domain. The supremum is a least upper bound and need not be attained. This difference becomes essential in optimization on open or unbounded intervals.</p>
+<div class="formula">Domain of √(x−1)/(x−3): [1,3) ∪ (3,∞)</div><h4>Work it through</h4><ol><li>For f(x)=(x²−1)/(x−1), x=1 is excluded.</li><li>For x≠1, factor and cancel to obtain f(x)=x+1.</li><li>The graph is the line y=x+1 with a hole at (1,2).</li><li>Defining f(1)=2 would create a new, continuous extension.</li></ol><aside><b>Application:</b> A model’s input constraints matter as much as its formula: negative counts or invalid logarithms can break a data pipeline.<br><b>Watch the trap:</b> A simplified expression can have a larger domain than the original function.</aside><pre>def f(x):
+    if x == 1: return &#x27;undefined&#x27;
+    return (x*x-1)/(x-1)
+print([f(x) for x in [0,1,2]])</pre><h4>Expected output</h4><pre>[1.0, &#x27;undefined&#x27;, 3.0]</pre><h4>Your turn</h4><p>Find the real domain of ln(x−2)/√(5−x).</p><p><b>Worked answer:</b> x&gt;2 for the logarithm and x&lt;5 because the square root is in the denominator. Domain: (2,5).</p><pre>import math
+for x in [2,3,5]:
+    print(x, math.log(x-2)/math.sqrt(5-x) if 2&lt;x&lt;5 else &#x27;outside domain&#x27;)</pre>
+<h3>02 · Composition, inverses and algebraic preparation</h3>
+<p>The composition (f∘g)(x)=f(g(x)) requires x in the domain of g and g(x) in the domain of f. Order matters. An inverse function reverses input and output, and exists on the full range when f is one-to-one. Restrict a domain when needed: x² is invertible on [0,∞), not on all real numbers.</p>
+<p>An inverse f⁻¹ is not the reciprocal 1/f. Solve y=f(x) for x, then interchange names. A graph of an inverse reflects across y=x. Strict monotonicity is a convenient sufficient condition for being one-to-one on an interval.</p>
+<p>Factor polynomials, combine rational fractions, and rationalize square-root differences before trying a limit. Identities such as a²−b²=(a−b)(a+b) and (a+b)²=a²+2ab+b² remove many apparent difficulties. Keep excluded points in the domain record.</p>
+<p>An absolute value is piecewise: |x|=x for x≥0 and −x for x&lt;0. Inequalities reverse when multiplying or dividing by a negative quantity. Squaring an equation can introduce extraneous solutions; check candidates in the original expression.</p>
+<div class="formula">(f∘g)(x)=f(g(x))   ·   f⁻¹(f(x))=x on an invertible domain</div><h4>Work it through</h4><ol><li>Let f(t)=√t and g(x)=x−2.</li><li>f(g(x))=√(x−2), with domain x≥2.</li><li>The reverse composition is g(f(x))=√x−2, with domain x≥0.</li><li>For h(x)=3x+2, solve y=3x+2 to get h⁻¹(y)=(y−2)/3.</li></ol><aside><b>Application:</b> Preprocessing and prediction are composed functions; the chain rule will differentiate them in the same order.<br><b>Watch the trap:</b> f⁻¹(x) denotes inverse function, not 1/f(x).</aside><pre>import math
+f=lambda t: math.sqrt(t)
+g=lambda x: x-2
+print(f(g(6)),g(f(9)))</pre><h4>Expected output</h4><pre>2.0 1.0</pre><h4>Your turn</h4><p>Find the inverse of f(x)=x²+1 on x≥0 and its domain.</p><p><b>Worked answer:</b> f⁻¹(y)=√(y−1), with y≥1.</p><pre>import math
+inverse=lambda y: math.sqrt(y-1)
+print(inverse(10))</pre>
+<h3>03 · Exponential, logarithmic and trigonometric essentials</h3>
+<p>For a&gt;0 and a≠1, aˣ is positive and has inverse logₐx. The natural exponential eˣ and natural logarithm ln x are especially convenient for calculus. Laws include ln(ab)=ln a+ln b and ln(aʳ)=r ln a for a&gt;0; there is no corresponding sum law ln(a+b)=ln a+ln b.</p>
+<p>The natural logarithm has domain x&gt;0, range all real numbers, and grows slowly. eˣ has all real inputs and positive outputs. Exponentials eventually outgrow any fixed positive power of x, which eventually outgrows ln x as x→∞. These comparisons guide limit calculations.</p>
+<p>Angles in calculus are measured in radians: a full turn is 2π. On the unit circle, cos x is horizontal and sin x is vertical. Recall sin²x+cos²x=1, tan x=sin x/cos x, sin(−x)=−sin x and cos(−x)=cos x.</p>
+<p>Near zero, sin x behaves like x, cos x like 1−x²/2 and eˣ like 1+x. These are local approximations, not global identities. The derivative and Taylor lessons justify them and quantify where an approximation is useful.</p>
+<div class="formula">ln(ab)=ln a+ln b   ·   aˣ=eˣˡⁿᵃ   ·   180°=π radians</div><h4>Work it through</h4><ol><li>ln(e³)=3 because ln and exp are inverse functions.</li><li>For x=0.1 radians, sin x≈0.0998334, close to x.</li><li>cos x≈0.995004, close to 1−x²/2=0.995.</li><li>In degrees the same derivative formulas would require a π/180 factor.</li></ol><aside><b>Application:</b> Log likelihoods turn products into sums; exponential decay models repeated proportional change.<br><b>Watch the trap:</b> The standard sin and cos derivatives assume radians, and logarithm rules require positive real arguments.</aside><pre>import math
+x=.1
+print(math.sin(x),x)
+print(math.cos(x),1-x*x/2)</pre><h4>Expected output</h4><pre>0.09983341664682815 0.1
+0.9950041652780258 0.995</pre><h4>Your turn</h4><p>Simplify ln(e²√e) and compare sin(0.01) with 0.01.</p><p><b>Worked answer:</b> The logarithm is 2+1/2=2.5. sin(0.01)≈0.0099998333.</p><pre>import math
+print(math.log(math.exp(2)*math.sqrt(math.e)))
+print(math.sin(.01))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Domain of ln(x−1) is…</b></p><ol type="A"><li>x&gt;1</li><li>x≥1</li><li>All real x</li><li>x≠1 only</li></ol><details><summary>Answer & reasoning</summary><p>x&gt;1. The logarithm argument must be positive.</p></details>
+<p><b>2. Domain of 1/√x is…</b></p><ol type="A"><li>x≥0</li><li>x≠0</li><li>All real x</li><li>x&gt;0</li></ol><details><summary>Answer & reasoning</summary><p>x&gt;0. The real square root needs nonnegative x and the denominator excludes zero.</p></details>
+<p><b>3. Which function is even?</b></p><ol type="A"><li>x+1</li><li>sin x</li><li>x²</li><li>x³</li></ol><details><summary>Answer & reasoning</summary><p>x². Replacing x by −x leaves x² unchanged.</p></details>
+<p><b>4. f(x−2) shifts the graph of f…</b></p><ol type="A"><li>Down by 2</li><li>Right by 2</li><li>Left by 2</li><li>Up by 2</li></ol><details><summary>Answer & reasoning</summary><p>Right by 2. The same old input occurs when the new x is two larger.</p></details>
+<p><b>5. f⁻¹ denotes…</b></p><ol type="A"><li>Inverse function</li><li>Reciprocal function always</li><li>Negative derivative</li><li>Second derivative</li></ol><details><summary>Answer & reasoning</summary><p>Inverse function. It reverses a one-to-one mapping.</p></details>
+<p><b>6. For f=x², g=x+1, f∘g is…</b></p><ol type="A"><li>x²+1</li><li>x²+x</li><li>2x+1</li><li>(x+1)²</li></ol><details><summary>Answer & reasoning</summary><p>(x+1)². Apply g first and then square.</p></details>
+<p><b>7. ln(e⁴) equals…</b></p><ol type="A"><li>1</li><li>ln 4</li><li>4</li><li>e⁴</li></ol><details><summary>Answer & reasoning</summary><p>4. Natural logarithm reverses the exponential.</p></details>
+<p><b>8. π radians equals…</b></p><ol type="A"><li>1°</li><li>180°</li><li>90°</li><li>360°</li></ol><details><summary>Answer & reasoning</summary><p>180°. A half turn is π radians.</p></details>
+<p><b>9. On (0,1), f(x)=x has…</b></p><ol type="A"><li>No attained maximum</li><li>Maximum 1</li><li>Minimum 0</li><li>No finite supremum</li></ol><details><summary>Answer & reasoning</summary><p>No attained maximum. The endpoint is excluded though its limiting value is the supremum.</p></details>
+<p><b>10. Cancelling x−1 from (x²−1)/(x−1)…</b></p><ol type="A"><li>Makes the original defined at 1</li><li>Proves the function is constant</li><li>Changes its limit to 0</li><li>Does not restore x=1 to the original domain</li></ol><details><summary>Answer & reasoning</summary><p>Does not restore x=1 to the original domain. Formula simplification must preserve domain exclusions.</p></details>
+<h2>Limits &amp; continuity</h2><p>One-sided behavior, standard limits, discontinuities and existence theorems</p>
+<h3>01 · What a limit really says</h3>
+<p>The statement limₓ→ₐ f(x)=L concerns values near a, with x≠a. It does not require f(a) to exist or equal L. Formally, for every ε&gt;0 there is δ&gt;0 so that 0&lt;|x−a|&lt;δ implies |f(x)−L|&lt;ε. You control the output error by restricting the input neighborhood.</p>
+<p>A two-sided limit exists when the left and right limits exist and are equal. Piecewise functions often require separate branch calculations. An infinite limit describes unbounded behavior; it is not a finite real limit. Oscillation can prevent a limit even when values remain bounded.</p>
+<p>When finite limits exist, sums and products commute with limits; quotients do too if the denominator limit is nonzero. Direct substitution works for continuous formulas. Expressions 0/0 and ∞/∞ are indeterminate forms, not answers.</p>
+<p>The squeeze theorem compares a function with two bounds having the same limit. For example, |x sin(1/x)|≤|x| proves its limit is zero at zero, even though sin(1/x) itself keeps oscillating. Numerical sampling supports intuition but cannot prove a limit.</p>
+<div class="formula">limₓ→ₐ f(x)=L ⇔ f(x) approaches L from both sides of a</div><h4>Work it through</h4><ol><li>For (x²−1)/(x−1), x≠1, cancel to obtain x+1.</li><li>As x approaches 1 from either side, x+1 approaches 2.</li><li>The limit is 2 even though the original expression is undefined at 1.</li><li>For |x|/x, the left limit is −1 and right limit 1, so no two-sided limit exists.</li></ol><aside><b>Application:</b> Limits define derivatives and justify approximations near a parameter value.<br><b>Watch the trap:</b> f(a), limₓ→ₐf(x), and the existence of a limit are three separate questions.</aside><pre>for x in [.9,.99,1.01,1.1]:
+    print(x,(x*x-1)/(x-1))</pre><h4>Expected output</h4><pre>0.9 1.9
+0.99 1.990000000000001
+1.01 2.009999999999999
+1.1 2.1</pre><h4>Your turn</h4><p>Find limₓ→₀ x² cos(1/x).</p><p><b>Worked answer:</b> It is 0 because −x²≤x²cos(1/x)≤x² and both bounds tend to 0.</p><pre>import math
+for x in [.1,.01,.001]: print(x*x*math.cos(1/x))</pre>
+<h3>02 · Standard limits and indeterminate forms</h3>
+<p>Memorize the foundational limits sin x/x→1, (1−cos x)/x²→1/2, (eˣ−1)/x→1 and ln(1+x)/x→1 as x→0, with radians for trigonometry. Substitute a scaled variable carefully: sin(3x)/x→3.</p>
+<p>For rational functions at infinity, compare highest powers. Equal degrees give the ratio of leading coefficients; a larger denominator degree gives zero. A larger numerator degree needs sign and direction analysis. Rationalizing √(x²+x)−x for x→+∞ avoids subtracting two large terms.</p>
+<p>L’Hôpital’s rule is conditional: for a 0/0 or ∞/∞ quotient with differentiable numerator and denominator near the point, nonzero denominator derivative, and an existing appropriate derivative-ratio limit, the original quotient has that limit. Transform products or powers into a suitable quotient first; do not apply the rule to an arbitrary fraction.</p>
+<p>For forms such as 1^∞, take a logarithm: if y=g(x)^{h(x)}&gt;0, study ln y=h(x)ln g(x), then exponentiate. For example (1+x)^{1/x}→e. Taylor expansion can offer an alternative once its validity and remainder are understood.</p>
+<div class="formula">sin x/x→1   ·   ln(1+x)/x→1   ·   (eˣ−1)/x→1   ·   (1+x)¹⁄ˣ→e</div><h4>Work it through</h4><ol><li>Evaluate limₓ→₀ (1−cos(2x))/x².</li><li>Set t=2x, so x²=t²/4.</li><li>The expression is 4(1−cos t)/t².</li><li>Its limit is 4×1/2=2.</li></ol><aside><b>Application:</b> Stable numerical formulas often use these local limits instead of subtracting nearly equal floating-point numbers.<br><b>Watch the trap:</b> 0/0 is a signal to investigate; it is not zero and it is not automatically undefined as a limit.</aside><pre>import math
+for x in [.1,.01,.001]: print(2*math.sin(x)**2/(x*x))</pre><h4>Expected output</h4><pre>1.9933422158758367
+1.9999333342222159
+1.9999993333334223</pre><h4>Your turn</h4><p>Find limₓ→₀ (e^{3x}−1)/sin(2x).</p><p><b>Worked answer:</b> Split into (e^{3x}−1)/(3x) × (3/2) × (2x)/sin(2x); the limit is 3/2.</p><pre>import math
+for x in [.1,.01,.001]: print(math.expm1(3*x)/math.sin(2*x))</pre>
+<h3>03 · Continuity and its consequences</h3>
+<p>Continuity at a means f(a) exists, the limit exists, and the limit equals f(a). At an included endpoint use the one-sided limit within the domain. Polynomials are continuous everywhere; rational functions are continuous where their denominators are nonzero.</p>
+<p>A removable discontinuity has a finite limit but a missing or mismatched value. A jump has unequal finite one-sided limits. Infinite behavior and oscillatory behavior create other discontinuities. A piecewise function is continuous at a join only when both limiting branch values equal the assigned value.</p>
+<p>The intermediate value theorem says a continuous function on [a,b] takes every value between f(a) and f(b). Opposite signs therefore ensure a root. It does not guarantee uniqueness; monotonicity can provide that extra conclusion.</p>
+<p>The extreme value theorem guarantees a continuous function on a closed bounded interval attains a maximum and a minimum. Dropping continuity, closedness, or boundedness can break the guarantee. Differentiability implies continuity, but a continuous corner such as |x| is not differentiable at zero.</p>
+<div class="formula">Continuous at a ⇔ limₓ→ₐf(x)=f(a)   ·   continuous on [a,b] ⇒ extrema attained</div><h4>Work it through</h4><ol><li>Let f(x)=kx+1 for x&lt;2 and f(x)=x²−1 for x≥2.</li><li>The right value at 2 is 3.</li><li>Continuity requires 2k+1=3.</li><li>Thus k=1; this only establishes continuity, not matching derivatives.</li></ol><aside><b>Application:</b> Bisection root finding relies on continuity and opposite endpoint signs.<br><b>Watch the trap:</b> A continuous function may have corners, and a root guaranteed by a sign change need not be unique.</aside><pre>k=1
+for x in [1.99,2,2.01]: print(x,k*x+1 if x&lt;2 else x*x-1)</pre><h4>Expected output</h4><pre>1.99 2.99
+2 3
+2.01 3.040099999999999</pre><h4>Your turn</h4><p>Choose c so f(x)=sin x/x for x≠0 and f(0)=c is continuous.</p><p><b>Worked answer:</b> c=1 by the standard limit.</p><pre>import math
+f=lambda x: 1 if x==0 else math.sin(x)/x
+print(f(0),f(.001))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. limₓ→₀ sin x/x equals…</b></p><ol type="A"><li>1</li><li>0</li><li>∞</li><li>Does not exist</li></ol><details><summary>Answer & reasoning</summary><p>1. Use radians and the standard limit.</p></details>
+<p><b>2. limₓ→₀ ln(1+2x)/x equals…</b></p><ol type="A"><li>1</li><li>1/2</li><li>0</li><li>2</li></ol><details><summary>Answer & reasoning</summary><p>2. Scale the standard logarithm limit by 2.</p></details>
+<p><b>3. limₓ→₁ (x²−1)/(x−1) equals…</b></p><ol type="A"><li>1</li><li>Does not exist</li><li>2</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>2. For x≠1 the expression is x+1.</p></details>
+<p><b>4. A two-sided limit with left value 2 and right value 3…</b></p><ol type="A"><li>Equals 3</li><li>Does not exist</li><li>Equals 2.5</li><li>Equals 2</li></ol><details><summary>Answer & reasoning</summary><p>Does not exist. The one-sided limits must agree.</p></details>
+<p><b>5. Continuity at a requires…</b></p><ol type="A"><li>The limit equals the defined value f(a)</li><li>Only that f(a) exists</li><li>Only that a finite limit exists</li><li>Only differentiability nearby</li></ol><details><summary>Answer & reasoning</summary><p>The limit equals the defined value f(a). All three conditions must hold at the point.</p></details>
+<p><b>6. Which implies continuity at a?</b></p><ol type="A"><li>A finite value at a</li><li>A left limit alone</li><li>A bounded neighborhood</li><li>Differentiability at a</li></ol><details><summary>Answer & reasoning</summary><p>Differentiability at a. A finite derivative gives a vanishing local function change.</p></details>
+<p><b>7. limₓ→∞ (3x²+1)/(2x²−x) equals…</b></p><ol type="A"><li>∞</li><li>2/3</li><li>3/2</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>3/2. Divide by the highest power x².</p></details>
+<p><b>8. limₓ→₀ x sin(1/x) equals…</b></p><ol type="A"><li>Does not exist</li><li>0</li><li>1</li><li>∞</li></ol><details><summary>Answer & reasoning</summary><p>0. Squeeze its absolute value by |x|.</p></details>
+<p><b>9. L’Hôpital applies directly to which form, with its other hypotheses?</b></p><ol type="A"><li>0/0</li><li>1/0</li><li>2/3</li><li>0/1</li></ol><details><summary>Answer & reasoning</summary><p>0/0. A qualifying indeterminate quotient is needed.</p></details>
+<p><b>10. A continuous f on [a,b] with f(a)&lt;0&lt;f(b) has…</b></p><ol type="A"><li>Exactly one root always</li><li>No roots</li><li>A root at an endpoint only</li><li>At least one root inside</li></ol><details><summary>Answer & reasoning</summary><p>At least one root inside. The intermediate value theorem guarantees existence, not uniqueness.</p></details>
+<h2>Differentiation from scratch</h2><p>Difference quotients, derivative rules, chain rule and higher derivatives</p>
+<h3>01 · Derivative as a limiting slope</h3>
+<p>The derivative f′(a) is limₕ→₀[f(a+h)−f(a)]/h when the finite two-sided limit exists. It is the tangent slope and instantaneous rate of change. The numerator is an output change; h is the input change. The derivative has units of output per input.</p>
+<p>A secant joins two points, while a tangent is the limiting line at one point. Local linearization is f(a+h)≈f(a)+f′(a)h. Differentiability is stronger: the approximation error divided by |h| tends to zero. A vertical tangent may have unbounded slope and does not give a finite derivative.</p>
+<p>At a piecewise join, check continuity first, then compare left and right derivative limits using the value at the join. For |x| at zero, left slope is −1 and right slope is 1. For x|x| both slopes at zero are 0, so the visual presence of an absolute value alone does not settle differentiability.</p>
+<p>Finite differences approximate derivatives. A centered difference [f(a+h)−f(a−h)]/(2h) often has smaller truncation error than a forward difference for smooth f. Very tiny h can worsen floating-point cancellation; shrinking h is not an unlimited route to accuracy.</p>
+<div class="formula">f′(a)=limₕ→₀ [f(a+h)−f(a)]/h   ·   tangent: y=f(a)+f′(a)(x−a)</div><h4>Work it through</h4><ol><li>For f(x)=x² at a=2, expand (2+h)²−4=4h+h².</li><li>Divide by h≠0 to get 4+h.</li><li>The limit is 4, so f′(2)=4.</li><li>The tangent line is y=4+4(x−2)=4x−4.</li></ol><aside><b>Application:</b> A derivative predicts sensitivity: a small input error Δx causes approximately f′(x)Δx output error.<br><b>Watch the trap:</b> The derivative is a limit, not the quotient with h=0 substituted directly.</aside><pre>for h in [1,.1,.01,.001]: print(h,((2+h)**2-4)/h)</pre><h4>Expected output</h4><pre>1 5.0
+0.1 4.100000000000001
+0.01 4.009999999999891
+0.001 4.000999999999699</pre><h4>Your turn</h4><p>Use the definition to differentiate x³ at a=1.</p><p><b>Worked answer:</b> [(1+h)³−1]/h=3+3h+h²→3.</p><pre>for h in [.1,.01,.001]: print(((1+h)**3-1)/h)</pre>
+<h3>02 · The derivative toolkit</h3>
+<p>For real powers where defined, d(xʳ)/dx=r xʳ⁻¹. A constant differentiates to zero; sums and constant multiples differentiate term by term. The product rule is (uv)′=u′v+uv′. The quotient rule is (u/v)′=(u′v−uv′)/v² where v≠0.</p>
+<p>The basic derivatives are (eˣ)′=eˣ, (ln x)′=1/x for x&gt;0, (sin x)′=cos x, (cos x)′=−sin x and (tan x)′=sec²x where defined. Also (aˣ)′=aˣ ln a and (logₐx)′=1/(x ln a), with a&gt;0,a≠1.</p>
+<p>Chain rule differentiates a composition: (f(g(x)))′=f′(g(x))g′(x). Work from outside to inside. For e^{x²}, retain the outer exponential and multiply by 2x. For ln|u(x)| where u≠0, the derivative is u′/u.</p>
+<p>For inverse functions, (f⁻¹)′(y)=1/f′(x) at y=f(x) when f′(x)≠0 and a differentiable inverse exists locally. In particular, (arcsin x)′=1/√(1−x²) on (−1,1) and (arctan x)′=1/(1+x²). Do not confuse inverse trigonometric notation with reciprocal functions.</p>
+<div class="formula">(uv)′=u′v+uv′   ·   (u/v)′=(u′v−uv′)/v²   ·   (f∘g)′=(f′∘g)g′</div><h4>Work it through</h4><ol><li>Differentiate f(x)=x²e^{3x}.</li><li>The derivative of x² is 2x; that of e^{3x} is 3e^{3x}.</li><li>Product rule gives f′=2xe^{3x}+3x²e^{3x}.</li><li>Factor: f′=e^{3x}(2x+3x²).</li></ol><aside><b>Application:</b> Gradients in larger models repeatedly apply these same sum, product and composition rules.<br><b>Watch the trap:</b> The derivative of a product is not the product of derivatives. Do not omit the inner derivative.</aside><pre>import math
+df=lambda x: math.exp(3*x)*(2*x+3*x*x)
+print(df(1))</pre><h4>Expected output</h4><pre>100.42768461593835</pre><h4>Your turn</h4><p>Differentiate ln(1+x²) and evaluate at x=1.</p><p><b>Worked answer:</b> f′(x)=2x/(1+x²), so f′(1)=1.</p><pre>df=lambda x: 2*x/(1+x*x)
+print(df(1))</pre>
+<h3>03 · Implicit, logarithmic and higher differentiation</h3>
+<p>Implicit differentiation treats y as a function of x. Differentiating x²+y²=1 gives 2x+2yy′=0, so y′=−x/y where y≠0. This formula is local on a branch, and fails to describe a finite slope where its denominator vanishes.</p>
+<p>Logarithmic differentiation helps when both base and exponent vary. For y=xˣ on x&gt;0, ln y=x ln x. Differentiate to get y′/y=ln x+1, hence y′=xˣ(ln x+1). A general u(x)^{v(x)} needs u&gt;0 for this real-log method.</p>
+<p>The second derivative differentiates the first derivative and measures change of slope. Higher derivatives repeat the operation. They power Taylor approximations. A derivative can exist without being continuous; higher differentiability is a further condition, not an automatic consequence.</p>
+<p>For piecewise functions, matching values ensures continuity and matching first slopes ensures differentiability at the join. Matching second derivatives is a separate check. Some exam questions ask for parameter values satisfying more than one of these conditions.</p>
+<div class="formula">y=uᵛ&gt;0 ⇒ y′=uᵛ(v′ln u+v u′/u)   ·   f⁽ⁿ⁾ = n-th derivative</div><h4>Work it through</h4><ol><li>For y=xˣ, take logs: ln y=x ln x.</li><li>Differentiate: y′/y=ln x+1.</li><li>Multiply by y: y′=xˣ(ln x+1).</li><li>At x=1, y′=1.</li></ol><aside><b>Application:</b> Implicit curves arise in constraints; second derivatives describe curvature and optimization behavior.<br><b>Watch the trap:</b> Applying the ordinary power rule to xˣ treats the changing exponent as constant and gives the wrong result.</aside><pre>import math
+for x in [1,2]: print(x,x**x*(math.log(x)+1))</pre><h4>Expected output</h4><pre>1 1.0
+2 6.772588722239782</pre><h4>Your turn</h4><p>Find the slope of x²+y²=25 at (3,4), and f″ for f=x⁴.</p><p><b>Worked answer:</b> The implicit slope is −3/4. For x⁴, f′=4x³ and f″=12x².</p><pre>print(-3/4)
+second_derivative=lambda x: 12*x*x
+print(second_derivative(2))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Derivative of x⁵ is…</b></p><ol type="A"><li>5x⁴</li><li>x⁴</li><li>5x⁵</li><li>x⁶/6</li></ol><details><summary>Answer & reasoning</summary><p>5x⁴. Apply the power rule.</p></details>
+<p><b>2. Derivative of e^{2x} is…</b></p><ol type="A"><li>e^{2x}</li><li>2xe^{2x}</li><li>eˣ</li><li>2e^{2x}</li></ol><details><summary>Answer & reasoning</summary><p>2e^{2x}. Chain rule multiplies by the inner derivative 2.</p></details>
+<p><b>3. Derivative of ln(1+x²) is…</b></p><ol type="A"><li>2x ln(1+x²)</li><li>1/x²</li><li>2x/(1+x²)</li><li>1/(1+x²)</li></ol><details><summary>Answer & reasoning</summary><p>2x/(1+x²). Apply the logarithm rule and chain rule.</p></details>
+<p><b>4. Derivative of x sin x is…</b></p><ol type="A"><li>sin x cos x</li><li>sin x+x cos x</li><li>cos x</li><li>x cos x</li></ol><details><summary>Answer & reasoning</summary><p>sin x+x cos x. Use the product rule.</p></details>
+<p><b>5. Derivative of cos x is…</b></p><ol type="A"><li>−sin x</li><li>sin x</li><li>−cos x</li><li>sec²x</li></ol><details><summary>Answer & reasoning</summary><p>−sin x. The cosine slope is negative sine in radians.</p></details>
+<p><b>6. At zero, derivative of |x|…</b></p><ol type="A"><li>Is 0</li><li>Is 1</li><li>Is −1</li><li>Does not exist</li></ol><details><summary>Answer & reasoning</summary><p>Does not exist. The left and right slopes disagree.</p></details>
+<p><b>7. For x²+y²=1, dy/dx where y≠0 is…</b></p><ol type="A"><li>−y/x</li><li>2x</li><li>−x/y</li><li>x/y</li></ol><details><summary>Answer & reasoning</summary><p>−x/y. Differentiate implicitly and solve 2x+2yy′=0.</p></details>
+<p><b>8. Derivative of xˣ for x&gt;0 is…</b></p><ol type="A"><li>xˣ ln x</li><li>xˣ(ln x+1)</li><li>xˣ</li><li>x·xˣ⁻¹</li></ol><details><summary>Answer & reasoning</summary><p>xˣ(ln x+1). Logarithmic differentiation handles the changing exponent.</p></details>
+<p><b>9. The second derivative of x³ is…</b></p><ol type="A"><li>6x</li><li>3x²</li><li>6</li><li>x⁴/4</li></ol><details><summary>Answer & reasoning</summary><p>6x. Differentiate 3x² once more.</p></details>
+<p><b>10. Tangent slope to x² at x=3 is…</b></p><ol type="A"><li>9</li><li>3</li><li>12</li><li>6</li></ol><details><summary>Answer & reasoning</summary><p>6. The derivative 2x evaluates to 6.</p></details>
+<h2>What derivatives reveal</h2><p>Mean value theorem, monotonicity, concavity and graph reasoning</p>
+<h3>01 · Rolle’s theorem and the mean value theorem</h3>
+<p>Rolle’s theorem assumes continuity on [a,b], differentiability on (a,b), and equal endpoint values. It guarantees some c inside with f′(c)=0. It does not claim every stationary point has equal endpoints or that the guaranteed point is unique.</p>
+<p>The mean value theorem uses the same continuity and differentiability assumptions without equal endpoint values. There exists c with f′(c)=[f(b)−f(a)]/(b−a). Somewhere the instantaneous slope equals the average slope. Apply the theorem only after checking its hypotheses.</p>
+<p>If f′=0 throughout an interval, f is constant there. If f′&gt;0 throughout an interval, f is strictly increasing; f′≥0 implies nondecreasing. Strictly increasing functions can have isolated zero derivatives, for example x³ at zero. Do not reverse the sufficient condition carelessly.</p>
+<p>A bound |f′|≤M on an interval gives |f(b)−f(a)|≤M|b−a|. This converts a slope bound into an output-change bound and explains why bounded derivatives control sensitivity. Disconnected domains require separate interval reasoning.</p>
+<div class="formula">∃c∈(a,b): f′(c)=[f(b)−f(a)]/(b−a)</div><h4>Work it through</h4><ol><li>For f=x² on [1,3], the average slope is (9−1)/(3−1)=4.</li><li>The function is continuous and differentiable on the required sets.</li><li>Solve 2c=4 to obtain c=2.</li><li>The tangent at c is parallel to the secant through the endpoints.</li></ol><aside><b>Application:</b> Error bounds and proofs of uniqueness often use derivative bounds and monotonicity.<br><b>Watch the trap:</b> Rolle’s theorem does not apply to |x| on [−1,1] because differentiability fails at zero.</aside><pre>print((3**2-1**2)/(3-1))
+print(2*2)</pre><h4>Expected output</h4><pre>4.0
+4</pre><h4>Your turn</h4><p>Find the MVT point for f=x³ on [0,2].</p><p><b>Worked answer:</b> The average slope is 4; 3c²=4 gives c=2/√3, the positive point inside (0,2).</p><pre>import math
+c=2/math.sqrt(3)
+print(c,3*c*c)</pre>
+<h3>02 · Sign charts, concavity and inflection</h3>
+<p>To determine increasing and decreasing intervals, find where f′ is zero or undefined within the domain, split the domain at those points, and test the derivative sign on each open piece. Positive means increasing; negative means decreasing. Keep holes and vertical asymptotes separate from critical points in the domain.</p>
+<p>A positive second derivative implies convexity (concave upward); a negative second derivative implies concavity (concave downward) on an interval. The first derivative then increases or decreases. Curvature describes how the slope changes, not whether the original function is above zero.</p>
+<p>An inflection point requires a change of concavity, with the point lying on the graph. f″=0 is only a candidate condition. For x⁴, f″(0)=0 but concavity does not change. For x³, concavity changes at zero even though the function is increasing on both sides.</p>
+<p>Asymptotes and end behavior complete a graph sketch. A horizontal asymptote describes behavior at infinity, not a barrier a graph can never cross. Combine domain, intercepts, derivative signs and curvature rather than relying on a plotting window alone.</p>
+<div class="formula">f′&gt;0 ⇒ increasing   ·   f″&gt;0 ⇒ convex   ·   inflection requires concavity change</div><h4>Work it through</h4><ol><li>For f=x³−3x, f′=3(x²−1), with zeros −1 and 1.</li><li>The sign is +,−,+ on the three intervals.</li><li>f″=6x changes sign at zero, giving an inflection at (0,0).</li><li>The local maximum is f(−1)=2 and local minimum f(1)=−2.</li></ol><aside><b>Application:</b> Shape analysis reveals saturation, accelerating growth and diminishing returns in response functions.<br><b>Watch the trap:</b> A zero second derivative alone does not prove an inflection or classify a stationary point.</aside><pre>for x in [-2,0,2]: print(x,3*(x*x-1),6*x)</pre><h4>Expected output</h4><pre>-2 9 -12
+0 -3 0
+2 9 12</pre><h4>Your turn</h4><p>Does x⁴ have an inflection at zero? Explain with signs.</p><p><b>Worked answer:</b> No. Its second derivative 12x² is positive on both sides of zero, so concavity does not change.</p><pre>for x in [-1,0,1]: print(x,12*x*x)</pre>
+<h3>03 · Related rates and local error estimates</h3>
+<p>A related-rates problem links changing quantities through an equation, then differentiates with respect to time. If area A=πr² and radius depends on time, dA/dt=2πr dr/dt. Units are an excellent consistency check: length times length/time gives area/time.</p>
+<p>Linearization approximates a smooth function near a known input: L(x)=f(a)+f′(a)(x−a). A differential df=f′(a)dx describes the first-order change. It is an approximation to a finite change, not an exact equality unless the function is affine.</p>
+<p>Relative error is approximately |f′(a)/f(a)| times absolute input error when f(a)≠0. For powers f=xᵖ with nonzero x, relative output error is about |p| times relative input error. Values near zeros can have large relative sensitivity.</p>
+<p>If |f″|≤M between a and x, the linearization error is at most M|x−a|²/2. This anticipates Taylor’s theorem. Bounds depend on the entire intervening interval, not just f″ at the expansion center.</p>
+<div class="formula">Δf≈f′(a)Δx   ·   |f(x)−L(x)|≤M|x−a|²/2 when |f″|≤M</div><h4>Work it through</h4><ol><li>Approximate √4.04 using a=4.</li><li>f(4)=2 and f′(4)=1/4.</li><li>The change in x is 0.04, giving L=2+0.25×0.04=2.01.</li><li>The exact value is about 2.009975; the approximation is slightly high because √x is concave.</li></ol><aside><b>Application:</b> Measurement uncertainty, approximate mental arithmetic and numerical error analysis use local sensitivity.<br><b>Watch the trap:</b> An approximation near a point can be poor far away, even if the derivative formula is exact.</aside><pre>import math
+approx=2+.25*.04
+print(approx,math.sqrt(4.04),approx-math.sqrt(4.04))</pre><h4>Expected output</h4><pre>2.01 2.009975124224178 2.4875775821886492e-05</pre><h4>Your turn</h4><p>A circle has radius 3 cm increasing at 2 cm/s. Find its area growth rate.</p><p><b>Worked answer:</b> dA/dt=2π×3×2=12π cm²/s.</p><pre>import math
+print(12*math.pi)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. For f=x² on [0,2], an MVT point is…</b></p><ol type="A"><li>1</li><li>0</li><li>2</li><li>4</li></ol><details><summary>Answer & reasoning</summary><p>1. Average slope is 2; solve 2c=2.</p></details>
+<p><b>2. Rolle’s theorem additionally requires…</b></p><ol type="A"><li>Positive derivative</li><li>Convexity</li><li>A zero second derivative</li><li>Equal endpoint values</li></ol><details><summary>Answer & reasoning</summary><p>Equal endpoint values. Together with continuity and interior differentiability, this ensures an interior zero slope.</p></details>
+<p><b>3. If f′&gt;0 throughout an interval, f is…</b></p><ol type="A"><li>Constant</li><li>Necessarily convex</li><li>Strictly increasing</li><li>Strictly decreasing</li></ol><details><summary>Answer & reasoning</summary><p>Strictly increasing. Positive slope controls monotonicity, not curvature.</p></details>
+<p><b>4. If f″&gt;0 throughout an interval, the slope is…</b></p><ol type="A"><li>Always zero</li><li>Increasing</li><li>Decreasing</li><li>Always positive</li></ol><details><summary>Answer & reasoning</summary><p>Increasing. The second derivative measures change in the first.</p></details>
+<p><b>5. At zero, x⁴ has…</b></p><ol type="A"><li>A minimum but no inflection</li><li>An inflection but no minimum</li><li>A maximum</li><li>Neither a minimum nor an inflection</li></ol><details><summary>Answer & reasoning</summary><p>A minimum but no inflection. It is nonnegative and convex on both sides.</p></details>
+<p><b>6. At zero, x³ has…</b></p><ol type="A"><li>A maximum</li><li>A minimum</li><li>A discontinuity</li><li>An inflection but no extremum</li></ol><details><summary>Answer & reasoning</summary><p>An inflection but no extremum. Its concavity changes but it remains increasing.</p></details>
+<p><b>7. Linearization of √x at x=4 is…</b></p><ol type="A"><li>4+2(x−4)</li><li>√4+(x−4)</li><li>2+(x−4)/4</li><li>2+(x−4)/2</li></ol><details><summary>Answer & reasoning</summary><p>2+(x−4)/4. Use f(4)=2 and f′(4)=1/4.</p></details>
+<p><b>8. For A=πr², dA/dt equals…</b></p><ol type="A"><li>πr² dr/dt</li><li>2πr dr/dt</li><li>π(dr/dt)²</li><li>2πr</li></ol><details><summary>Answer & reasoning</summary><p>2πr dr/dt. Chain rule accounts for time-dependent radius.</p></details>
+<p><b>9. If |f′|≤3 between a,b, then |f(b)−f(a)|≤…</b></p><ol type="A"><li>3|b−a|</li><li>|b−a|/3</li><li>3 always</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>3|b−a|. Apply the mean value theorem and bound the derivative.</p></details>
+<p><b>10. Strictly increasing f must have f′&gt;0 at every point if differentiable?</b></p><ol type="A"><li>Yes, without exception</li><li>Only if f is polynomial</li><li>No increasing function has derivatives</li><li>No: x³ has f′(0)=0</li></ol><details><summary>Answer & reasoning</summary><p>No: x³ has f′(0)=0. The sufficient positive-derivative condition is not necessary pointwise.</p></details>
+<h2>Taylor series &amp; approximation</h2><p>Taylor polynomials, remainders, convergence and higher-order tests</p>
+<h3>01 · Constructing a Taylor polynomial</h3>
+<p>A Taylor polynomial matches a function and its first n derivatives at a center a: Tₙ(x)=Σₖ₌₀ⁿ f⁽ᵏ⁾(a)(x−a)ᵏ/k!. The constant term matches height, the linear term slope, the quadratic term curvature. Maclaurin means the special center a=0.</p>
+<p>The factorial matters because the k-th derivative of (x−a)ᵏ at a is k!. Compute derivatives first, evaluate them at the center, divide by factorials, then attach powers. A Taylor polynomial is finite; a Taylor series is an infinite expression whose convergence and equality to f require analysis.</p>
+<p>The standard Maclaurin series are eˣ=Σxᵏ/k!, sin x=x−x³/3!+x⁵/5!−…, and cos x=1−x²/2!+x⁴/4!−…. These converge to their functions for all real x. Parity explains the missing terms for sine and cosine.</p>
+<p>For a different center, use h=x−a. For example ln x near a=1 becomes ln(1+h), with powers of h. A polynomial centered near the input often needs fewer terms than one centered far away.</p>
+<div class="formula">Tₙ(x)=Σₖ₌₀ⁿ f⁽ᵏ⁾(a)(x−a)ᵏ/k!</div><h4>Work it through</h4><ol><li>For eˣ at a=0, every derivative at zero is 1.</li><li>The degree-three polynomial is 1+x+x²/2+x³/6.</li><li>At x=0.2 it gives 1.2213333.</li><li>The exact value is about 1.2214028, so the error is about 0.0000694.</li></ol><aside><b>Application:</b> Taylor approximations simplify nonlinear functions in numerical methods and local model analysis.<br><b>Watch the trap:</b> Do not omit factorial denominators or confuse polynomial degree with the number of nonzero terms.</aside><pre>import math
+x=.2
+T=sum(x**k/math.factorial(k) for k in range(4))
+print(T,math.exp(x),math.exp(x)-T)</pre><h4>Expected output</h4><pre>1.2213333333333334 1.2214027581601699 6.942482683647277e-05</pre><h4>Your turn</h4><p>Write the degree-four Maclaurin polynomial for cos x and evaluate at 0.2.</p><p><b>Worked answer:</b> 1−x²/2+x⁴/24; at 0.2 it is approximately 0.9800666667.</p><pre>x=.2
+print(1-x*x/2+x**4/24)</pre>
+<h3>02 · Remainders and where a series works</h3>
+<p>Taylor’s theorem with Lagrange remainder gives f(x)=Tₙ(x)+f⁽ⁿ⁺¹⁾(ξ)(x−a)ⁿ⁺¹/(n+1)! for some ξ between a and x under the needed smoothness assumptions. If the derivative magnitude is bounded by M there, the error is at most M|x−a|ⁿ⁺¹/(n+1)!.</p>
+<p>The geometric series 1/(1−x)=Σₖ≥₀xᵏ is valid for |x|&lt;1. The logarithm series ln(1+x)=x−x²/2+x³/3−… converges for −1&lt;x≤1; it is absolutely convergent inside |x|&lt;1 and conditionally at x=1. At x=−1 the function is not finite.</p>
+<p>The generalized binomial series (1+x)ᵅ=1+αx+α(α−1)x²/2!+… is valid at least for |x|&lt;1 for general real α. When α is a nonnegative integer it terminates and is a polynomial. Boundary points require separate checks for non-terminating series.</p>
+<p>Infinite differentiability alone does not ensure equality to a Taylor series. A classic counterexample is f(x)=e^{−1/x²} for x≠0, f(0)=0: every derivative at zero is zero, yet f is positive away from zero. For ordinary exam functions use the known convergence domains and remainder estimates.</p>
+<div class="formula">|Rn(x)|≤M|x−a|ⁿ⁺¹/(n+1)!   ·   1/(1−x)=Σxᵏ for |x|&lt;1</div><h4>Work it through</h4><ol><li>Approximate e^{0.1} by 1+x+x²/2.</li><li>On [0,0.1], the third derivative eˣ is at most e^{0.1}&lt;1.106.</li><li>Thus |R₂|&lt;1.106×0.1³/6≈0.00018434.</li><li>The actual error is about 0.00017019, within the bound.</li></ol><aside><b>Application:</b> An error bound tells whether a polynomial approximation meets a numerical tolerance.<br><b>Watch the trap:</b> A series identity has a domain of convergence; plugging in a value outside it is invalid.</aside><pre>import math
+x=.1
+err=math.exp(x)-(1+x+x*x/2)
+bound=math.exp(x)*x**3/6
+print(err,bound,err&lt;=bound)</pre><h4>Expected output</h4><pre>0.0001709180756477302 0.000184195153012608 True</pre><h4>Your turn</h4><p>Bound the error of sin(0.1)≈0.1 using a degree-two Taylor polynomial.</p><p><b>Worked answer:</b> The degree-two polynomial is x; |f‴|=|cos x|≤1, so error≤0.1³/6≈0.000166667.</p><pre>import math
+print(abs(math.sin(.1)-.1),.1**3/6)</pre>
+<h3>03 · Leading terms, limits and flat stationary points</h3>
+<p>Near zero, the first nonzero Taylor term often determines a limit. Subtracting lower-order terms exposes the next term: eˣ−1−x behaves like x²/2. Keep enough terms to resolve all cancellations before dividing.</p>
+<p>If f′(a)=…=f⁽ⁿ⁻¹⁾(a)=0 and the first nonzero derivative is order n, then locally f(a+h)−f(a) has the sign of f⁽ⁿ⁾(a)hⁿ. For even n, a positive derivative gives a local minimum and a negative one a maximum. For odd n, the sign changes across a, so there is no extremum.</p>
+<p>The ordinary second derivative test is the n=2 case. If f″(a)=0, use a derivative sign chart or continue to a first nonzero higher term. If no finite nonzero derivative appears, the test gives no conclusion; return to the function’s actual behavior.</p>
+<p>Order notation O(hⁿ) bounds a remainder in magnitude by a constant times |h|ⁿ near zero; o(hⁿ) means the ratio tends to zero. Do not turn an asymptotic equality into an exact one. These symbols describe approximation quality.</p>
+<div class="formula">f(a+h)−f(a)≈f⁽ⁿ⁾(a)hⁿ/n! for the first nonzero derivative order n</div><h4>Work it through</h4><ol><li>Compute limₓ→₀ (eˣ−1−x)/x².</li><li>Expansion gives eˣ=1+x+x²/2+O(x³).</li><li>Subtract 1+x and divide by x² to get 1/2+O(x).</li><li>The limit is 1/2.</li></ol><aside><b>Application:</b> Leading-order analysis simplifies limits and classifies flat losses where second derivatives vanish.<br><b>Watch the trap:</b> When a numerator’s leading terms cancel, a lower-order approximation can erase the very term you need.</aside><pre>import math
+for x in [.1,.01,.001]: print((math.expm1(x)-x)/(x*x))</pre><h4>Expected output</h4><pre>0.5170918075647623
+0.5016708416805821
+0.5001667083416421</pre><h4>Your turn</h4><p>Classify x⁶ and x⁵ at zero.</p><p><b>Worked answer:</b> x⁶ has a strict local (and global) minimum at zero. x⁵ changes sign and has no extremum there, despite a zero derivative.</p><pre>for x in [-.1,0,.1]: print(x,x**6,x**5)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. The quadratic Maclaurin polynomial of eˣ is…</b></p><ol type="A"><li>1+x+x²/2</li><li>1+x+x²</li><li>x+x²/2</li><li>1+x²/2</li></ol><details><summary>Answer & reasoning</summary><p>1+x+x²/2. All derivatives at zero are 1; divide by factorials.</p></details>
+<p><b>2. The cubic coefficient in sin x is…</b></p><ol type="A"><li>1/6</li><li>−1/3</li><li>0</li><li>−1/6</li></ol><details><summary>Answer & reasoning</summary><p>−1/6. The sine series begins x−x³/3!.</p></details>
+<p><b>3. The quadratic coefficient in cos x is…</b></p><ol type="A"><li>−1</li><li>0</li><li>−1/2</li><li>1/2</li></ol><details><summary>Answer & reasoning</summary><p>−1/2. The cosine series begins 1−x²/2!.</p></details>
+<p><b>4. Taylor expansion about a uses powers of…</b></p><ol type="A"><li>f(x)</li><li>x−a</li><li>x+a</li><li>a only</li></ol><details><summary>Answer & reasoning</summary><p>x−a. The center is where the derivatives are matched.</p></details>
+<p><b>5. limₓ→₀ (eˣ−1−x)/x² is…</b></p><ol type="A"><li>1/2</li><li>1</li><li>0</li><li>∞</li></ol><details><summary>Answer & reasoning</summary><p>1/2. The first surviving term is x²/2.</p></details>
+<p><b>6. ln(1+x)=x−x²/2+… is valid as a convergent real series at…</b></p><ol type="A"><li>x=2</li><li>x=−1</li><li>Every real x</li><li>x=1</li></ol><details><summary>Answer & reasoning</summary><p>x=1. It converges conditionally at 1; −1 is outside the log domain.</p></details>
+<p><b>7. If |f‴|≤M, a degree-two Taylor error is bounded by…</b></p><ol type="A"><li>M|x−a|</li><li>M/3</li><li>M|x−a|³/6</li><li>M|x−a|²/2</li></ol><details><summary>Answer & reasoning</summary><p>M|x−a|³/6. Use the third derivative and 3! in the remainder.</p></details>
+<p><b>8. If the first nonzero derivative at a stationary point is order 3, the point is…</b></p><ol type="A"><li>Always a global minimum</li><li>Not a local extremum</li><li>A local minimum</li><li>A local maximum</li></ol><details><summary>Answer & reasoning</summary><p>Not a local extremum. The leading odd power changes sign across the point.</p></details>
+<p><b>9. If the first nonzero derivative is order 6 and positive, the point is…</b></p><ol type="A"><li>A strict local minimum</li><li>A strict local maximum</li><li>Not an extremum</li><li>A discontinuity</li></ol><details><summary>Answer & reasoning</summary><p>A strict local minimum. A positive even leading power is positive on both sides.</p></details>
+<p><b>10. An infinitely differentiable function always equals its Taylor series?</b></p><ol type="A"><li>Yes on all real inputs</li><li>Yes whenever f(0)=0</li><li>Yes if its derivatives exist</li><li>No</li></ol><details><summary>Answer & reasoning</summary><p>No. Smooth functions can have a zero Taylor series but be nonzero nearby.</p></details>
+<h2>Maxima, minima &amp; optimization</h2><p>Candidate points, global comparisons, modeling and iterative methods</p>
+<h3>01 · Local tests and global extrema</h3>
+<p>A local minimum is no larger than nearby domain values; a global minimum is no larger than every value in the domain. A differentiable interior extremum must satisfy f′=0 (Fermat’s theorem). The converse is false: x³ has a stationary point without an extremum.</p>
+<p>For a first derivative sign test, a change from negative to positive gives a local minimum, positive to negative a local maximum. No sign change gives neither. If f′(c)=0 and f″(c)&gt;0, c is a strict local minimum; f″(c)&lt;0 gives a strict local maximum; zero is inconclusive.</p>
+<p>On a closed bounded interval for continuous f, list endpoints and all interior points where f′=0 or is undefined. Evaluate f at every candidate and compare. Endpoints can win even though their derivatives are nonzero, because the feasible domain is one-sided there.</p>
+<p>On open or unbounded domains, also examine boundary limits and behavior at infinity. An infimum need not be attained. Constraints and domain holes must be preserved from the original problem, not silently filled in during simplification.</p>
+<div class="formula">Global search on [a,b]: endpoints + interior f′=0 + interior nondifferentiable points</div><h4>Work it through</h4><ol><li>For f=x³−3x on [−2,2], f′=3x²−3 vanishes at −1 and 1.</li><li>Evaluate f(−2)=−2, f(−1)=2, f(1)=−2, f(2)=2.</li><li>The global maximum is 2 at x=−1 and 2.</li><li>The global minimum is −2 at x=−2 and 1.</li></ol><aside><b>Application:</b> Choosing a model parameter within allowed bounds requires comparing boundary and interior solutions.<br><b>Watch the trap:</b> Solving f′=0 alone misses corners and boundary optima, and includes non-extrema.</aside><pre>f=lambda x:x**3-3*x
+print([(x,f(x)) for x in [-2,-1,1,2]])</pre><h4>Expected output</h4><pre>[(-2, -2), (-1, 2), (1, -2), (2, 2)]</pre><h4>Your turn</h4><p>Find global extrema of |x−1| on [0,3].</p><p><b>Worked answer:</b> Minimum 0 at the corner x=1; maximum 2 at x=3.</p><pre>f=lambda x:abs(x-1)
+print([(x,f(x)) for x in [0,1,3]])</pre>
+<h3>02 · Turn a word problem into one variable</h3>
+<p>Begin an optimization problem by defining variables and units, writing the objective, and identifying constraints. Use constraints to eliminate extra variables, leaving a single-variable function on a clearly stated feasible interval. A mathematically optimal but infeasible value is not a solution.</p>
+<p>Differentiate, solve for interior candidates, check nondifferentiable points and endpoints, then justify global optimality. Convexity can simplify a minimization proof: for differentiable convex f on an interval, a zero derivative is a global minimum. Strict convexity ensures at most one minimizer.</p>
+<p>The tangent-line inequality f(y)≥f(x)+f′(x)(y−x) characterizes differentiable convex functions on an interval. A nonnegative second derivative is a convenient sufficient condition. Multiplying an objective by a positive constant preserves minimizers; multiplying by a negative constant reverses minima and maxima.</p>
+<p>A strictly increasing transformation preserves the location of extrema where it is defined. For a positive objective, maximizing its logarithm can simplify products. This is why likelihood maximization often becomes a sum of logarithms; the full statistics interpretation belongs to the probability track.</p>
+<div class="formula">f convex and f′(x*)=0 ⇒ x* global minimum   ·   strict convexity ⇒ at most one minimizer</div><h4>Work it through</h4><ol><li>A rectangle has perimeter 20, so if width is x, height is 10−x.</li><li>Area A(x)=x(10−x), with 0≤x≤10 allowing degenerate endpoints.</li><li>A′=10−2x gives x=5; A″=−2 confirms strict concavity.</li><li>The maximum area is 25, attained by the square 5×5.</li></ol><aside><b>Application:</b> Resource allocation, geometric design and parameter fitting share the same objective-and-constraint workflow.<br><b>Watch the trap:</b> A formula without its feasible domain is an incomplete optimization model.</aside><pre>A=lambda x:x*(10-x)
+print(A(0),A(5),A(10))</pre><h4>Expected output</h4><pre>0 25 0</pre><h4>Your turn</h4><p>For x&gt;0, minimize x+9/x.</p><p><b>Worked answer:</b> Derivative 1−9/x² vanishes at x=3. Second derivative 18/x³&gt;0 and both boundaries diverge; the minimum is 6.</p><pre>f=lambda x:x+9/x
+print(f(3))
+print(1-9/3**2,18/3**3)</pre>
+<h3>03 · Gradient descent, Newton steps and stopping</h3>
+<p>Single-variable gradient descent uses xₖ₊₁=xₖ−ηf′(xₖ) with step size η&gt;0. It moves downhill locally, but a step that is too large can increase the objective or diverge. A small derivative is a stationarity signal, not proof of a global minimum.</p>
+<p>For f(x)=½ax² with a&gt;0, iteration becomes xₖ₊₁=(1−ηa)xₖ. It converges to zero exactly when |1−ηa|&lt;1, equivalently 0&lt;η&lt;2/a, except special starting cases. Small steps are slow; intermediate steps can alternate signs while converging.</p>
+<p>Newton’s optimization step is xₖ₊₁=xₖ−f′(xₖ)/f″(xₖ), when the denominator is nonzero. It follows a local quadratic approximation and can converge rapidly near a suitable nondegenerate minimum. It can also jump outside the domain, hit zero curvature or approach a maximum; safeguards such as damping matter.</p>
+<p>Bisection on f′ can find a stationary point when the derivative is continuous and brackets a sign change. For a strictly convex function that crossing is the unique minimum. In practical iterations, track objective change, step size, derivative magnitude and a maximum iteration count rather than relying on one criterion.</p>
+<div class="formula">GD: xnext=x−ηf′(x)   ·   Newton: xnext=x−f′(x)/f″(x)</div><h4>Work it through</h4><ol><li>For f=(x−3)², f′=2(x−3). Choose η=0.25 and start x₀=0.</li><li>The update is xnext=0.5x+1.5.</li><li>The first iterates are 1.5, 2.25 and 2.625.</li><li>The error halves each step; η=1 would instead produce a non-decaying oscillation.</li></ol><aside><b>Application:</b> These one-dimensional experiments build intuition for training algorithms and numerical parameter search.<br><b>Watch the trap:</b> Newton’s root method x−f/f′ solves f=0; Newton’s optimization method x−f′/f″ seeks stationarity. They are different targets.</aside><pre>x=0.
+for k in range(5):
+    x-=.25*2*(x-3)
+    print(k+1,x,(x-3)**2)</pre><h4>Expected output</h4><pre>1 1.5 2.25
+2 2.25 0.5625
+3 2.625 0.140625
+4 2.8125 0.03515625
+5 2.90625 0.0087890625</pre><h4>Your turn</h4><p>For f=2x², find the interval of constant positive learning rates that converges to zero from arbitrary x₀.</p><p><b>Worked answer:</b> Here a=4, so 0&lt;η&lt;1/2.</p><pre>for eta in [.1,.4,.5,.6]:
+    factor=1-4*eta
+    print(eta,factor,abs(factor)&lt;1)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. A differentiable interior local extremum must satisfy…</b></p><ol type="A"><li>f′=0</li><li>f″=0</li><li>f=0</li><li>f′&gt;0</li></ol><details><summary>Answer & reasoning</summary><p>f′=0. This necessary condition is Fermat’s theorem.</p></details>
+<p><b>2. f′ changing from negative to positive gives…</b></p><ol type="A"><li>A local maximum</li><li>An inflection always</li><li>No extremum</li><li>A local minimum</li></ol><details><summary>Answer & reasoning</summary><p>A local minimum. The function falls into the point and rises after it.</p></details>
+<p><b>3. When f′(c)=0 and f″(c)=0, the second derivative test is…</b></p><ol type="A"><li>Proof of a maximum</li><li>Proof of no extremum</li><li>Inconclusive</li><li>Proof of a minimum</li></ol><details><summary>Answer & reasoning</summary><p>Inconclusive. Use sign changes or higher-order behavior.</p></details>
+<p><b>4. Global extrema on [a,b] require checking…</b></p><ol type="A"><li>Only f″=0</li><li>Endpoints and all interior critical candidates</li><li>Only f′=0</li><li>Only endpoints</li></ol><details><summary>Answer & reasoning</summary><p>Endpoints and all interior critical candidates. Corners can matter too, and candidates must lie in the domain.</p></details>
+<p><b>5. Minimum of x+4/x on x&gt;0 is…</b></p><ol type="A"><li>4 at x=2</li><li>2 at x=1</li><li>0 at x=0</li><li>Not attained</li></ol><details><summary>Answer & reasoning</summary><p>4 at x=2. Derivative vanishes at 2 and the function is strictly convex on x&gt;0.</p></details>
+<p><b>6. A differentiable convex function with f′(c)=0 has…</b></p><ol type="A"><li>A global maximum at c</li><li>No extremum</li><li>A unique minimum without further assumptions</li><li>A global minimum at c</li></ol><details><summary>Answer & reasoning</summary><p>A global minimum at c. Convexity gives global minimality; strict convexity is needed for guaranteed uniqueness.</p></details>
+<p><b>7. For f=(x−2)², one GD step from 0 with η=1/4 gives…</b></p><ol type="A"><li>−1</li><li>4</li><li>1</li><li>2</li></ol><details><summary>Answer & reasoning</summary><p>1. Derivative at zero is −4, so 0−(1/4)(−4)=1.</p></details>
+<p><b>8. For f=x², η=1 makes nonzero GD iterates…</b></p><ol type="A"><li>Become undefined</li><li>Oscillate without shrinking</li><li>Converge in one step</li><li>Diverge in magnitude</li></ol><details><summary>Answer & reasoning</summary><p>Oscillate without shrinking. The update multiplier is 1−2η=−1.</p></details>
+<p><b>9. Newton’s optimization update is…</b></p><ol type="A"><li>x−f′/f″</li><li>x−f/f′</li><li>x+f′</li><li>x−f″/f′</li></ol><details><summary>Answer & reasoning</summary><p>x−f′/f″. It solves for a zero of the derivative using local curvature.</p></details>
+<p><b>10. A local minimum is necessarily global?</b></p><ol type="A"><li>Yes for every differentiable function</li><li>Yes on every bounded domain</li><li>Yes if f′=0</li><li>No</li></ol><details><summary>Answer & reasoning</summary><p>No. Multiple wells can have different values; convexity provides a useful global guarantee.</p></details>
+<h2>Supporting bridge: integration &amp; gradients</h2><p>Extra preparation for probability, least squares and machine learning</p>
+<h3>01 · Integration recap: accumulation and area</h3>
+<p>This is supporting preparation, beyond the explicitly named single-variable DA calculus list. An antiderivative F satisfies F′=f. Indefinite integration gives a family F+C because derivatives erase constants. For p≠−1, ∫xᵖdx=xᵖ⁺¹/(p+1)+C; ∫1/x dx=ln|x|+C on intervals avoiding zero.</p>
+<p>The definite integral accumulates signed area. For continuous f on [a,b], the fundamental theorem gives ∫ₐᵇf(x)dx=F(b)−F(a). Parts below the axis contribute negatively. Total geometric area requires integrating |f| or splitting at sign changes.</p>
+<p>Substitution reverses the chain rule: ∫f(g(x))g′(x)dx becomes ∫f(u)du with u=g(x). Integration by parts reverses the product rule: ∫u dv=uv−∫v du. Change limits as well when substituting in a definite integral.</p>
+<p>A probability density integrates to one, and an expectation integrates a value weighted by its density. These are future applications, not a substitute for studying probability assumptions. Numerical quadrature approximates an integral by weighted samples; its accuracy depends on smoothness and resolution.</p>
+<div class="formula">∫ₐᵇf=F(b)−F(a)   ·   ∫u dv=uv−∫v du   ·   ∫2xeˣ²dx=eˣ²+C</div><h4>Work it through</h4><ol><li>Compute ∫₀¹x²dx. An antiderivative is x³/3.</li><li>Evaluate at the bounds: 1/3−0=1/3.</li><li>A midpoint sum with n bins uses xᵢ=(i+1/2)/n and width 1/n.</li><li>As the mesh shrinks, the sum approaches 1/3.</li></ol><aside><b>Application:</b> Accumulated cost, probability mass and expected loss are integrals.<br><b>Watch the trap:</b> An indefinite integral needs +C; a definite integral is a number with signed area, not necessarily positive.</aside><pre>for n in [10,100,1000]:
+    print(n,sum(((i+.5)/n)**2/n for i in range(n)))</pre><h4>Expected output</h4><pre>10 0.3325
+100 0.333325
+1000 0.33333325</pre><h4>Your turn</h4><p>Compute ∫₀¹2x e^{x²} dx.</p><p><b>Worked answer:</b> Substitute u=x², du=2x dx. The result is ∫₀¹eᵘdu=e−1.</p><pre>import math
+print(math.e-1)</pre>
+<h3>02 · Partial derivatives, gradients and Hessians</h3>
+<p>This lesson is an application bridge rather than a separately named Section 3 topic. For f(x₁,…,xₙ), a partial derivative changes one coordinate while holding the others fixed. The gradient collects the partial derivatives into a vector; its dot product with a unit direction gives the directional derivative when f is differentiable.</p>
+<p>The gradient points in the direction of steepest Euclidean increase when nonzero. Its norm is that maximum directional rate. A zero gradient is necessary at a differentiable unconstrained interior optimum, but it may also occur at a maximum or saddle.</p>
+<p>The Hessian collects second partial derivatives. When mixed derivatives are continuous they agree, making the Hessian symmetric. At a stationary point, a positive definite Hessian gives a strict local minimum, a negative definite one a strict maximum, and an indefinite one a saddle. Semidefinite cases need further investigation.</p>
+<p>For symmetric A, ∇(½xᵀAx−bᵀx)=Ax−b. For a general A, the gradient of xᵀAx is (A+Aᵀ)x. For least squares ½||Mx−y||², the gradient is Mᵀ(Mx−y), so setting it to zero produces the normal equations studied in Linear Algebra.</p>
+<div class="formula">∇f=(∂f/∂xᵢ)   ·   Duf=∇fᵀu (||u||=1)   ·   Hᵢⱼ=∂²f/(∂xᵢ∂xⱼ)</div><h4>Work it through</h4><ol><li>For f=x²+xy+2y², ∇f=(2x+y,x+4y).</li><li>The Hessian is [[2,1],[1,4]], symmetric with positive leading minors 2 and 7.</li><li>The unique stationary point is (0,0).</li><li>Positive definiteness proves a strict global minimum because the entire function is quadratic.</li></ol><aside><b>Application:</b> This is the mathematical connection between matrix least squares and gradient-based learning.<br><b>Watch the trap:</b> Positive semidefinite Hessian at a single stationary point does not alone prove a minimum for a general nonlinear function.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,4.]])
+x=np.array([1.,2.])
+print(&#x27;gradient&#x27;,A@x)
+print(&#x27;curvatures&#x27;,np.linalg.eigvalsh(A))</pre><h4>Expected output</h4><pre>gradient [4. 9.]
+curvatures [1.5858 4.4142]</pre><h4>Your turn</h4><p>Find gradient and Hessian of x²−y²; classify the origin.</p><p><b>Worked answer:</b> Gradient (2x,−2y), Hessian diag(2,−2), so the origin is a saddle.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+H=np.diag([2.,-2.])
+print(np.linalg.eigvalsh(H))</pre>
+<h3>03 · A capstone: fit a line and explain the loss</h3>
+<p>Combine the two tracks by fitting y≈β₀+β₁t to observations. Build a design matrix X with a column of ones and a column of t values. The prediction vector Xβ lies in the column space of X; least squares projects observed y onto that space.</p>
+<p>Use L(β)=½||Xβ−y||². The gradient is Xᵀ(Xβ−y), the Hessian XᵀX. When the t values are not all equal, the two columns are independent and the loss has one global minimizer. The normal equations express residual orthogonality.</p>
+<p>Solve with numpy.linalg.lstsq and verify both the fitted values and Xᵀr≈0. To explore gradient descent, choose a learning rate below 2/λmax(XᵀX) for this unnormalized quadratic loss. If you divide the loss by sample count, the gradient and safe learning-rate scale change too.</p>
+<p>Finish by explaining three viewpoints in your own words: geometric projection, algebraic normal equations and derivative-based stationarity. A strong understanding connects them instead of memorizing them as unrelated formulas. This capstone prepares for regression without claiming to cover the full machine-learning track.</p>
+<div class="formula">β*=argmin ½||Xβ−y||²   ·   Xᵀr=0   ·   H=XᵀX</div><h4>Work it through</h4><ol><li>Use t=(0,1,2), y=(1,2,2). Then XᵀX=[[3,3],[3,5]] and Xᵀy=(5,6).</li><li>Solve 3β₀+3β₁=5 and 3β₀+5β₁=6.</li><li>β₁=1/2 and β₀=7/6; predictions are (7/6,5/3,13/6).</li><li>Residual y−Xβ=(−1/6,1/3,−1/6); both its sum and t-weighted sum are zero.</li></ol><aside><b>Application:</b> A small end-to-end model checks that geometry, calculus and code agree.<br><b>Watch the trap:</b> A prediction residual can be nonzero at the optimum; what vanishes is its projection onto every design-column direction.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+t=np.array([0.,1.,2.]);y=np.array([1.,2.,2.])
+X=np.column_stack([np.ones(3),t])
+beta=np.linalg.lstsq(X,y,rcond=None)[0]
+r=y-X@beta
+print(beta)
+print(r)
+print(X.T@r)</pre><h4>Expected output</h4><pre>[1.1667 0.5   ]
+[-0.1667  0.3333 -0.1667]
+[0. 0.]</pre><h4>Your turn</h4><p>Fit a constant to observations 2,4,9 and give the residual vector.</p><p><b>Worked answer:</b> The best constant is their mean 5. Residuals are (−3,−1,4), summing to zero.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+y=np.array([2.,4.,9.])
+c=np.mean(y)
+print(c,y-c,np.sum(y-c))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. An antiderivative of 2x is…</b></p><ol type="A"><li>x²+C</li><li>2+C</li><li>2x²+C</li><li>x+C</li></ol><details><summary>Answer & reasoning</summary><p>x²+C. Differentiate x²+C to recover 2x.</p></details>
+<p><b>2. ∫₀¹x² dx equals…</b></p><ol type="A"><li>1/2</li><li>1</li><li>2</li><li>1/3</li></ol><details><summary>Answer & reasoning</summary><p>1/3. Evaluate x³/3 at the bounds.</p></details>
+<p><b>3. ∫₋₁¹x dx equals…</b></p><ol type="A"><li>2</li><li>−1</li><li>0</li><li>1</li></ol><details><summary>Answer & reasoning</summary><p>0. Signed areas cancel.</p></details>
+<p><b>4. Substitution u=x² gives du=…</b></p><ol type="A"><li>dx/x</li><li>2x dx</li><li>x dx</li><li>2 dx</li></ol><details><summary>Answer & reasoning</summary><p>2x dx. Differentiate the substitution.</p></details>
+<p><b>5. The gradient of x²+3y² is…</b></p><ol type="A"><li>(2x,6y)</li><li>(x,3y)</li><li>(2,6)</li><li>2x+6y</li></ol><details><summary>Answer & reasoning</summary><p>(2x,6y). Differentiate one coordinate at a time.</p></details>
+<p><b>6. For f=x²−y², the origin is…</b></p><ol type="A"><li>A minimum</li><li>A maximum</li><li>Not stationary</li><li>A saddle</li></ol><details><summary>Answer & reasoning</summary><p>A saddle. Curvature is positive in x and negative in y.</p></details>
+<p><b>7. The Hessian of ½xᵀAx for symmetric A is…</b></p><ol type="A"><li>AᵀA</li><li>A⁻¹</li><li>A</li><li>2A</li></ol><details><summary>Answer & reasoning</summary><p>A. The gradient is Ax, whose derivative matrix is A.</p></details>
+<p><b>8. The least-squares residual r satisfies…</b></p><ol type="A"><li>rᵀr=1</li><li>Xᵀr=0</li><li>r=0 always</li><li>Xr=0 in every shape</li></ol><details><summary>Answer & reasoning</summary><p>Xᵀr=0. It is orthogonal to the design column space.</p></details>
+<p><b>9. The best constant least-squares fit to 2,4,9 is…</b></p><ol type="A"><li>5</li><li>4</li><li>9</li><li>3</li></ol><details><summary>Answer & reasoning</summary><p>5. It is the mean 15/3.</p></details>
+<p><b>10. A PSD Hessian at one stationary point proves a minimum for any smooth function?</b></p><ol type="A"><li>Yes always</li><li>Only if the dimension is 2</li><li>It proves a maximum</li><li>No</li></ol><details><summary>Answer & reasoning</summary><p>No. Zero-curvature directions need higher-order analysis; x⁴−y⁴ at zero is a counterexample.</p></details>
+<h2>Official PYQ references</h2><p>Open the paper for exact wording and options. Keys are official; short explanations in the interactive exam room are study cues.</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=11">DA 2024 Q15</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=20">DA 2024 Q33</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=22">DA 2024 Q37</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=32">DA 2024 Q50</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=38">DA 2024 Q60</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=11">DA 2025 Q14</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=15">DA 2025 Q24</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=17">DA 2025 Q32</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=22">DA 2025 Q42</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=26">DA 2025 Q48</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=27">DA 2025 Q49</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=27">DA 2025 Q51</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=31">DA 2025 Q59</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=18">DA 2026 Q27</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=20">DA 2026 Q29</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2027.iitm.ac.in/static/doc/GATE2027_Syllabus/DA_GATE2027_Syllabus.pdf">Official syllabus</a> · Original teaching material, GATE Lab.</p></html>

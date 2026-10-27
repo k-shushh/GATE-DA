@@ -1,0 +1,727 @@
+<!doctype html><html lang="en"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Linear Algebra · Complete notes</title><style>body{font:16px/1.8 system-ui,sans-serif;max-width:900px;margin:40px auto;padding:0 24px;color:#20322f;background:#fffefa}h1,h2,h3{line-height:1.3;color:#2b416d}h1{font-size:42px}h2{margin-top:55px;border-top:1px solid #ccd3df;padding-top:28px}h3{margin-top:36px}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:20px;background:#eef2f7;border-radius:8px;font:13px/1.7 monospace}.formula{font:21px/1.8 Georgia,serif;background:#eef1fb;padding:20px;border-left:3px solid #7783c7}aside{background:#f2f6e9;padding:18px;margin:20px 0}a{color:#4255a0}li{margin:8px 0}button{padding:10px 16px}@media print{button,nav{display:none}body{font-size:10pt}h2{break-before:page}pre,aside{break-inside:avoid}}</style><h1>Linear Algebra</h1><p>Complete lessons, hand-worked examples, Python checks, practice tasks and answers.</p><button onclick="print()">Print / Save PDF</button><nav><a href="index.html#la">← Interactive track</a></nav>
+<h2>Essential formula reference</h2>
+<h3>Vector spaces and dimensions</h3><div class="formula" style="white-space:pre-line">dim null(A)=n−rank(A) for A∈Rᵐˣⁿ
+dim null(Aᵀ)=m−rank(A)
+dim(U+W)=dim U+dim W−dim(U∩W)</div><p>A basis is an independent spanning set. Use pivot columns of the original matrix for a column-space basis.</p>
+<h3>Determinants and inverse identities</h3><div class="formula" style="white-space:pre-line">det(cA)=cⁿdet(A) for n×n A
+det(AB)=det(A)det(B); det(Aᵀ)=det(A)
+(AB)⁻¹=B⁻¹A⁻¹
+[[a,b],[c,d]]⁻¹ = [[d,−b],[−c,a]]/(ad−bc)</div><p>The inverse formulas require invertible factors or a nonzero determinant. Row swap negates det; row scaling multiplies it; row replacement preserves it.</p>
+<h3>Rank and consistency</h3><div class="formula" style="white-space:pre-line">rank(AB)≤min(rank A,rank B)
+rank(AB)≥rank A+rank B−n when A has n columns and B has n rows
+rank(A+B)≤rank A+rank B
+Ax=b consistent ⇔ rank(A)=rank([A|b])</div><p>A consistent n-variable system has n−rank(A) free variables. Full column rank gives uniqueness when a solution exists.</p>
+<h3>Orthogonal projection and QR</h3><div class="formula" style="white-space:pre-line">projₐb=a(aᵀb)/(aᵀa), a≠0
+P=A(AᵀA)⁻¹Aᵀ for independent columns
+P=QQᵀ for orthonormal columns
+vⱼ=aⱼ−Σᵢ&lt;ⱼ(qᵢᵀaⱼ)qᵢ; qⱼ=vⱼ/||vⱼ||</div><p>The last line is Gram–Schmidt; a zero residual signals dependence. For an orthogonal projector, Pᵀ=P and P²=P.</p>
+<h3>Spectral and quadratic identities</h3><div class="formula" style="white-space:pre-line">det(A−λI)=0; Σλᵢ=tr(A); Πλᵢ=det(A)
+A=SΛS⁻¹ ⇒ Aᵏ=SΛᵏS⁻¹
+A=Aᵀ ⇒ A=QΛQᵀ, QᵀQ=I
+λmin||x||²≤xᵀAx≤λmax||x||²</div><p>Diagonalization needs an eigenbasis. The last two statements assume a real symmetric matrix. SPD means all eigenvalues positive; PSD means all nonnegative.</p>
+<h3>Factorization and singular values</h3><div class="formula" style="white-space:pre-line">PA=LU ⇒ Ly=Pb, Ux=y
+A=UΣVᵀ; σᵢ²=λᵢ(AᵀA)
+||A||₂=σmax; ||A||F²=Σσᵢ²
+A⁺=VΣ⁺Uᵀ; xLS=A⁺b
+||A−Aₖ||₂=σₖ₊₁; ||A−Aₖ||F²=Σᵢ&gt;ₖσᵢ²</div><p>LU uses the PA=LU convention here. The pseudoinverse inverts only positive singular values. Truncated SVD keeps the largest k; its error formulas apply to this best low-rank approximation.</p>
+<h2>Vectors &amp; geometric intuition</h2><p>Coordinates, linear combinations, lengths, angles and linear maps</p>
+<h3>01 · Scalars, vectors and linear combinations</h3>
+<p>A scalar is one number; a vector is an object that can be added and scaled. In R² or R³, draw a vector as an arrow from the origin. Its coordinates describe it relative to an ordered basis. A point and a displacement can have the same coordinate list, but their roles differ.</p>
+<p>Add vectors component by component and multiply each component by a scalar. The linear combination a u + b v scales two arrows and adds them head-to-tail. Negative coefficients reverse a direction. A zero coefficient omits a vector; the zero vector is always a linear combination.</p>
+<p>The span of a set is every vector obtainable by its linear combinations. One nonzero vector spans a line through the origin. Two nonparallel vectors in R² span the entire plane. Two parallel vectors still span only a line, no matter how many times they are repeated.</p>
+<p>Translate a geometric question into equations in the coefficients. To determine whether w is in span(u,v), solve a u+b v=w. This is the first bridge between geometry and a system of linear equations. You do not need calculus for any of these operations.</p>
+<div class="formula">a u + b v = (a u₁+b v₁, …, a uₙ+b vₙ)ᵀ</div><h4>Work it through</h4><ol><li>Let u=(1,2), v=(2,−1). Find 3u+2v.</li><li>3u=(3,6) and 2v=(4,−2).</li><li>Add components: 3u+2v=(7,4).</li><li>Conversely, solve a+2b=7 and 2a−b=4 to recover a=3,b=2.</li></ol><aside><b>Application:</b> Feature vectors, forces and image pixels all use weighted combinations. A linear prediction is a weighted combination of input features.<br><b>Watch the trap:</b> A line not passing through the origin is an affine set, not a vector subspace.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([1,2]);v=np.array([2,-1])
+print(3*u+2*v)</pre><h4>Expected output</h4><pre>[7 4]</pre><h4>Your turn</h4><p>For u=(1,2),v=(2,−1), compute −u+3v and explain the reversed arrow.</p><p><b>Worked answer:</b> −u+3v=(5,−5). The coefficient −1 reverses u.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([1,2]);v=np.array([2,-1])
+print(-u+3*v)</pre>
+<h3>02 · Dot products, norms and angles</h3>
+<p>For real coordinate vectors, uᵀv is the sum of products of corresponding components. The Euclidean norm is the square root of uᵀu. It measures length and is zero only for the zero vector. The 1-norm sums absolute values; the infinity norm is the largest absolute component.</p>
+<p>The dot product equals ||u|| ||v|| cos θ for nonzero vectors. Positive means an acute angle, negative an obtuse angle, and zero means orthogonality. The angle of the zero vector is undefined even though its dot product with every vector is zero.</p>
+<p>Cauchy–Schwarz bounds |uᵀv| by ||u|| ||v||. Equality holds when the vectors are linearly dependent, including the zero cases. The triangle inequality says ||u+v||≤||u||+||v||. These inequalities are useful for checking whether a proposed numeric answer is even possible.</p>
+<p>Normalize a nonzero vector by dividing it by its norm. Normalization changes length to one without changing direction. It does not make two arbitrary vectors orthogonal. In complex vector spaces replace transpose with conjugate transpose in the standard inner product; the core examples here are real.</p>
+<div class="formula">uᵀv = Σᵢuᵢvᵢ   ·   ||u||₂ = √(uᵀu)   ·   cos θ = uᵀv/(||u||₂||v||₂)</div><h4>Work it through</h4><ol><li>Take u=(3,4),v=(4,−3).</li><li>uᵀv=12−12=0, so the vectors are perpendicular.</li><li>Both norms are 5. Their normalized versions are (0.6,0.8) and (0.8,−0.6).</li><li>For w=(1,1), ||w||₁=2, ||w||₂=√2 and ||w||∞=1.</li></ol><aside><b>Application:</b> Cosine similarity compares directions of document or embedding vectors; Euclidean distance compares points by ||x−y||₂.<br><b>Watch the trap:</b> Orthogonal means dot product zero. Orthonormal additionally requires unit length.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([3.,4.]);v=np.array([4.,-3.])
+print(&#x27;dot&#x27;,u@v)
+print(&#x27;unit&#x27;,u/np.linalg.norm(u))</pre><h4>Expected output</h4><pre>dot 0.0
+unit [0.6 0.8]</pre><h4>Your turn</h4><p>Find the norm and unit vector for (−2,1,2).</p><p><b>Worked answer:</b> Norm 3; unit vector (−2/3,1/3,2/3).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([-2.,1.,2.])
+print(np.linalg.norm(u))
+print(u/np.linalg.norm(u))</pre>
+<h3>03 · Linear transformations and the column picture</h3>
+<p>A linear map T preserves addition and scaling: T(a u+b v)=aT(u)+bT(v). Consequently T(0)=0. A map can preserve zero without being linear, so use both defining properties. Translation by a nonzero vector is affine rather than linear.</p>
+<p>A matrix stores the images of basis vectors as its columns. For A with columns a₁,…,aₙ, Ax=x₁a₁+…+xₙaₙ. An m×n matrix maps Rⁿ into Rᵐ. The output dimension comes from the number of rows, not columns.</p>
+<p>A 2D rotation, reflection, scaling or shear can be linear. A singular map flattens some nonzero direction to zero. Matrix multiplication corresponds to composing maps: AB applies B first and then A to a column vector. Reversing that order generally changes the result.</p>
+<p>Use the images of (1,0) and (0,1) to predict an entire grid transformation. Straight lines remain straight or collapse to points; parallel lines remain parallel or can collapse. This geometric view makes determinants, eigenvectors and singular values easier to understand later.</p>
+<div class="formula">A=[T(e₁) … T(eₙ)]   ⇒   Ax=ΣᵢxᵢT(eᵢ)   ·   (AB)x=A(Bx)</div><h4>Work it through</h4><ol><li>Let A=[[1,1],[0,1]]. Its columns are (1,0) and (1,1).</li><li>For x=(2,3), Ax=2(1,0)+3(1,1)=(5,3).</li><li>Horizontal coordinates shift by the vertical coordinate: this is a shear.</li><li>The origin is fixed and det(A)=1, so area is preserved.</li></ol><aside><b>Application:</b> Coordinate changes in graphics and linear feature transformations in data pipelines use the same column picture.<br><b>Watch the trap:</b> The rightmost matrix acts first when transformations act on column vectors.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1,1],[0,1]])
+print(A@np.array([2,3]))</pre><h4>Expected output</h4><pre>[5 3]</pre><h4>Your turn</h4><p>Apply a 90° counterclockwise rotation to (2,1).</p><p><b>Worked answer:</b> Using [[0,−1],[1,0]] gives (−1,2).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+R=np.array([[0,-1],[1,0]])
+print(R@np.array([2,1]))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. 2(1,−1)+3(0,2) equals…</b></p><ol type="A"><li>(2,4)</li><li>(2,1)</li><li>(3,4)</li><li>(5,1)</li></ol><details><summary>Answer & reasoning</summary><p>(2,4). Scale each vector, then add corresponding components.</p></details>
+<p><b>2. The dot product of (2,−1) and (1,2) is…</b></p><ol type="A"><li>4</li><li>−4</li><li>2</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>0. 2×1+(−1)×2=0.</p></details>
+<p><b>3. The Euclidean norm of (1,2,2) is…</b></p><ol type="A"><li>9</li><li>√5</li><li>3</li><li>5</li></ol><details><summary>Answer & reasoning</summary><p>3. Square, sum and take a square root: √9=3.</p></details>
+<p><b>4. The angle of the zero vector with a nonzero vector is…</b></p><ol type="A"><li>Always 180°</li><li>Undefined</li><li>Always 90°</li><li>Always 0°</li></ol><details><summary>Answer & reasoning</summary><p>Undefined. The angle formula divides by both norms.</p></details>
+<p><b>5. A 4×3 matrix maps…</b></p><ol type="A"><li>R³ to R⁴</li><li>R⁴ to R³</li><li>R⁴ to R⁴ only</li><li>R³ to R³ only</li></ol><details><summary>Answer & reasoning</summary><p>R³ to R⁴. Columns count input coordinates; rows count output coordinates.</p></details>
+<p><b>6. In ABx, which map acts first?</b></p><ol type="A"><li>A</li><li>Both simultaneously</li><li>Neither</li><li>B</li></ol><details><summary>Answer & reasoning</summary><p>B. The rightmost matrix acts on x first.</p></details>
+<p><b>7. Which condition is necessary but not sufficient for linearity?</b></p><ol type="A"><li>A matrix representation on finite-dimensional spaces</li><li>Preserving every linear combination</li><li>T(0)=0</li><li>Additivity and homogeneity together</li></ol><details><summary>Answer & reasoning</summary><p>T(0)=0. For example x↦x² preserves zero but is not linear.</p></details>
+<p><b>8. Normalizing two nonorthogonal vectors…</b></p><ol type="A"><li>Makes them dependent</li><li>Does not generally make them orthogonal</li><li>Always makes them orthogonal</li><li>Makes their dot product zero</li></ol><details><summary>Answer & reasoning</summary><p>Does not generally make them orthogonal. Scaling nonzero vectors does not change their angle.</p></details>
+<p><b>9. The 1-norm of (−2,3) is…</b></p><ol type="A"><li>5</li><li>1</li><li>√13</li><li>13</li></ol><details><summary>Answer & reasoning</summary><p>5. Add absolute component values.</p></details>
+<p><b>10. For nonzero u,v, |uᵀv|=||u||||v|| implies…</b></p><ol type="A"><li>Orthogonality</li><li>Both are unit vectors</li><li>u=v necessarily</li><li>Linear dependence</li></ol><details><summary>Answer & reasoning</summary><p>Linear dependence. This is the equality case of Cauchy–Schwarz.</p></details>
+<h2>Spaces, subspaces &amp; bases</h2><p>Axioms, closure tests, independence, dimension and coordinates</p>
+<h3>01 · Vector spaces and the subspace test</h3>
+<p>A vector space is a set with addition and scalar multiplication satisfying the vector-space axioms: associativity and commutativity of addition, a zero vector, additive inverses, the two distributive laws, associative scalar action and multiplication by scalar 1. Scalars come from a specified field, usually R in this guide.</p>
+<p>Examples include Rⁿ, all m×n real matrices, polynomials of degree at most d, and real-valued functions on a fixed domain. A polynomial is a vector of coefficients in a chosen basis. The zero polynomial belongs to the space even though its degree is usually treated specially.</p>
+<p>For a subset W of an existing vector space, check that W is nonempty and is closed under a u+b v for every u,v in W and scalars a,b. Equivalently check zero, addition and scalar multiplication. One counterexample disproves a subspace; checking a few successful examples cannot prove closure.</p>
+<p>A homogeneous equation such as x+2y−z=0 defines a subspace because linear combinations preserve the zero right side. The equation x+2y−z=1 is an affine plane and fails the zero test. Intersections of subspaces are subspaces. Their union is a subspace only when one contains the other.</p>
+<div class="formula">W≤V ⇔ W≠∅ and a u+b v∈W for every u,v∈W and a,b∈R</div><h4>Work it through</h4><ol><li>Let W={(x,y,z):x+2y−z=0}.</li><li>Solve for x: x=−2y+z.</li><li>Every vector is y(−2,1,0)+z(1,0,1).</li><li>W is a plane through zero, spanned by those two independent vectors.</li></ol><aside><b>Application:</b> The solutions of homogeneous constraints form feasible directions; null spaces are a central example.<br><b>Watch the trap:</b> “Degree exactly d” is not a polynomial vector space: zero is excluded and cancellation can lower degree.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+B=np.array([[-2,1],[1,0],[0,1]])
+x=B@np.array([3,4])
+print(x)
+print(np.array([1,2,-1])@x)</pre><h4>Expected output</h4><pre>[-2  3  4]
+0</pre><h4>Your turn</h4><p>Show that {(x,y):x≥0} is not a subspace.</p><p><b>Worked answer:</b> (1,0) belongs, but scalar multiplication by −1 gives (−1,0), which does not.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+v=np.array([1,0])
+print(&#x27;v allowed&#x27;,bool(v[0]&gt;=0))
+print(&#x27;-v allowed&#x27;,bool((-v)[0]&gt;=0))</pre>
+<h3>02 · Dependence, independence and redundancy</h3>
+<p>Vectors v₁,…,vₖ are independent when c₁v₁+…+cₖvₖ=0 has only the all-zero coefficient solution. Dependence means a nontrivial coefficient choice gives zero. In a dependent finite set, at least one vector can be written as a combination of the others.</p>
+<p>Place the vectors as columns in a matrix A. Independence becomes the statement that Ax=0 has only x=0. Row reduction locates pivot columns; every column must be a pivot for column independence. More than n vectors in Rⁿ are always dependent.</p>
+<p>Any set containing the zero vector is dependent. Two nonzero vectors are dependent exactly when they are scalar multiples. For three or more vectors, pairwise nonparallel directions do not guarantee independence: three vectors in a plane are necessarily dependent.</p>
+<p>Removing a dependent vector does not shrink the span if it is a combination of the retained vectors. Adding a vector outside the span increases dimension by one. These observations explain why feature redundancy lowers matrix rank and why choosing a basis removes redundant descriptions.</p>
+<div class="formula">[v₁ … vₖ]c=0 has only c=0 ⇔ {v₁,…,vₖ} is independent</div><h4>Work it through</h4><ol><li>Let v₁=(1,0),v₂=(0,1),v₃=(1,1).</li><li>v₁+v₂−v₃=0 is a nontrivial relation.</li><li>All three pairs are nonparallel, but the three-vector set is dependent.</li><li>Keep v₁,v₂ to preserve the same span R² without redundancy.</li></ol><aside><b>Application:</b> Duplicate or linearly redundant predictors make least-squares coefficients nonunique unless additional choices are imposed.<br><b>Watch the trap:</b> Independent rows and independent columns have different counts; for a rectangular matrix, say which independence you mean.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1,0,1],[0,1,1]])
+print(A@np.array([1,1,-1]))
+print(&#x27;rank&#x27;,np.linalg.matrix_rank(A))</pre><h4>Expected output</h4><pre>[0 0]
+rank 2</pre><h4>Your turn</h4><p>Find a dependence relation for (1,2),(2,4).</p><p><b>Worked answer:</b> 2(1,2)−(2,4)=0, so the coefficients (2,−1) are nontrivial.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1,2],[2,4]])
+print(A@np.array([2,-1]))</pre>
+<h3>03 · Basis, dimension and change of coordinates</h3>
+<p>A basis is an independent spanning set. Every vector in the space has a unique coordinate representation in that basis: spanning gives existence, independence gives uniqueness. The number of basis vectors is the dimension; all bases of the same finite-dimensional space have the same size.</p>
+<p>The standard basis of Rⁿ consists of coordinate unit vectors. P_d has basis 1,x,…,xᵈ and dimension d+1. The space of m×n matrices has dimension mn. A basis of a subspace of Rⁿ may have fewer than n vectors.</p>
+<p>If B is a square matrix whose columns are a basis, actual coordinates and basis coordinates satisfy x=B[x]_B. Solve Bc=x to obtain c=[x]_B. For two bases B and C, [x]_C=C⁻¹B[x]_B. The vector itself has not changed, only its description.</p>
+<p>For subspaces U,W of a finite-dimensional V, dim(U+W)=dim U+dim W−dim(U∩W). A direct sum has intersection {0}, giving unique decomposition and adding dimensions. Coordinate transformations and rank arguments use this counting relationship repeatedly.</p>
+<div class="formula">x=B[x]_B   ·   [x]_C=C⁻¹B[x]_B   ·   dim(U+W)=dim U+dim W−dim(U∩W)</div><h4>Work it through</h4><ol><li>Choose B=[(1,1),(1,−1)] and x=(4,2).</li><li>The coordinate equations are c₁+c₂=4 and c₁−c₂=2.</li><li>Therefore c₁=3,c₂=1, so [x]_B=(3,1).</li><li>The standard coordinates (4,2) and B-coordinates (3,1) describe the same vector.</li></ol><aside><b>Application:</b> Eigenvector bases and singular-vector bases simplify a transformation by choosing useful coordinates.<br><b>Watch the trap:</b> An independent set need not span the whole ambient space; specify the space for which it is a basis.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+B=np.array([[1.,1.],[1.,-1.]])
+print(np.linalg.solve(B,np.array([4.,2.])))</pre><h4>Expected output</h4><pre>[3. 1.]</pre><h4>Your turn</h4><p>Find the coordinates of (2,4) in the same basis.</p><p><b>Worked answer:</b> c₁+c₂=2 and c₁−c₂=4 give (3,−1).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+B=np.array([[1.,1.],[1.,-1.]])
+print(np.linalg.solve(B,np.array([2.,4.])))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Which subset of R² is a subspace?</b></p><ol type="A"><li>x+y=0</li><li>x+y=1</li><li>x≥0</li><li>xy=0</li></ol><details><summary>Answer & reasoning</summary><p>x+y=0. The homogeneous linear constraint is closed under addition and scaling.</p></details>
+<p><b>2. A subspace must contain…</b></p><ol type="A"><li>Every vector in the ambient space</li><li>Only nonzero vectors</li><li>A vector of every norm and direction</li><li>The zero vector</li></ol><details><summary>Answer & reasoning</summary><p>The zero vector. Scale any member by zero.</p></details>
+<p><b>3. Three vectors in R² are always…</b></p><ol type="A"><li>A basis</li><li>Pairwise parallel</li><li>Linearly dependent</li><li>Independent</li></ol><details><summary>Answer & reasoning</summary><p>Linearly dependent. There are more vectors than the ambient dimension.</p></details>
+<p><b>4. A set containing the zero vector is…</b></p><ol type="A"><li>Not a set of vectors</li><li>Dependent</li><li>Independent if other vectors differ</li><li>Always a basis</li></ol><details><summary>Answer & reasoning</summary><p>Dependent. Give the zero vector a nonzero coefficient and every other vector coefficient zero.</p></details>
+<p><b>5. The dimension of polynomials of degree at most 3 is…</b></p><ol type="A"><li>4</li><li>3</li><li>2</li><li>Infinite</li></ol><details><summary>Answer & reasoning</summary><p>4. A basis is 1,x,x²,x³.</p></details>
+<p><b>6. The union of two subspaces…</b></p><ol type="A"><li>Is always a subspace</li><li>Never contains zero</li><li>Equals their intersection</li><li>Need not be a subspace</li></ol><details><summary>Answer & reasoning</summary><p>Need not be a subspace. The union of two distinct lines fails closure under addition.</p></details>
+<p><b>7. The intersection of two subspaces is…</b></p><ol type="A"><li>Their union</li><li>Always zero-dimensional</li><li>Always a subspace</li><li>Never a subspace</li></ol><details><summary>Answer & reasoning</summary><p>Always a subspace. Both closure properties survive intersection.</p></details>
+<p><b>8. For basis (1,1),(1,−1), coordinates of (4,2) are…</b></p><ol type="A"><li>(2,4)</li><li>(3,1)</li><li>(4,2)</li><li>(1,3)</li></ol><details><summary>Answer & reasoning</summary><p>(3,1). Solve a+b=4 and a−b=2.</p></details>
+<p><b>9. If dim U=3, dim W=2, dim(U∩W)=1, then dim(U+W)=…</b></p><ol type="A"><li>4</li><li>5</li><li>6</li><li>2</li></ol><details><summary>Answer & reasoning</summary><p>4. Use 3+2−1.</p></details>
+<p><b>10. Two independent vectors in R³ form…</b></p><ol type="A"><li>A basis of R³</li><li>A dependent pair</li><li>A one-dimensional span</li><li>A basis for their two-dimensional span</li></ol><details><summary>Answer & reasoning</summary><p>A basis for their two-dimensional span. They span a plane through zero, not all of R³.</p></details>
+<h2>Matrix operations &amp; blocks</h2><p>Dimensions, products, transpose, inverse and partitioned matrices</p>
+<h3>01 · Matrix arithmetic without shape mistakes</h3>
+<p>An m×n matrix has m rows and n columns. Addition requires the same shape and is componentwise. Scalar multiplication scales every entry. For A of shape m×n and B of shape n×p, AB has shape m×p; the inner dimensions must agree.</p>
+<p>Each entry (AB)ᵢⱼ is a dot product of row i of A with column j of B. Equivalently, each output column is A times the corresponding column of B. Matrix multiplication is associative and distributive, but generally not commutative.</p>
+<p>The identity I has ones on the diagonal and acts as a neutral transformation. The zero matrix sends every vector to zero. A product AB can be zero even when both factors are nonzero, because B’s outputs may lie in A’s null space.</p>
+<p>In NumPy, @ means matrix multiplication; * means entrywise multiplication for arrays. A 1D array has no distinct row/column orientation, so use explicit reshaping when a calculation needs an n×1 column or 1×n row. Check shapes before checking arithmetic.</p>
+<div class="formula">(AB)ᵢⱼ=ΣₖAᵢₖBₖⱼ   ·   (m×n)(n×p)→m×p</div><h4>Work it through</h4><ol><li>A=[[1,2],[0,1]], B=[[2,0],[1,3]].</li><li>AB first row is (1·2+2·1,1·0+2·3)=(4,6).</li><li>AB second row is (1,3), so AB=[[4,6],[1,3]].</li><li>BA=[[2,4],[1,5]], confirming that order matters.</li></ol><aside><b>Application:</b> A batch of observations multiplied by a weight matrix is the same operation as many weighted feature combinations.<br><b>Watch the trap:</b> AB=AC does not imply B=C unless cancellation by A is justified, for example A is invertible.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1,2],[0,1]]);B=np.array([[2,0],[1,3]])
+print(A@B)
+print(B@A)</pre><h4>Expected output</h4><pre>[[4 6]
+ [1 3]]
+[[2 4]
+ [1 5]]</pre><h4>Your turn</h4><p>Compute AB and BA for A=[[1,1],[0,1]], B=[[1,0],[1,1]].</p><p><b>Worked answer:</b> AB=[[2,1],[1,1]], BA=[[1,1],[1,2]].</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1,1],[0,1]]);B=np.array([[1,0],[1,1]])
+print(A@B);print(B@A)</pre>
+<h3>02 · Transpose, inverse and useful identities</h3>
+<p>The transpose exchanges rows and columns: (Aᵀ)ᵢⱼ=Aⱼᵢ. It reverses a product: (AB)ᵀ=BᵀAᵀ. The trace is the sum of diagonal entries of a square matrix. For compatible products, tr(AB)=tr(BA); this does not mean AB=BA.</p>
+<p>A square matrix is invertible when there is a matrix A⁻¹ with AA⁻¹=A⁻¹A=I. Invertibility is equivalent to full rank, nonzero determinant, a zero-dimensional null space and a unique solution Ax=b for every b. A rectangular matrix has no two-sided inverse of this kind.</p>
+<p>For invertible A and B, (AB)⁻¹=B⁻¹A⁻¹. Also (Aᵀ)⁻¹=(A⁻¹)ᵀ. There is no general identity (A+B)⁻¹=A⁻¹+B⁻¹. To solve Ax=b numerically, prefer a direct solve or factorization over explicitly forming the inverse.</p>
+<p>For A=[[a,b],[c,d]], the inverse is [[d,−b],[−c,a]]/(ad−bc) when the denominator is nonzero. This formula is excellent for 2×2 exam arithmetic; it is not a recommendation to compute large inverses by cofactors.</p>
+<div class="formula">(AB)ᵀ=BᵀAᵀ   ·   (AB)⁻¹=B⁻¹A⁻¹   ·   A⁻¹=(1/(ad−bc))[[d,−b],[−c,a]]</div><h4>Work it through</h4><ol><li>A=[[2,1],[1,1]] has determinant 1.</li><li>Its inverse is [[1,−1],[−1,2]].</li><li>For b=(3,2), x=A⁻¹b=(1,1).</li><li>Verify by multiplying A(1,1)=(3,2), rather than trusting the formula alone.</li></ol><aside><b>Application:</b> Changing coordinates and recovering an input from a reversible linear transform both use invertibility.<br><b>Watch the trap:</b> A matrix with a zero diagonal entry can still be invertible. [[0,1],[1,0]] is a counterexample.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,1.]])
+print(np.linalg.inv(A))
+print(np.linalg.solve(A,np.array([3.,2.])))</pre><h4>Expected output</h4><pre>[[ 1. -1.]
+ [-1.  2.]]
+[1. 1.]</pre><h4>Your turn</h4><p>Invert [[1,2],[3,4]] and verify its product with the original.</p><p><b>Worked answer:</b> The inverse is [[−2,1],[1.5,−0.5]]. Both products equal I.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.],[3.,4.]])
+B=np.linalg.inv(A)
+print(B);print(np.allclose(A@B,np.eye(2)))</pre>
+<h3>03 · Partitioned matrices and Schur complements</h3>
+<p>A partitioned or block matrix groups rows and columns into submatrices. The underlying matrix is unchanged. Block addition and multiplication use the same rules as scalar entries, but each block product must have compatible dimensions and its order must be preserved.</p>
+<p>For [[A,B],[C,D]] times [[E,F],[G,H]], the upper-left block is AE+BG and the other blocks follow row-by-column multiplication. Block-diagonal matrices act independently on coordinate groups. Their determinant is the product of block determinants.</p>
+<p>When A is invertible, eliminate C by block row operations. The remaining lower-right block is S=D−CA⁻¹B, called the Schur complement of A. The determinant identity det(M)=det(A)det(S) follows. It requires A invertible in this form; do not use A⁻¹ when A is singular.</p>
+<p>If both A and S are invertible, solve block equations by substitution: y=S⁻¹(g−CA⁻¹f), then x=A⁻¹(f−By). A block inverse exists and can be built from these expressions. Directly replacing det([[A,B],[C,D]]) with det(AD−BC) is not generally valid for arbitrary noncommuting blocks.</p>
+<div class="formula">S=D−CA⁻¹B   ·   det([[A,B],[C,D]])=det(A)det(S)  [A invertible]</div><h4>Work it through</h4><ol><li>For M=[[2,1],[1,3]], use scalar blocks A=2,B=C=1,D=3.</li><li>S=3−1·(1/2)·1=2.5.</li><li>det(M)=2·2.5=5, matching 2·3−1·1.</li><li>For block sizes larger than one, the multiplication order in CA⁻¹B becomes essential.</li></ol><aside><b>Application:</b> Block elimination appears when separating parameter groups in least squares and covariance calculations.<br><b>Watch the trap:</b> A partition is a grouping device; it does not make matrix blocks commute.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.]]);B=np.array([[1.]]);C=B.T;D=np.array([[3.]])
+S=D-C@np.linalg.solve(A,B)
+print(S)
+print(round(np.linalg.det(A)*np.linalg.det(S),4))</pre><h4>Expected output</h4><pre>[[2.5]]
+5.0</pre><h4>Your turn</h4><p>Use a Schur complement to compute det([[4,2],[2,3]]).</p><p><b>Worked answer:</b> S=3−2(1/4)2=2; determinant=4·2=8.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[4.]]);B=np.array([[2.]]);D=np.array([[3.]])
+S=D-B.T@np.linalg.solve(A,B)
+print(round(float(np.linalg.det(A)*np.linalg.det(S)),4))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. A is 2×3 and B is 3×4. AB is…</b></p><ol type="A"><li>2×4</li><li>3×3</li><li>4×2</li><li>Undefined</li></ol><details><summary>Answer & reasoning</summary><p>2×4. The inner dimensions match and the outer dimensions remain.</p></details>
+<p><b>2. (AB)ᵀ equals…</b></p><ol type="A"><li>AᵀBᵀ</li><li>ABᵀ</li><li>AᵀB</li><li>BᵀAᵀ</li></ol><details><summary>Answer & reasoning</summary><p>BᵀAᵀ. Transpose reverses multiplication order.</p></details>
+<p><b>3. For invertible A,B, (AB)⁻¹ equals…</b></p><ol type="A"><li>AB</li><li>A⁻¹+B⁻¹</li><li>B⁻¹A⁻¹</li><li>A⁻¹B⁻¹</li></ol><details><summary>Answer & reasoning</summary><p>B⁻¹A⁻¹. Multiply to check cancellation in the correct order.</p></details>
+<p><b>4. An n×n matrix has an inverse exactly when its rank is…</b></p><ol type="A"><li>At least 1</li><li>n</li><li>n−1</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>n. Full rank means no nonzero null vector and a unique solution for every right-hand side.</p></details>
+<p><b>5. The inverse of diag(2,5) is…</b></p><ol type="A"><li>diag(1/2,1/5)</li><li>diag(−2,−5)</li><li>diag(5,2)</li><li>diag(4,25)</li></ol><details><summary>Answer & reasoning</summary><p>diag(1/2,1/5). Invert each nonzero diagonal entry.</p></details>
+<p><b>6. For general matrices, AB=0 implies…</b></p><ol type="A"><li>A=0 necessarily</li><li>B=0 necessarily</li><li>Both are zero</li><li>Neither A=0 nor B=0 necessarily</li></ol><details><summary>Answer & reasoning</summary><p>Neither A=0 nor B=0 necessarily. Nonzero matrices can map into each other’s null spaces.</p></details>
+<p><b>7. A block product is valid when…</b></p><ol type="A"><li>Every block is invertible</li><li>Blocks commute</li><li>Block dimensions conform</li><li>Every block is square</li></ol><details><summary>Answer & reasoning</summary><p>Block dimensions conform. Ordinary row-by-column rules still apply with compatible sizes.</p></details>
+<p><b>8. The Schur complement of invertible A in [[A,B],[C,D]] is…</b></p><ol type="A"><li>A+B+C+D</li><li>D−CA⁻¹B</li><li>A−BD⁻¹C always</li><li>D−BA⁻¹C</li></ol><details><summary>Answer & reasoning</summary><p>D−CA⁻¹B. Eliminate the lower-left block using A.</p></details>
+<p><b>9. The determinant of [[A,B],[0,D]] with square diagonal blocks is…</b></p><ol type="A"><li>det(A)det(D)</li><li>det(A)+det(D)</li><li>det(B)</li><li>Always zero</li></ol><details><summary>Answer & reasoning</summary><p>det(A)det(D). Block triangular determinants multiply, regardless of B.</p></details>
+<p><b>10. For A=[[1,2],[0,1]], A² is…</b></p><ol type="A"><li>[[1,4],[0,2]]</li><li>[[1,2],[0,1]]</li><li>[[2,4],[0,2]]</li><li>[[1,4],[0,1]]</li></ol><details><summary>Answer & reasoning</summary><p>[[1,4],[0,1]]. Use matrix multiplication; it is not entrywise squaring.</p></details>
+<h2>Special matrices</h2><p>Symmetry, orthogonality, idempotence and projection operators</p>
+<h3>01 · Symmetric, skew-symmetric and triangular matrices</h3>
+<p>A real square matrix is symmetric if Aᵀ=A and skew-symmetric if Aᵀ=−A. A skew-symmetric real matrix has zero diagonal, because aᵢᵢ=−aᵢᵢ. Every real square matrix splits uniquely into a symmetric and a skew-symmetric part.</p>
+<p>The decomposition is A=(A+Aᵀ)/2+(A−Aᵀ)/2. For a real vector x, xᵀKx=0 when K is skew-symmetric, so a quadratic expression xᵀAx depends only on the symmetric part of A. This fact prevents unnecessary quadratic-form calculations.</p>
+<p>A diagonal matrix has no off-diagonal entries. Upper triangular means entries below the diagonal are zero; lower triangular is the reverse. Products of upper triangular matrices remain upper triangular. A triangular matrix’s determinant and eigenvalues come directly from its diagonal.</p>
+<p>A real symmetric matrix has real eigenvalues and an orthonormal eigenbasis. Products of two symmetric matrices need not be symmetric: AB is symmetric exactly when AB=BA for symmetric A,B. Distinguish a condition on each factor from a condition on their product.</p>
+<div class="formula">A=S+K,   S=(A+Aᵀ)/2,   K=(A−Aᵀ)/2   ·   xᵀKx=0</div><h4>Work it through</h4><ol><li>For A=[[1,4],[2,3]], S=[[1,3],[3,3]].</li><li>K=[[0,1],[−1,0]], and S+K=A.</li><li>For x=(2,1), xᵀKx=2−2=0.</li><li>Therefore xᵀAx=xᵀSx=19.</li></ol><aside><b>Application:</b> Covariance matrices are symmetric; optimization curvature uses a symmetric Hessian when second derivatives are continuous.<br><b>Watch the trap:</b> A zero diagonal does not imply skew-symmetry; the paired off-diagonal entries must also be negatives.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,4.],[2.,3.]])
+S=(A+A.T)/2;K=(A-A.T)/2;x=np.array([2.,1.])
+print(S);print(K);print(x@A@x,x@S@x)</pre><h4>Expected output</h4><pre>[[1. 3.]
+ [3. 3.]]
+[[ 0.  1.]
+ [-1.  0.]]
+19.0 19.0</pre><h4>Your turn</h4><p>Split [[2,5],[1,4]] into symmetric and skew-symmetric parts.</p><p><b>Worked answer:</b> S=[[2,3],[3,4]], K=[[0,2],[−2,0]].</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,5.],[1.,4.]])
+print((A+A.T)/2);print((A-A.T)/2)</pre>
+<h3>02 · Orthogonal matrices preserve geometry</h3>
+<p>A real square matrix Q is orthogonal when QᵀQ=I. Its columns form an orthonormal basis, and its rows do too. Q⁻¹=Qᵀ. A rectangular matrix may have orthonormal columns, but is not an orthogonal square matrix under this convention.</p>
+<p>Orthogonal transformations preserve dot products: (Qx)ᵀ(Qy)=xᵀy. Consequently they preserve Euclidean lengths, distances and angles. Rotations and reflections are examples. Orthogonal matrices can have negative entries; “orthogonal” is not a statement about all entries being zero except the diagonal.</p>
+<p>Taking determinants of QᵀQ=I gives det(Q)²=1, so det(Q)=±1. A positive determinant preserves orientation; a negative determinant reverses it. Real eigenvalues of an orthogonal matrix can only be ±1, while complex eigenvalues have magnitude one.</p>
+<p>For a rectangular m×r matrix U with UᵀU=I_r, multiplication preserves lengths of vectors in Rʳ, but UUᵀ is a projection in Rᵐ rather than generally I_m. This distinction is crucial in thin QR and reduced SVD.</p>
+<div class="formula">QᵀQ=I ⇒ Q⁻¹=Qᵀ,  ||Qx||₂=||x||₂,  det Q=±1</div><h4>Work it through</h4><ol><li>Q=[[0,−1],[1,0]] rotates by 90°.</li><li>QᵀQ=I and det Q=1.</li><li>For x=(3,4), Qx=(−4,3). Both vectors have norm 5.</li><li>A reflection diag(1,−1) also preserves length but has determinant −1.</li></ol><aside><b>Application:</b> Orthogonal coordinate changes avoid stretching numerical errors and are central to stable decompositions.<br><b>Watch the trap:</b> If U is tall with orthonormal columns, UᵀU=I does not imply UUᵀ=I.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+Q=np.array([[0.,-1.],[1.,0.]])
+x=np.array([3.,4.])
+print(Q.T@Q);print(Q@x);print(np.linalg.norm(Q@x))</pre><h4>Expected output</h4><pre>[[1. 0.]
+ [0. 1.]]
+[-4.  3.]
+5.0</pre><h4>Your turn</h4><p>Verify that diag(1,−1) is orthogonal and reflects (2,3).</p><p><b>Worked answer:</b> Its transpose times itself is I; the output is (2,−3), with the same norm.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+Q=np.diag([1.,-1.]);x=np.array([2.,3.])
+print(Q.T@Q);print(Q@x)</pre>
+<h3>03 · Idempotent matrices and projection matrices</h3>
+<p>An idempotent matrix satisfies P²=P: applying it twice has the same effect as applying it once. Its image consists of fixed vectors, and its kernel consists of vectors sent to zero. Every vector x decomposes as Px+(I−P)x into image and kernel components.</p>
+<p>For an eigenpair Pv=λv, idempotence gives λ²=λ, hence λ is 0 or 1. Because the polynomial t(t−1) has distinct roots, an idempotent matrix is diagonalizable. Its trace equals its rank. I−P is also idempotent and projects onto the complementary component.</p>
+<p>A real orthogonal projection onto a subspace is both symmetric and idempotent. An idempotent matrix that is not symmetric is an oblique projection: its residual need not be perpendicular to its image. Some questions use “projection matrix” broadly; state whether orthogonal projection is intended.</p>
+<p>For a unit vector u, P=uuᵀ projects onto its line. For orthonormal columns U, P=UUᵀ projects onto their span. If the columns of A are independent but not orthonormal, P=A(AᵀA)⁻¹Aᵀ. A rank-deficient A requires a pseudoinverse or an independent basis instead.</p>
+<div class="formula">P²=P; orthogonal projection also has Pᵀ=P.   P_line=uuᵀ/(uᵀu), u≠0</div><h4>Work it through</h4><ol><li>Project onto the line spanned by u=(1,1).</li><li>P=(1/2)[[1,1],[1,1]].</li><li>For x=(3,1), Px=(2,2), and residual (1,−1) is perpendicular to u.</li><li>P²=P, tr(P)=1 and rank(P)=1.</li></ol><aside><b>Application:</b> Least-squares fitted values are projections onto a column space; the residual is the part the model cannot represent.<br><b>Watch the trap:</b> Idempotence alone does not imply orthogonal projection. [[1,1],[0,0]] is idempotent but not symmetric.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([1.,1.]);P=np.outer(u,u)/(u@u)
+print(P);print(P@np.array([3.,1.]));print(np.allclose(P@P,P))</pre><h4>Expected output</h4><pre>[[0.5 0.5]
+ [0.5 0.5]]
+[2. 2.]
+True</pre><h4>Your turn</h4><p>Build the projector onto (1,2) and project (3,0).</p><p><b>Worked answer:</b> P=(1/5)[[1,2],[2,4]], giving (0.6,1.2).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([1.,2.]);P=np.outer(u,u)/(u@u)
+print(P);print(P@np.array([3.,0.]))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. A real symmetric matrix satisfies…</b></p><ol type="A"><li>Aᵀ=A</li><li>Aᵀ=−A</li><li>A²=I</li><li>A²=A</li></ol><details><summary>Answer & reasoning</summary><p>Aᵀ=A. Symmetry mirrors entries across the diagonal.</p></details>
+<p><b>2. Every diagonal entry of a real skew-symmetric matrix is…</b></p><ol type="A"><li>1</li><li>−1</li><li>Positive</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>0. aᵢᵢ=−aᵢᵢ forces zero.</p></details>
+<p><b>3. An orthogonal square matrix Q has inverse…</b></p><ol type="A"><li>Q²</li><li>Q+I</li><li>Qᵀ</li><li>−Q</li></ol><details><summary>Answer & reasoning</summary><p>Qᵀ. QᵀQ=I.</p></details>
+<p><b>4. The determinant of a real orthogonal matrix is…</b></p><ol type="A"><li>Any nonzero real number</li><li>+1 or −1</li><li>Always +1</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>+1 or −1. Take determinants in QᵀQ=I to get det(Q)²=1.</p></details>
+<p><b>5. If P²=P, possible eigenvalues are…</b></p><ol type="A"><li>0 and 1</li><li>−1 and 1</li><li>Any positive number</li><li>Only 0</li></ol><details><summary>Answer & reasoning</summary><p>0 and 1. Apply P² to an eigenvector: λ²=λ.</p></details>
+<p><b>6. An orthogonal projection matrix must be…</b></p><ol type="A"><li>Only idempotent</li><li>Only orthogonal</li><li>Only invertible</li><li>Symmetric and idempotent</li></ol><details><summary>Answer & reasoning</summary><p>Symmetric and idempotent. Symmetry ensures the projection direction is perpendicular to the target subspace.</p></details>
+<p><b>7. An invertible idempotent matrix is…</b></p><ol type="A"><li>0</li><li>Any orthogonal matrix</li><li>I</li><li>−I</li></ol><details><summary>Answer & reasoning</summary><p>I. Multiply P²=P by P⁻¹.</p></details>
+<p><b>8. For idempotent P, rank(P) equals…</b></p><ol type="A"><li>0 always</li><li>trace(P)</li><li>det(P) always</li><li>Number of rows always</li></ol><details><summary>Answer & reasoning</summary><p>trace(P). Its eigenvalues are 0 and 1 and it is diagonalizable.</p></details>
+<p><b>9. A rectangular Q with orthonormal columns satisfies…</b></p><ol type="A"><li>QᵀQ=I</li><li>QQᵀ=I in every shape</li><li>Q⁻¹=Q</li><li>Q²=Q</li></ol><details><summary>Answer & reasoning</summary><p>QᵀQ=I. QQᵀ is a projection and is identity only when the columns span the full output space.</p></details>
+<p><b>10. For real skew-symmetric K, xᵀKx is…</b></p><ol type="A"><li>Positive for all x</li><li>Negative for all x</li><li>||x||²</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>0. The scalar equals its transpose, which is its negative.</p></details>
+<h2>Systems &amp; Gaussian elimination</h2><p>Augmented matrices, pivots, consistency and parametric solutions</p>
+<h3>01 · Translate equations into Ax=b</h3>
+<p>A system of m linear equations in n unknowns is Ax=b, where each row stores one equation’s coefficients. A solution makes all equations true simultaneously. Geometrically in R², two nonparallel lines intersect once, parallel distinct lines never meet, and coincident lines have infinitely many common points.</p>
+<p>The column picture says b must belong to the column space of A. The augmented matrix [A|b] records both coefficients and the right side. Elementary row operations—swapping rows, scaling a row by a nonzero scalar and adding a multiple of another row—preserve the solution set.</p>
+<p>A homogeneous system has b=0 and always admits x=0. It has nonzero solutions exactly when its columns are dependent, or equivalently rank(A)&lt;n. For a nonhomogeneous consistent system, the general solution is x_p+z with z in the null space.</p>
+<p>The number of equations alone does not determine the number of solutions. Dependent or contradictory equations can appear in square, tall or wide systems. Count pivots and test consistency instead of assuming “more equations means no solution”.</p>
+<div class="formula">Ax=b is consistent ⇔ b∈Col(A) ⇔ rank(A)=rank([A|b])</div><h4>Work it through</h4><ol><li>Solve x+y=3 and x−y=1.</li><li>Adding equations gives 2x=4, so x=2.</li><li>Substitute to obtain y=1.</li><li>The matrix columns (1,1) and (1,−1) combine as 2(1,1)+(1,−1)=(3,1).</li></ol><aside><b>Application:</b> Resource balances, network flows and interpolation conditions become linear systems.<br><b>Watch the trap:</b> A homogeneous system is always consistent, even when A is singular.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,1.],[1.,-1.]])
+b=np.array([3.,1.]);x=np.linalg.solve(A,b)
+print(x);print(A@x)</pre><h4>Expected output</h4><pre>[2. 1.]
+[3. 1.]</pre><h4>Your turn</h4><p>Compare x+y=2, 2x+2y=4 with x+y=2, 2x+2y=5.</p><p><b>Worked answer:</b> The first has x=2−t,y=t for any real t. The second reduces to 0=1 and is inconsistent.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,1.],[2.,2.]])
+for b in [np.array([2.,4.]),np.array([2.,5.])]:
+    print(np.linalg.matrix_rank(A),np.linalg.matrix_rank(np.column_stack([A,b])))</pre>
+<h3>02 · Gaussian elimination, echelon form and pivoting</h3>
+<p>Gaussian elimination uses a pivot to remove entries below it, producing row echelon form. Leading nonzero entries move right as you move down rows; zero rows go to the bottom. Back substitution then determines pivot variables from the last nonzero row upward.</p>
+<p>Reduced row echelon form (RREF) additionally makes each pivot equal to one and the only nonzero entry in its column. RREF is unique, although the sequence of row operations is not. Ordinary echelon form is not unique. Free columns identify variables that may be chosen independently in a consistent system.</p>
+<p>If a pivot position is zero, search lower rows for a nonzero entry and swap; if none exists, skip that column. Numerical partial pivoting chooses a largest-magnitude available entry in the column to reduce instability from division by tiny values. In exact hand arithmetic, keep fractions rather than rounding early.</p>
+<p>Dense elimination is O(n³) for a general square system; back substitution in an already triangular system is O(n²). Row operations preserve rank and solutions, but not determinant without tracking the operation’s effect. They also do not generally preserve eigenvalues.</p>
+<div class="formula">Rᵢ ← Rᵢ − (aᵢₖ/aₖₖ)Rₖ   [nonzero pivot aₖₖ]</div><h4>Work it through</h4><ol><li>For x+2y=5 and 3x+4y=11, start with [[1,2|5],[3,4|11]].</li><li>R₂←R₂−3R₁ gives [[1,2|5],[0,−2|−4]].</li><li>Back substitution: y=2, then x=1.</li><li>The row multiplier 3 will become an entry in L in LU factorization.</li></ol><aside><b>Application:</b> One elimination factorization can solve many systems with the same coefficient matrix and different right sides.<br><b>Watch the trap:</b> A zero pivot at the current position does not prove singularity; a row exchange may repair it.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+M=np.array([[1.,2.,5.],[3.,4.,11.]])
+M[1]-=3*M[0]
+print(M)
+y=M[1,2]/M[1,1];x=M[0,2]-M[0,1]*y
+print(x,y)</pre><h4>Expected output</h4><pre>[[ 1.  2.  5.]
+ [ 0. -2. -4.]]
+1.0 2.0</pre><h4>Your turn</h4><p>Solve 2y=4 and x+y=3, explicitly swapping the initial zero-pivot row.</p><p><b>Worked answer:</b> Swap equations first; y=2 then x=1.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+M=np.array([[0.,2.,4.],[1.,1.,3.]])
+M[[0,1]]=M[[1,0]]
+y=M[1,2]/M[1,1];x=M[0,2]-M[0,1]*y
+print(M);print(x,y)</pre>
+<h3>03 · Free variables and parameter-dependent systems</h3>
+<p>A row [0 … 0|c] with c≠0 is a contradiction. If no such row exists, the system is consistent. A consistent system with rank r and n unknowns has n−r free parameters. If r=n the solution is unique; otherwise infinitely many solutions exist over R.</p>
+<p>Express pivot variables in terms of free variables to obtain x=x_p+t₁v₁+…+tₖvₖ. The vectors vᵢ form a basis of the homogeneous solution space. The nonhomogeneous solution set is an affine translate of that subspace, not generally itself a subspace.</p>
+<p>When a matrix contains a parameter, do not divide by an expression that might be zero without separating cases. A pivot such as a−2 creates one generic case a≠2 and a special case a=2. Recheck the right side in the special case to distinguish inconsistency from infinitely many solutions.</p>
+<p>For square systems, a nonzero determinant guarantees uniqueness. A zero determinant only says uniqueness fails; it does not decide consistency. Use the augmented system at each exceptional parameter value.</p>
+<div class="formula">Consistent: x=x_p+N t, where columns of N span Null(A); number of parameters=n−rank(A)</div><h4>Work it through</h4><ol><li>Consider x+y=2 and x+a y=3. Subtract the first equation.</li><li>(a−1)y=1. If a≠1, y=1/(a−1), x=2−y.</li><li>If a=1, the equations imply 0=1, so no solution.</li><li>If the second right side were 2 instead, a=1 would produce infinitely many solutions.</li></ol><aside><b>Application:</b> Identifiability asks whether model parameters are uniquely determined or can vary along null-space directions.<br><b>Watch the trap:</b> “Determinant zero” does not distinguish zero solutions from infinitely many solutions.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+for a in [1.,2.,3.]:
+    A=np.array([[1.,1.],[1.,a]]);b=np.array([2.,3.])
+    print(a,np.linalg.matrix_rank(A),np.linalg.matrix_rank(np.column_stack([A,b])))</pre><h4>Expected output</h4><pre>1.0 1 2
+2.0 2 2
+3.0 2 2</pre><h4>Your turn</h4><p>Solve x+2y+z=3 and y−z=1 in parametric form.</p><p><b>Worked answer:</b> Set z=t. Then y=1+t and x=1−3t, so x-vector=(1,1,0)+t(−3,1,1).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.,1.],[0.,1.,-1.]])
+p=np.array([1.,1.,0.]);v=np.array([-3.,1.,1.])
+print(A@p);print(A@v)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. A homogeneous linear system always has…</b></p><ol type="A"><li>At least the zero solution</li><li>No solution</li><li>Exactly one solution</li><li>Only nonzero solutions</li></ol><details><summary>Answer & reasoning</summary><p>At least the zero solution. A0=0 for every matrix.</p></details>
+<p><b>2. Ax=b is consistent exactly when…</b></p><ol type="A"><li>rank(A)=0</li><li>b=0 only</li><li>A is square</li><li>rank(A)=rank([A|b])</li></ol><details><summary>Answer & reasoning</summary><p>rank(A)=rank([A|b]). The added column must lie in col(A).</p></details>
+<p><b>3. A consistent system with n variables and rank r has…</b></p><ol type="A"><li>n+r free variables</li><li>No free variables always</li><li>n−r free variables</li><li>r free variables</li></ol><details><summary>Answer & reasoning</summary><p>n−r free variables. Each pivot fixes one variable in terms of the free variables.</p></details>
+<p><b>4. The row [0,0,0|1] means…</b></p><ol type="A"><li>A redundant equation</li><li>Inconsistency</li><li>One free variable</li><li>Unique solution</li></ol><details><summary>Answer & reasoning</summary><p>Inconsistency. It asserts 0=1.</p></details>
+<p><b>5. For x+y=3 and x−y=1, x is…</b></p><ol type="A"><li>2</li><li>1</li><li>3</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>2. Adding equations gives 2x=4.</p></details>
+<p><b>6. Swapping two rows of an augmented system…</b></p><ol type="A"><li>Changes the right-hand side only</li><li>Always changes rank</li><li>Makes it inconsistent</li><li>Preserves its solution set</li></ol><details><summary>Answer & reasoning</summary><p>Preserves its solution set. It reorders equations without changing their meaning.</p></details>
+<p><b>7. Over R, a linear system can have…</b></p><ol type="A"><li>Exactly three distinct solutions</li><li>Only one solution</li><li>Zero, one or infinitely many solutions</li><li>Exactly two distinct solutions</li></ol><details><summary>Answer & reasoning</summary><p>Zero, one or infinitely many solutions. Two distinct solutions generate an affine line of solutions.</p></details>
+<p><b>8. A zero first pivot in a nonsingular matrix calls for…</b></p><ol type="A"><li>Discarding the first equation</li><li>A suitable row swap</li><li>Immediate declaration of singularity</li><li>Division by zero</li></ol><details><summary>Answer & reasoning</summary><p>A suitable row swap. A nonzero entry lower in the column can serve as pivot.</p></details>
+<p><b>9. Dense Gaussian elimination is ordinarily…</b></p><ol type="A"><li>O(n³)</li><li>O(n)</li><li>O(log n)</li><li>O(1)</li></ol><details><summary>Answer & reasoning</summary><p>O(n³). Updates occur over a shrinking two-dimensional trailing matrix across n pivots.</p></details>
+<p><b>10. If xₚ solves Ax=b, every solution is…</b></p><ol type="A"><li>Any multiple of xₚ</li><li>Only xₚ</li><li>xₚ+b</li><li>xₚ+z with Az=0</li></ol><details><summary>Answer & reasoning</summary><p>xₚ+z with Az=0. Subtract two solutions to obtain a null vector.</p></details>
+<h2>Rank, nullity &amp; fundamental spaces</h2><p>Pivot counting, kernels, column spaces and dimension identities</p>
+<h3>01 · Rank–nullity and the four fundamental spaces</h3>
+<p>The column space of an m×n matrix is a subspace of Rᵐ; the row space is a subspace of Rⁿ. Both have dimension rank(A)=r. The null space consists of x in Rⁿ with Ax=0. The left null space consists of y in Rᵐ with Aᵀy=0.</p>
+<p>Rank–nullity says dim Null(A)=n−r. Applying it to Aᵀ gives dim Null(Aᵀ)=m−r. Domain dimension is split into independent input directions that survive and directions collapsed to zero. Rank cannot exceed min(m,n).</p>
+<p>Row reduction produces a row-space basis from the nonzero echelon rows. To obtain a column-space basis, identify pivot columns in the reduced matrix but select those columns from the original matrix. Row operations change the actual column vectors, even though they preserve their dependence relationships.</p>
+<p>Rows are perpendicular to every null-space vector, so Row(A)=Null(A)⊥. Likewise Col(A)=Null(Aᵀ)⊥. The ambient spaces matter: a row-space vector has n entries while a column-space vector has m entries. Do not confuse their equal dimensions with equal sets.</p>
+<div class="formula">A∈Rᵐˣⁿ, rank A=r ⇒ nullity A=n−r, nullity Aᵀ=m−r</div><h4>Work it through</h4><ol><li>A=[[1,2,3],[2,4,6]] has rank 1.</li><li>Its nullity is 3−1=2 and left nullity is 2−1=1.</li><li>A column-space basis is {(1,2)}. A row-space basis is {(1,2,3)}.</li><li>Null(A) has basis {(-2,1,0),(-3,0,1)}.</li></ol><aside><b>Application:</b> Rank measures the number of independent features or independent output directions in a data matrix.<br><b>Watch the trap:</b> Use pivot columns of the original matrix for a column-space basis, not the altered columns of RREF.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.,3.],[2.,4.,6.]])
+r=np.linalg.matrix_rank(A)
+print(&#x27;rank&#x27;,r,&#x27;nullity&#x27;,A.shape[1]-r,&#x27;left nullity&#x27;,A.shape[0]-r)</pre><h4>Expected output</h4><pre>rank 1 nullity 2 left nullity 1</pre><h4>Your turn</h4><p>For a 4×7 matrix of rank 3, find nullity and left nullity.</p><p><b>Worked answer:</b> Nullity 4; left nullity 1.</p><pre>m,n,r=4,7,3
+print(n-r,m-r)</pre>
+<h3>02 · Rank inequalities and invertible transformations</h3>
+<p>Multiplication by an invertible matrix on either side preserves rank. Row operations are multiplication by invertible elementary matrices, explaining rank preservation. Transposition also preserves rank. Multiplication by a singular matrix can reduce rank but cannot increase it beyond the factors’ ranks.</p>
+<p>For compatible A and B, rank(AB)≤min(rank A,rank B). If A is m×n and B is n×p, Sylvester’s lower bound is rank(AB)≥rank A+rank B−n. Also rank(A+B)≤rank A+rank B for same-shaped matrices.</p>
+<p>For real A, Null(AᵀA)=Null(A), since xᵀAᵀAx=||Ax||². Therefore rank(AᵀA)=rank(A). Full column rank is equivalent to AᵀA being positive definite and invertible. This argument relies on the conjugate transpose in the complex case.</p>
+<p>Rank is exact in algebra but tolerance-dependent in floating-point software. A tiny singular value may be treated as numerically zero. Use exact symbolic reasoning for exam matrices; in data analysis inspect singular values, scaling and the tolerance rather than treating a reported rank as an absolute physical fact.</p>
+<div class="formula">rank A+rank B−n ≤ rank(AB) ≤ min(rank A,rank B)   ·   rank(AᵀA)=rank A</div><h4>Work it through</h4><ol><li>A is 4×5 with rank 4; B is 5×3 with rank 3.</li><li>The product is 4×3. Its rank is at most 3.</li><li>The lower bound is 4+3−5=2.</li><li>So rank(AB) can only be 2 or 3; factor ranks alone do not choose between them.</li></ol><aside><b>Application:</b> Rank bounds can prove information loss without multiplying a large pair of matrices.<br><b>Watch the trap:</b> rank(AB)=rank(A)rank(B) is not a valid identity.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.,3.],[2.,4.,6.]])
+print(np.linalg.matrix_rank(A),np.linalg.matrix_rank(A.T@A))</pre><h4>Expected output</h4><pre>1 1</pre><h4>Your turn</h4><p>For 3×3 matrices A,B each of rank 2, give possible rank bounds on AB.</p><p><b>Worked answer:</b> 1≤rank(AB)≤2.</p><pre>rA,rB,n=2,2,3
+print(max(0,rA+rB-n),min(rA,rB))</pre>
+<h3>03 · Orthogonal complements and solvability certificates</h3>
+<p>The orthogonal complement W⊥ contains vectors perpendicular to every vector of W. In Rⁿ, dim W+dim W⊥=n and W∩W⊥={0}. Every vector has a unique orthogonal decomposition into a component in W and one in W⊥.</p>
+<p>Ax=b is solvable exactly when b is orthogonal to every vector in Null(Aᵀ). Necessity follows from yᵀb=yᵀAx=0. Sufficiency follows because Col(A)=Null(Aᵀ)⊥. This is an alternative to directly row-reducing the augmented matrix.</p>
+<p>A single y with Aᵀy=0 but yᵀb≠0 certifies inconsistency. It represents a linear combination of left-side equations cancelling to zero while the same combination of right sides does not. It is a compact proof of contradiction.</p>
+<p>For least squares, the residual r=b−A x̂ belongs to Null(Aᵀ), while the fitted vector belongs to Col(A). This perpendicular decomposition is the geometric reason the normal equations work. No calculus is required to understand the decomposition itself.</p>
+<div class="formula">Ax=b solvable ⇔ yᵀb=0 for every y with Aᵀy=0</div><h4>Work it through</h4><ol><li>A=[[1,1],[2,2]] and y=(−2,1). Then Aᵀy=0.</li><li>For b=(1,2), yᵀb=0, and the system is consistent.</li><li>For b=(1,3), yᵀb=1, proving inconsistency.</li><li>The certificate is exactly “second equation minus twice the first gives 0=1”.</li></ol><aside><b>Application:</b> Constraint infeasibility can be explained by a short certificate instead of a large list of failed numerical attempts.<br><b>Watch the trap:</b> Orthogonality to one left-null vector suffices only if it spans the entire left null space; otherwise test a basis.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,1.],[2.,2.]]);y=np.array([-2.,1.])
+print(A.T@y)
+for b in [np.array([1.,2.]),np.array([1.,3.])]:print(y@b)</pre><h4>Expected output</h4><pre>[0. 0.]
+0.0
+1.0</pre><h4>Your turn</h4><p>For A=[[1],[1],[1]], characterize all b for which Ax=b is solvable.</p><p><b>Worked answer:</b> All three entries of b must be equal; b must lie on the line spanned by (1,1,1).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.ones((3,1))
+for b in [np.array([2.,2.,2.]),np.array([2.,2.,3.])]:
+    print(np.linalg.matrix_rank(A)==np.linalg.matrix_rank(np.column_stack([A,b])))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. A 3×5 matrix of rank 2 has nullity…</b></p><ol type="A"><li>3</li><li>1</li><li>2</li><li>5</li></ol><details><summary>Answer & reasoning</summary><p>3. Rank plus nullity equals the number of columns.</p></details>
+<p><b>2. For that 3×5 rank-2 matrix, left nullity is…</b></p><ol type="A"><li>3</li><li>2</li><li>5</li><li>1</li></ol><details><summary>Answer & reasoning</summary><p>1. Left nullity is rows minus rank.</p></details>
+<p><b>3. Row rank and column rank are…</b></p><ol type="A"><li>Always different</li><li>Unrelated</li><li>Always equal</li><li>Equal only for square matrices</li></ol><details><summary>Answer & reasoning</summary><p>Always equal. Both equal the number of pivots.</p></details>
+<p><b>4. rank(AᵀA) equals…</b></p><ol type="A"><li>0</li><li>rank(A)</li><li>2 rank(A)</li><li>Number of rows of A always</li></ol><details><summary>Answer & reasoning</summary><p>rank(A). Their null spaces agree because xᵀAᵀAx=||Ax||².</p></details>
+<p><b>5. For A:m×n and B:n×p, rank(AB) is at most…</b></p><ol type="A"><li>min(rank A,rank B)</li><li>rank A+rank B</li><li>n+p</li><li>max(m,p)</li></ol><details><summary>Answer & reasoning</summary><p>min(rank A,rank B). The product cannot create directions unavailable in either factor.</p></details>
+<p><b>6. A:4×5 has rank 4 and B:5×3 rank 3. rank(AB) is at least…</b></p><ol type="A"><li>0 only</li><li>3 necessarily</li><li>4</li><li>2</li></ol><details><summary>Answer & reasoning</summary><p>2. Sylvester gives 4+3−5=2.</p></details>
+<p><b>7. Pivot columns for a basis of col(A) should be taken from…</b></p><ol type="A"><li>Aᵀ always</li><li>The augmented right-hand side</li><li>The original A</li><li>Only the RREF regardless of A</li></ol><details><summary>Answer & reasoning</summary><p>The original A. Row reduction identifies column indices but generally changes the column space.</p></details>
+<p><b>8. null(A) is orthogonal to…</b></p><ol type="A"><li>Every vector in Rⁿ</li><li>row(A)</li><li>col(A) in every shape</li><li>null(Aᵀ) always</li></ol><details><summary>Answer & reasoning</summary><p>row(A). Ax=0 says x is orthogonal to each row.</p></details>
+<p><b>9. If yᵀA=0 but yᵀb≠0, then Ax=b is…</b></p><ol type="A"><li>Inconsistent</li><li>Uniquely solvable</li><li>Homogeneous</li><li>Always rank zero</li></ol><details><summary>Answer & reasoning</summary><p>Inconsistent. Multiplying Ax=b by yᵀ would give 0=yᵀb.</p></details>
+<p><b>10. Full column rank means…</b></p><ol type="A"><li>Every b has a solution regardless of shape</li><li>A must be square</li><li>A is orthogonal</li><li>Ax=0 has only x=0</li></ol><details><summary>Answer & reasoning</summary><p>Ax=0 has only x=0. The nullity is zero.</p></details>
+<h2>Determinants &amp; invertibility</h2><p>Area, row-operation rules, cofactors and parameter cases</p>
+<h3>01 · Determinants as signed volume scaling</h3>
+<p>The determinant of a square matrix is its signed volume scale factor. In 2D, |det A| is the area of the parallelogram formed by its columns. A negative determinant reverses orientation. A zero determinant means the columns collapse volume into a lower-dimensional set.</p>
+<p>For [[a,b],[c,d]], det A=ad−bc. In higher dimensions, the determinant is alternating and multilinear in the columns (or rows), normalized so det I=1. Swapping two columns changes its sign; equal or dependent columns make it zero.</p>
+<p>A triangular matrix has determinant equal to the product of its diagonal entries. A square matrix is invertible exactly when its determinant is nonzero. A rectangular matrix does not have an ordinary determinant, even though its columns can span a volume through a Gram determinant.</p>
+<p>Determinant is not a measure of all conditioning effects. A matrix can have determinant 1 yet stretch one direction by 10⁶ and compress another by 10⁻⁶. Singular values describe the directional effects more fully.</p>
+<div class="formula">det [[a,b],[c,d]]=ad−bc   ·   area scale=|det A|   ·   det A≠0 ⇔ A invertible</div><h4>Work it through</h4><ol><li>A=[[2,1],[0,3]] sends the unit square to a parallelogram.</li><li>Its area is |2·3−0·1|=6.</li><li>Multiplying by a reflection changes the determinant sign but not the area magnitude.</li><li>If the second column were twice the first, the parallelogram would collapse and the determinant would be zero.</li></ol><aside><b>Application:</b> The determinant measures local area/volume scaling in coordinate transformations and detects loss of invertibility.<br><b>Watch the trap:</b> det(A+B) is not generally det(A)+det(B).</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[0.,3.]])
+print(round(np.linalg.det(A),4))</pre><h4>Expected output</h4><pre>6.0</pre><h4>Your turn</h4><p>Find determinant and orientation effect of [[1,3],[2,1]].</p><p><b>Worked answer:</b> 1−6=−5: area scales by 5 and orientation reverses.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,3.],[2.,1.]])
+print(round(np.linalg.det(A),4))</pre>
+<h3>02 · Efficient determinant computation</h3>
+<p>A row swap multiplies the determinant by −1. Multiplying one row by c multiplies it by c. Adding a multiple of one row to another leaves the determinant unchanged. Track these changes while reducing to triangular form, then multiply the diagonal.</p>
+<p>Cofactor expansion along row i is Σⱼ aᵢⱼ(−1)ⁱ⁺ʲ det(Mᵢⱼ). Expand along a row or column with many zeros when doing small exact calculations. The adjugate satisfies A adj(A)=det(A)I, yielding A⁻¹=adj(A)/det(A) when invertible.</p>
+<p>Useful identities are det(AB)=det A det B, det(Aᵀ)=det A and det(cA)=cⁿdet A for n×n A. If A is invertible, det(A⁻¹)=1/det A. Scaling the whole matrix scales every row, not just one row.</p>
+<p>Cramer’s rule gives xᵢ=det(Aᵢ)/det A for a nonsingular square system, replacing column i by b. It is useful for proofs and small symbolic questions, but elimination is usually more efficient for large numerical systems.</p>
+<div class="formula">Row add: unchanged; row swap: ×(−1); one-row scale c: ×c; det(cA)=cⁿdet A</div><h4>Work it through</h4><ol><li>A=[[1,2,0],[2,5,1],[0,1,3]].</li><li>R₂←R₂−2R₁ gives second row [0,1,1].</li><li>R₃←R₃−R₂ gives [0,0,2].</li><li>No swaps or row scalings occurred, so det A=1·1·2=2.</li></ol><aside><b>Application:</b> Elimination computes determinants and solves systems using essentially the same arithmetic.<br><b>Watch the trap:</b> For n×n A, multiplying every entry by 2 multiplies the determinant by 2ⁿ, not merely 2.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.,0.],[2.,5.,1.],[0.,1.,3.]])
+print(round(np.linalg.det(A),4))</pre><h4>Expected output</h4><pre>2.0</pre><h4>Your turn</h4><p>If a 3×3 A has determinant 5, find det(2Aᵀ).</p><p><b>Worked answer:</b> 2³ det(Aᵀ)=8·5=40.</p><pre>n=3;detA=5
+print(2**n*detA)</pre>
+<h3>03 · Determinant parameters and structural shortcuts</h3>
+<p>For parameter-dependent matrices, compute a determinant polynomial and factor it to locate singular cases. Outside those roots the matrix is invertible. At a root, return to rank or the augmented system to decide the remaining properties.</p>
+<p>Block-triangular matrices have determinant equal to the product of diagonal-block determinants, provided those blocks are square. For a matrix with a known invariant direction, an eigenvalue factor can simplify the determinant. A repeated row relationship can make a determinant zero without expansion.</p>
+<p>If u and v are column vectors, the matrix determinant lemma gives det(A+uvᵀ)=det(A)(1+vᵀA⁻¹u) when A is invertible. In particular det(I+uvᵀ)=1+vᵀu. This is supporting advanced depth, useful when a matrix is an identity plus a rank-one update.</p>
+<p>Always check the conditions of a shortcut. A singular A cannot be substituted into a formula requiring A⁻¹. If an expression includes a denominator in the parameter, preserve and inspect excluded parameter values instead of cancelling them silently.</p>
+<div class="formula">det(I+uvᵀ)=1+vᵀu   ·   det [[A,B],[0,D]]=det A·det D</div><h4>Work it through</h4><ol><li>A(t)=[[t,1],[1,t]] has determinant t²−1=(t−1)(t+1).</li><li>It is singular exactly at t=1 or t=−1.</li><li>At t=1, both rows are identical and rank is 1.</li><li>For u=(1,2),v=(3,4), det(I+uvᵀ)=1+3+8=12.</li></ol><aside><b>Application:</b> Rank-one updates occur when adding a single observation or updating a covariance-like matrix.<br><b>Watch the trap:</b> A determinant root identifies singularity, not the entire solution behavior of Ax=b.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+u=np.array([1.,2.]);v=np.array([3.,4.])
+A=np.eye(2)+np.outer(u,v)
+print(A);print(round(np.linalg.det(A),4),1+v@u)</pre><h4>Expected output</h4><pre>[[4. 4.]
+ [6. 9.]]
+12.0 12.0</pre><h4>Your turn</h4><p>Determine the singular parameter values of [[a,2],[2,a]].</p><p><b>Worked answer:</b> a²−4=0, so a=±2.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+for a in [-2.,0.,2.,3.]:
+    A=np.array([[a,2.],[2.,a]])
+    print(a,round(np.linalg.det(A),4))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Swapping two rows changes a determinant by…</b></p><ol type="A"><li>A factor −1</li><li>A factor 2</li><li>No change</li><li>Its reciprocal</li></ol><details><summary>Answer & reasoning</summary><p>A factor −1. The determinant is alternating in rows.</p></details>
+<p><b>2. Adding a multiple of one row to another…</b></p><ol type="A"><li>Always doubles it</li><li>Negates it</li><li>Makes it zero</li><li>Leaves the determinant unchanged</li></ol><details><summary>Answer & reasoning</summary><p>Leaves the determinant unchanged. This elementary row replacement preserves determinant.</p></details>
+<p><b>3. For a 3×3 A with det A=2, det(3A) is…</b></p><ol type="A"><li>18</li><li>27</li><li>54</li><li>6</li></ol><details><summary>Answer & reasoning</summary><p>54. Scaling all three rows contributes 3³×2.</p></details>
+<p><b>4. det(AB) equals…</b></p><ol type="A"><li>det(A)/det(B)</li><li>det(A)det(B)</li><li>det(A)+det(B)</li><li>det(A+B)</li></ol><details><summary>Answer & reasoning</summary><p>det(A)det(B). Determinants multiply for square matrices of the same size.</p></details>
+<p><b>5. det(Aᵀ) equals…</b></p><ol type="A"><li>det(A)</li><li>−det(A)</li><li>1/det(A)</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>det(A). Transpose preserves the determinant.</p></details>
+<p><b>6. The determinant of [[2,1],[3,4]] is…</b></p><ol type="A"><li>11</li><li>−5</li><li>8</li><li>5</li></ol><details><summary>Answer & reasoning</summary><p>5. 2×4−1×3=5.</p></details>
+<p><b>7. A triangular matrix has determinant…</b></p><ol type="A"><li>Always 1</li><li>The product of all entries</li><li>The product of its diagonal</li><li>The sum of its diagonal</li></ol><details><summary>Answer & reasoning</summary><p>The product of its diagonal. Only the diagonal permutation contributes.</p></details>
+<p><b>8. A zero determinant for square A means…</b></p><ol type="A"><li>A is not diagonalizable</li><li>A is singular</li><li>A is the zero matrix</li><li>Every entry is zero</li></ol><details><summary>Answer & reasoning</summary><p>A is singular. The columns are dependent, but the matrix may contain many nonzero entries.</p></details>
+<p><b>9. For u,v in Rⁿ, det(I+uvᵀ) is…</b></p><ol type="A"><li>1+vᵀu</li><li>1−vᵀu</li><li>uᵀu+vᵀv</li><li>Always 1</li></ol><details><summary>Answer & reasoning</summary><p>1+vᵀu. This is the rank-one determinant lemma.</p></details>
+<p><b>10. det(A+B) in general is…</b></p><ol type="A"><li>det(A)+det(B)</li><li>det(A)det(B)</li><li>Always zero</li><li>Not determined by det(A) and det(B) alone</li></ol><details><summary>Answer & reasoning</summary><p>Not determined by det(A) and det(B) alone. Determinants are not additive as matrix functions.</p></details>
+<h2>Orthogonality &amp; least squares</h2><p>Projections, Gram–Schmidt, QR and the best-fit interpretation</p>
+<h3>01 · Project a vector onto a line or subspace</h3>
+<p>The orthogonal projection of b onto a nonzero vector a is p=a(aᵀb)/(aᵀa). The scalar coefficient is chosen so that residual b−p is perpendicular to a. The projection p lies on the line, and the residual measures the shortest displacement from b to that line.</p>
+<p>For an orthonormal basis q₁,…,qᵣ of a subspace, add the line projections: p=Σqᵢ(qᵢᵀb). With Q holding those columns, p=QQᵀb. For an arbitrary independent basis A, solve AᵀA c=Aᵀb and set p=Ac.</p>
+<p>The Pythagorean identity ||b||²=||p||²+||b−p||² holds because the components are perpendicular. For any other point p+w in the subspace, its squared error is ||b−p||²+||w||², proving the closest point is unique.</p>
+<p>The projection vector is unique even if the spanning columns are redundant. The coefficient representation may then be nonunique. Use an independent basis, QR/SVD or the pseudoinverse; do not invert a singular Gram matrix.</p>
+<div class="formula">p=a(aᵀb)/(aᵀa)   ·   P=A(AᵀA)⁻¹Aᵀ when A has independent columns</div><h4>Work it through</h4><ol><li>Let a=(1,2), b=(3,1).</li><li>aᵀb=5 and aᵀa=5, so p=(1,2).</li><li>The residual is (2,−1), with aᵀr=2−2=0.</li><li>The squared lengths are 10=5+5.</li></ol><aside><b>Application:</b> Denoising by subspace projection retains representable structure and removes the orthogonal residual.<br><b>Watch the trap:</b> The projection coefficient is aᵀb only when a is already a unit vector.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+a=np.array([1.,2.]);b=np.array([3.,1.])
+p=a*(a@b)/(a@a);r=b-p
+print(p,r,a@r)</pre><h4>Expected output</h4><pre>[1. 2.] [ 2. -1.] 0.0</pre><h4>Your turn</h4><p>Project (2,0) onto span(1,1), and find the squared error.</p><p><b>Worked answer:</b> Projection (1,1), residual (1,−1), squared error 2.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+a=np.array([1.,1.]);b=np.array([2.,0.])
+p=a*(a@b)/(a@a);r=b-p
+print(p,r@r)</pre>
+<h3>02 · Gram–Schmidt and QR factorization</h3>
+<p>Gram–Schmidt turns independent vectors into an orthonormal basis for the same span. Normalize the first vector. For the next vector, subtract its projection on every earlier orthonormal direction, then normalize what remains. A zero remainder signals dependence.</p>
+<p>With independent columns a₁,…,aₙ, define rᵢⱼ=qᵢᵀaⱼ for i&lt;j, subtract Σᵢ&lt;ⱼrᵢⱼqᵢ, and let rⱼⱼ be the norm of the remainder. These coefficients form an upper-triangular matrix R and A=QR, where Q has orthonormal columns.</p>
+<p>Modified Gram–Schmidt and Householder QR improve numerical stability relative to classical Gram–Schmidt. This guide uses the exact geometry for hand work and NumPy’s QR for computation. Signs of columns and corresponding rows can vary between valid QR factorizations.</p>
+<p>For full-column-rank least squares, solve Rx̂=Qᵀb. This avoids explicitly forming AᵀA, which can worsen conditioning. QR is supporting depth connecting the named projections and systems topics; LU and SVD are explicitly named in the official syllabus.</p>
+<div class="formula">vⱼ=aⱼ−Σᵢ&lt;ⱼ(qᵢᵀaⱼ)qᵢ; qⱼ=vⱼ/||vⱼ||; A=QR</div><h4>Work it through</h4><ol><li>a₁=(1,1), a₂=(1,0). Then q₁=(1,1)/√2.</li><li>q₁ᵀa₂=1/√2; subtract (1/2,1/2) from a₂.</li><li>The remainder is (1/2,−1/2); normalize to q₂=(1,−1)/√2.</li><li>R=[[√2,1/√2],[0,1/√2]] for this sign convention.</li></ol><aside><b>Application:</b> QR supplies a stable least-squares solver and orthonormal coordinates for a column space.<br><b>Watch the trap:</b> Subtract projections on the orthonormal vectors, not blindly on the original unnormalized columns.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,1.],[1.,0.]])
+Q,R=np.linalg.qr(A)
+print(np.allclose(Q.T@Q,np.eye(2)))
+print(np.allclose(Q@R,A))</pre><h4>Expected output</h4><pre>True
+True</pre><h4>Your turn</h4><p>Orthogonalize (1,0,1) and (1,1,0); verify the remainder is orthogonal to the first.</p><p><b>Worked answer:</b> Projection coefficient 1/2; remainder (1/2,1,−1/2), whose dot product with (1,0,1) is zero.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+a=np.array([1.,0.,1.]);b=np.array([1.,1.,0.])
+v=b-a*(a@b)/(a@a)
+print(v,a@v)</pre>
+<h3>03 · Least squares from geometry to regression</h3>
+<p>When Ax=b is inconsistent, least squares chooses x̂ minimizing ||Ax−b||₂². The fitted vector Ax̂ is the orthogonal projection of b onto Col(A). Its residual is perpendicular to every column, yielding AᵀA x̂=Aᵀb, the normal equations.</p>
+<p>If A has full column rank, AᵀA is invertible and x̂ is unique. If rank is deficient, fitted values are still unique but coefficients can differ by a null-space vector. The pseudoinverse selects the minimum-norm coefficient vector among least-squares solutions.</p>
+<p>For a line y≈β₀+β₁t, put a column of ones and a column of t values into A. The intercept is then an ordinary coefficient. If the model omits the intercept, the fitted line is forced through the origin; this changes both the meaning and the solution.</p>
+<p>Calculus gives the same result by differentiating the quadratic objective: gradient 2Aᵀ(Ax−b)=0. The projection derivation does not require calculus; use the linked gradient bridge when you want to connect the two viewpoints. Numerically prefer QR/SVD-based solvers over explicit normal-equation inversion.</p>
+<div class="formula">minₓ ||Ax−b||² ⇒ Aᵀ(Ax̂−b)=0; full column rank ⇒ x̂=(AᵀA)⁻¹Aᵀb</div><h4>Work it through</h4><ol><li>Fit a constant c to b=(1,2,6); A is a column of three ones.</li><li>Normal equation: 3c=1+2+6=9, giving c=3.</li><li>Fitted values are (3,3,3), residual (−2,−1,3).</li><li>The residual sums to zero, so it is orthogonal to the column of ones.</li></ol><aside><b>Application:</b> Linear regression, calibration and fitting a trend to noisy measurements are least-squares problems.<br><b>Watch the trap:</b> An inconsistent system can have a unique least-squares minimizer even though it has no exact solution.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.ones((3,1));b=np.array([1.,2.,6.])
+x=np.linalg.lstsq(A,b,rcond=None)[0]
+print(x);print(b-A@x);print(A.T@(b-A@x))</pre><h4>Expected output</h4><pre>[3.]
+[-2. -1.  3.]
+[-0.]</pre><h4>Your turn</h4><p>Fit a line with intercept through noisy observations t=[0,1,2], y=[1,2,2].</p><p><b>Worked answer:</b> β₀=7/6 and β₁=1/2; fitted values are 7/6,5/3,13/6.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+t=np.array([0.,1.,2.]);A=np.column_stack([np.ones(3),t]);y=np.array([1.,2.,2.])
+beta=np.linalg.lstsq(A,y,rcond=None)[0]
+print(beta);print(A@beta)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Projection of b onto nonzero a is…</b></p><ol type="A"><li>a(aᵀb)/(aᵀa)</li><li>b(aᵀb)</li><li>a/||b||</li><li>a+b</li></ol><details><summary>Answer & reasoning</summary><p>a(aᵀb)/(aᵀa). The coefficient minimizes the squared residual.</p></details>
+<p><b>2. Project (3,1) onto span((1,1)).</b></p><ol type="A"><li>(3,3)</li><li>(1,1)</li><li>(3,1)</li><li>(2,2)</li></ol><details><summary>Answer & reasoning</summary><p>(2,2). The scalar coefficient is (3+1)/2=2.</p></details>
+<p><b>3. An orthogonal projection residual is…</b></p><ol type="A"><li>Parallel to the projection</li><li>Always a unit vector</li><li>Perpendicular to the target subspace</li><li>Always zero</li></ol><details><summary>Answer & reasoning</summary><p>Perpendicular to the target subspace. At the closest point, no target-space direction reduces the residual.</p></details>
+<p><b>4. For orthonormal columns Q, the projector is…</b></p><ol type="A"><li>Q²</li><li>QQᵀ</li><li>QᵀQ in the output space always</li><li>Q+Qᵀ</li></ol><details><summary>Answer & reasoning</summary><p>QQᵀ. QQᵀ maps the ambient output space onto col(Q).</p></details>
+<p><b>5. For full-column-rank A, the projector onto col(A) is…</b></p><ol type="A"><li>A(AᵀA)⁻¹Aᵀ</li><li>AᵀA</li><li>(AAᵀ)⁻¹</li><li>A⁻¹</li></ol><details><summary>Answer & reasoning</summary><p>A(AᵀA)⁻¹Aᵀ. Normal equations determine the coefficient of the closest vector.</p></details>
+<p><b>6. Gram–Schmidt subtracts…</b></p><ol type="A"><li>The whole previous input vector always</li><li>Only lengths</li><li>All coordinates</li><li>Projections on previous orthonormal directions</li></ol><details><summary>Answer & reasoning</summary><p>Projections on previous orthonormal directions. Removing projected components leaves an orthogonal residual.</p></details>
+<p><b>7. If a Gram–Schmidt residual is exactly zero, the input vector is…</b></p><ol type="A"><li>Independent of previous vectors</li><li>An orthonormal vector</li><li>In the span of previous vectors</li><li>Necessarily the zero vector</li></ol><details><summary>Answer & reasoning</summary><p>In the span of previous vectors. Its new direction has already been represented.</p></details>
+<p><b>8. Normal equations for min ||Ax−b||² are…</b></p><ol type="A"><li>Aᵀx=b</li><li>AᵀAx=Aᵀb</li><li>AAᵀx=b</li><li>Ax=0</li></ol><details><summary>Answer & reasoning</summary><p>AᵀAx=Aᵀb. Differentiate or impose residual orthogonality.</p></details>
+<p><b>9. The best constant fit to 1,2,6 is…</b></p><ol type="A"><li>3</li><li>2</li><li>6</li><li>9</li></ol><details><summary>Answer & reasoning</summary><p>3. The least-squares constant is the mean.</p></details>
+<p><b>10. Least-squares fitted vector Ax is…</b></p><ol type="A"><li>Nonunique whenever A has dependent columns</li><li>Always b</li><li>Always zero</li><li>Unique even if coefficients are not</li></ol><details><summary>Answer & reasoning</summary><p>Unique even if coefficients are not. Orthogonal projection onto a subspace is unique; null directions can change coefficients without changing the fit.</p></details>
+<h2>Eigenvalues &amp; eigenvectors</h2><p>Invariant directions, multiplicities, diagonalization and spectral reasoning</p>
+<h3>01 · Find eigenvalues and eigenspaces</h3>
+<p>An eigenvector v≠0 satisfies Av=λv: its direction is unchanged apart from stretching or reversal. The zero vector is never an eigenvector. Eigenvalues are defined for square matrices. An eigenvalue may be zero, corresponding to a nonzero vector in the null space.</p>
+<p>Solve det(A−λI)=0 to find candidate eigenvalues, then solve (A−λI)v=0 for each eigenspace. Using det(λI−A) changes the polynomial by a sign in odd dimensions but leaves its roots unchanged. An eigenspace includes zero, even though eigenvectors exclude zero.</p>
+<p>The trace equals the sum of eigenvalues and determinant their product, counting algebraic multiplicities over the complex numbers. A triangular matrix’s eigenvalues are its diagonal entries. A real matrix can have complex eigenvalues, for example a 90° planar rotation.</p>
+<p>Eigenvectors for distinct eigenvalues are independent. Their lengths are arbitrary; any nonzero scalar multiple remains an eigenvector. A numerical library may choose different signs or normalizations, so verify Av=λv rather than comparing one expected printed vector exactly.</p>
+<div class="formula">Av=λv, v≠0   ⇔   det(A−λI)=0 and v∈Null(A−λI){0}</div><h4>Work it through</h4><ol><li>A=[[2,1],[1,2]]. det(A−λI)=(2−λ)²−1=(λ−1)(λ−3).</li><li>For λ=3, v=(1,1); for λ=1, v=(1,−1).</li><li>The sum 3+1=4 equals trace; product 3 equals determinant.</li><li>Normalize these vectors if an orthonormal eigenbasis is needed.</li></ol><aside><b>Application:</b> Eigenvectors identify persistent modes of a repeated linear transformation and principal axes of symmetric matrices.<br><b>Watch the trap:</b> A repeated eigenvalue does not determine how many independent eigenvectors exist.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,2.]])
+w,V=np.linalg.eigh(A)
+print(w)
+print(np.allclose(A@V,V@np.diag(w)))</pre><h4>Expected output</h4><pre>[1. 3.]
+True</pre><h4>Your turn</h4><p>Find eigenvalues of [[4,1],[0,2]] and one vector for each.</p><p><b>Worked answer:</b> λ=4 has (1,0); λ=2 has (1,−2).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[4.,1.],[0.,2.]])
+for lam,v in [(4.,np.array([1.,0.])),(2.,np.array([1.,-2.]))]:print(np.allclose(A@v,lam*v))</pre>
+<h3>02 · Multiplicity and diagonalization</h3>
+<p>Algebraic multiplicity counts how often an eigenvalue occurs as a characteristic-polynomial root. Geometric multiplicity is the dimension of its eigenspace, equal to nullity(A−λI). For each eigenvalue, geometric multiplicity lies between 1 and its algebraic multiplicity.</p>
+<p>A square n×n matrix is diagonalizable over a field when it has n independent eigenvectors over that field. Put them in S; then A=SΛS⁻¹. Distinct eigenvalues guarantee diagonalizability, but are not necessary: I has a repeated eigenvalue and an entire space of eigenvectors.</p>
+<p>The matrix [[1,1],[0,1]] has eigenvalue 1 twice but only one independent eigenvector, so it is not diagonalizable. Repeated roots require an eigenspace calculation. A real rotation may be diagonalizable over C while not over R, so state the field.</p>
+<p>For a real symmetric A, the spectral theorem supplies an orthogonal diagonalization A=QΛQᵀ. Its eigenvectors for distinct eigenvalues are orthogonal, and within a repeated eigenspace one can choose an orthonormal basis. General nonsymmetric matrices do not guarantee orthogonality.</p>
+<div class="formula">A=SΛS⁻¹ ⇔ n independent eigenvectors; symmetric real A ⇒ A=QΛQᵀ</div><h4>Work it through</h4><ol><li>For J=[[1,1],[0,1]], J−I=[[0,1],[0,0]].</li><li>The null equation forces v₂=0, leaving only span(1,0).</li><li>Algebraic multiplicity is 2 but geometric multiplicity is 1.</li><li>J is not diagonalizable, unlike I₂, whose eigenspace has dimension 2.</li></ol><aside><b>Application:</b> Diagonal coordinates decouple a linear system into independent scalar modes, making powers and stability analysis simpler.<br><b>Watch the trap:</b> A repeated eigenvalue neither guarantees nor rules out diagonalizability.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+J=np.array([[1.,1.],[0.,1.]])
+print(&#x27;eigenspace dimension&#x27;,2-np.linalg.matrix_rank(J-np.eye(2)))
+print(&#x27;identity eigenspace dimension&#x27;,2-np.linalg.matrix_rank(np.eye(2)-np.eye(2)))</pre><h4>Expected output</h4><pre>eigenspace dimension 1
+identity eigenspace dimension 2</pre><h4>Your turn</h4><p>Compare eigenspace dimensions for I₃ and [[2,1],[0,2]].</p><p><b>Worked answer:</b> I₃ has eigenvalue 1 with eigenspace dimension 3. The 2×2 Jordan block has eigenvalue 2 with eigenspace dimension 1.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+J=np.array([[2.,1.],[0.,2.]])
+print(3-np.linalg.matrix_rank(np.eye(3)-np.eye(3)))
+print(2-np.linalg.matrix_rank(J-2*np.eye(2)))</pre>
+<h3>03 · Powers, similarity and eigenvalue shortcuts</h3>
+<p>If Av=λv, then Aᵏv=λᵏv for nonnegative integers k. More generally p(A)v=p(λ)v for a polynomial p. If A is invertible, A⁻¹v=(1/λ)v. These facts transform eigenvalues without recalculating a full determinant.</p>
+<p>Similar matrices B=S⁻¹AS represent the same linear map in different bases. They share characteristic polynomial, eigenvalues with multiplicities, determinant, trace and rank. Similarity is not the same as a row operation or a congruence QᵀAQ.</p>
+<p>Cayley–Hamilton says a matrix satisfies its characteristic polynomial. For a 2×2 matrix, A²−tr(A)A+det(A)I=0. This reduces high powers to lower powers and can express an inverse when the determinant is nonzero.</p>
+<p>For a diagonalizable matrix, Aᵏ=SΛᵏS⁻¹. Modes with |λ|&lt;1 decay under repeated application; |λ|&gt;1 modes grow. At |λ|=1, a defective matrix may still have polynomial growth, so eigenvalue magnitudes alone need care on the boundary. This dynamical viewpoint is advanced supporting depth.</p>
+<div class="formula">p(A)v=p(λ)v   ·   A²−tr(A)A+det(A)I=0 for 2×2 A</div><h4>Work it through</h4><ol><li>For A=[[2,1],[1,2]], trace=4 and determinant=3.</li><li>Cayley–Hamilton gives A²=4A−3I.</li><li>Multiplying once more gives A³=4A²−3A=13A−12I.</li><li>The eigenvalues of A³ are 3³=27 and 1³=1.</li></ol><aside><b>Application:</b> Repeated transitions, iterative algorithms and linear dynamical systems can be analyzed mode by mode.<br><b>Watch the trap:</b> Row reduction preserves rank but does not generally preserve eigenvalues; similarity does.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,2.]])
+print(np.allclose(A@A,4*A-3*np.eye(2)))
+print(np.linalg.matrix_power(A,3))</pre><h4>Expected output</h4><pre>True
+[[14. 13.]
+ [13. 14.]]</pre><h4>Your turn</h4><p>If eigenvalues of invertible A are 2 and −1, find those of A²+3I and A⁻¹.</p><p><b>Worked answer:</b> A²+3I: 7 and 4. A⁻¹: 1/2 and −1.</p><pre>eigenvalues=[2.,-1.]
+print([x*x+3 for x in eigenvalues])
+print([1/x for x in eigenvalues])</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. An eigenvector must be…</b></p><ol type="A"><li>Nonzero</li><li>A unit vector</li><li>An integer vector</li><li>Unique</li></ol><details><summary>Answer & reasoning</summary><p>Nonzero. Zero satisfies every eigenvalue equation and therefore cannot identify a direction.</p></details>
+<p><b>2. Eigenvalues of a triangular matrix are…</b></p><ol type="A"><li>Its row sums always</li><li>Its singular values always</li><li>All 1</li><li>Its diagonal entries</li></ol><details><summary>Answer & reasoning</summary><p>Its diagonal entries. Its characteristic determinant factors along the diagonal.</p></details>
+<p><b>3. The sum of eigenvalues with algebraic multiplicities equals…</b></p><ol type="A"><li>Rank</li><li>Nullity</li><li>Trace</li><li>Determinant</li></ol><details><summary>Answer & reasoning</summary><p>Trace. The trace is invariant under similarity and is the sum of roots.</p></details>
+<p><b>4. The product of eigenvalues equals…</b></p><ol type="A"><li>Dimension</li><li>Determinant</li><li>Trace</li><li>Largest entry</li></ol><details><summary>Answer & reasoning</summary><p>Determinant. This includes zero for singular matrices.</p></details>
+<p><b>5. A real symmetric matrix is…</b></p><ol type="A"><li>Orthogonally diagonalizable</li><li>Always positive definite</li><li>Always invertible</li><li>Always diagonal</li></ol><details><summary>Answer & reasoning</summary><p>Orthogonally diagonalizable. The spectral theorem supplies an orthonormal eigenbasis.</p></details>
+<p><b>6. Geometric multiplicity of λ is…</b></p><ol type="A"><li>Its count on the diagonal of A always</li><li>det(A−λI)</li><li>trace(A)</li><li>dim null(A−λI)</li></ol><details><summary>Answer & reasoning</summary><p>dim null(A−λI). It counts independent eigenvectors for that eigenvalue.</p></details>
+<p><b>7. [[1,1],[0,1]] is…</b></p><ol type="A"><li>Symmetric</li><li>An identity matrix</li><li>Not diagonalizable</li><li>Orthogonally diagonalizable</li></ol><details><summary>Answer & reasoning</summary><p>Not diagonalizable. Eigenvalue 1 has algebraic multiplicity 2 but eigenspace dimension 1.</p></details>
+<p><b>8. Distinct eigenvalues guarantee…</b></p><ol type="A"><li>A symmetric matrix</li><li>Linearly independent corresponding eigenvectors</li><li>Orthogonal vectors for every matrix</li><li>Positive eigenvalues</li></ol><details><summary>Answer & reasoning</summary><p>Linearly independent corresponding eigenvectors. Orthogonality needs extra assumptions such as symmetry.</p></details>
+<p><b>9. If Av=3v, then (A²−I)v equals…</b></p><ol type="A"><li>8v</li><li>2v</li><li>9v</li><li>0</li></ol><details><summary>Answer & reasoning</summary><p>8v. Evaluate the polynomial 3²−1=8.</p></details>
+<p><b>10. Similar matrices share…</b></p><ol type="A"><li>Every entry</li><li>Every eigenvector in the same coordinates</li><li>Every singular value always</li><li>Eigenvalues, rank, trace and determinant</li></ol><details><summary>Answer & reasoning</summary><p>Eigenvalues, rank, trace and determinant. Similarity changes coordinates; singular values need not be preserved by a nonorthogonal basis change.</p></details>
+<h2>Quadratic forms &amp; curvature</h2><p>Definiteness, principal axes, Rayleigh quotients and quadratic optimization</p>
+<h3>01 · Reading and classifying a quadratic form</h3>
+<p>A real quadratic form is q(x)=xᵀAx. Only the symmetric part S=(A+Aᵀ)/2 matters: the skew part contributes zero. Write each cross term across two symmetric entries. Thus 2x²+6xy+5y² corresponds to [[2,3],[3,5]], not [[2,6],[6,5]]. A linear or constant term belongs to a quadratic function but not to its homogeneous quadratic form.</p>
+<p>For symmetric A, positive definite means xᵀAx&gt;0 for every nonzero x; positive semidefinite permits zero. Negative definite and negative semidefinite reverse these inequalities. Indefinite means both signs occur. The zero vector never disproves definiteness because the definition explicitly excludes it.</p>
+<p>The spectral theorem gives q(x)=Σ λᵢzᵢ² in orthonormal eigenvector coordinates. Consequently all eigenvalues positive means positive definite; all nonnegative means positive semidefinite. Both positive and negative eigenvalues mean indefinite. A zero eigenvalue rules out strict definiteness, but does not by itself imply indefiniteness.</p>
+<p>Sylvester’s criterion for a real symmetric matrix: positive definiteness is equivalent to all leading principal minors being positive. For positive semidefiniteness, all principal minors must be nonnegative; leading minors alone are insufficient. In 2D, a&gt;0 and ac−b²&gt;0 characterize positive definiteness of [[a,b],[b,c]].</p>
+<div class="formula">q(x)=xᵀSx, S=Sᵀ   ·   SPD ⇔ every λᵢ&gt;0   ·   PSD ⇔ every λᵢ≥0</div><h4>Work it through</h4><ol><li>For q=2x²+2xy+2y², A=[[2,1],[1,2]].</li><li>Its eigenvalues are 3 and 1, both positive.</li><li>Alternatively, leading minors are 2 and 3, both positive.</li><li>Thus q&gt;0 away from the origin; its level sets are ellipses.</li></ol><aside><b>Application:</b> Covariance and Gram matrices are positive semidefinite; positive curvature gives unique minima of quadratic losses.<br><b>Watch the trap:</b> Positive diagonal entries or a positive determinant alone do not establish positive definiteness.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,2.]])
+print(np.linalg.eigvalsh(A))</pre><h4>Expected output</h4><pre>[1. 3.]</pre><h4>Your turn</h4><p>Classify x²+4xy+y² and find a direction of each sign.</p><p><b>Worked answer:</b> A=[[1,2],[2,1]] has eigenvalues 3 and −1, so it is indefinite. q(1,1)=6 and q(1,−1)=−2.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,2.],[2.,1.]])
+print(np.linalg.eigvalsh(A))
+for x in [np.array([1,1]),np.array([1,-1])]: print(x@A@x)</pre>
+<h3>02 · Principal axes and the Rayleigh quotient</h3>
+<p>A real symmetric matrix admits A=QΛQᵀ with Q orthogonal. Set x=Qz, equivalently z=Qᵀx. Orthogonal coordinates preserve lengths while removing cross terms: xᵀAx=zᵀΛz. This is a change of coordinates, not a row reduction.</p>
+<p>For nonzero x, the Rayleigh quotient R(x)=xᵀAx/(xᵀx) is a weighted average of eigenvalues, with weights zᵢ²/Σzⱼ². It lies between the smallest and largest eigenvalues. On the unit sphere, the minimum and maximum of xᵀAx are those extreme eigenvalues, attained at corresponding eigenvectors.</p>
+<p>An equation xᵀAx=1 with positive definite A describes an ellipsoid. Along eigenvector i, the semiaxis length is 1/√λᵢ. Large curvature means a shorter axis. If eigenvalues have mixed signs the geometry is hyperbolic; zero eigenvalues produce unconstrained flat directions.</p>
+<p>Orthogonal diagonalization is a similarity and also a congruence because Q⁻¹=Qᵀ. General congruence SᵀAS preserves the counts of positive, negative and zero squares (inertia), but need not preserve eigenvalues. Treat this distinction as supporting depth for reasoning about quadratic forms.</p>
+<div class="formula">λmin ≤ (xᵀAx)/(xᵀx) ≤ λmax   ·   x=Qz ⇒ q=Σ λᵢzᵢ²</div><h4>Work it through</h4><ol><li>For A=[[2,1],[1,2]], normalized eigenvectors are (1,−1)/√2 and (1,1)/√2.</li><li>In these coordinates q=z₁²+3z₂².</li><li>On ||x||=1, the minimum is 1 and the maximum is 3.</li><li>The ellipse q=1 has semiaxes 1 and 1/√3.</li></ol><aside><b>Application:</b> Principal axes explain covariance ellipses and the direction of maximum variance used in PCA.<br><b>Watch the trap:</b> For a non-symmetric matrix, apply quadratic-form claims to its symmetric part; eigenvalues of the original matrix need not govern the quotient.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[1.,2.]])
+w,Q=np.linalg.eigh(A)
+print(w)
+print(Q.T@A@Q)</pre><h4>Expected output</h4><pre>[1. 3.]
+[[ 1.  0.]
+ [-0.  3.]]</pre><h4>Your turn</h4><p>For A=diag(2,7), bound q(x) when ||x||=3.</p><p><b>Worked answer:</b> 18≤q(x)≤63, because xᵀx=9 and the eigenvalue bounds are 2 and 7.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.diag([2.,7.])
+print(9*np.linalg.eigvalsh(A))</pre>
+<h3>03 · Quadratic minimization and least-squares curvature</h3>
+<p>Consider f(x)=½xᵀAx−bᵀx+c with A symmetric. Its gradient is Ax−b and its Hessian is A. These are multivariable supporting concepts; core single-variable differentiation is taught in the calculus recap. The linear algebra of solving Ax=b already gives stationary points.</p>
+<p>If A is positive definite, x*=A⁻¹b is the unique global minimizer. Completing the square proves f(x)=f(x*)+½(x−x*)ᵀA(x−x*). Prefer solving the system numerically instead of explicitly computing the inverse.</p>
+<p>If A is positive semidefinite and b lies in its column space, minimizers exist but can be nonunique along null directions. If b is outside that column space, the linear term makes f unbounded below along a null direction. An indefinite A also makes the unconstrained function unbounded below.</p>
+<p>Least squares f(x)=½||Mx−y||² has Hessian MᵀM, always positive semidefinite. It is positive definite exactly when M has independent columns. Adding ridge regularization α||x||²/2 with α&gt;0 makes MᵀM+αI positive definite, improving uniqueness and conditioning. This is an application, not a complete machine-learning unit.</p>
+<div class="formula">∇f=Ax−b   ·   A≻0 ⇒ x*=solve(A,b)   ·   ∇²½||Mx−y||²=MᵀM</div><h4>Work it through</h4><ol><li>Take f(x,y)=x²+2y²−2x−4y.</li><li>A=diag(2,4), b=(2,4), so Ax=b gives (1,1).</li><li>Complete squares: f=(x−1)²+2(y−1)²−3.</li><li>The unique minimum is −3 at (1,1).</li></ol><aside><b>Application:</b> Linear regression fitting, regularized inverse problems and local quadratic approximations all solve this geometry.<br><b>Watch the trap:</b> A stationary point is not automatically a minimum. Check curvature and, for singular matrices, whether a solution exists.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.diag([2.,4.]);b=np.array([2.,4.])
+x=np.linalg.solve(A,b)
+print(x, .5*x@A@x-b@x)</pre><h4>Expected output</h4><pre>[1. 1.] -3.0</pre><h4>Your turn</h4><p>Minimize ½(3x²+2y²)−6x−4y.</p><p><b>Worked answer:</b> Solve diag(3,2)(x,y)=(6,4): (2,2). The minimum is −10.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.diag([3.,2.]);b=np.array([6.,4.])
+x=np.linalg.solve(A,b)
+print(x, .5*x@A@x-b@x)</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. The symmetric matrix for x²+6xy+4y² is…</b></p><ol type="A"><li>[[1,3],[3,4]]</li><li>[[1,6],[6,4]]</li><li>[[1,0],[0,4]]</li><li>[[1,6],[0,4]] only</li></ol><details><summary>Answer & reasoning</summary><p>[[1,3],[3,4]]. Each symmetric off-diagonal entry contributes one copy of the cross term.</p></details>
+<p><b>2. Eigenvalues −2 and 3 make a symmetric form…</b></p><ol type="A"><li>Positive definite</li><li>Negative definite</li><li>Positive semidefinite</li><li>Indefinite</li></ol><details><summary>Answer & reasoning</summary><p>Indefinite. Both signs occur along eigenvector directions.</p></details>
+<p><b>3. Eigenvalues 0 and 4 make a form…</b></p><ol type="A"><li>Indefinite</li><li>Negative definite</li><li>Positive semidefinite but not definite</li><li>Positive definite</li></ol><details><summary>Answer & reasoning</summary><p>Positive semidefinite but not definite. It is nonnegative with a nonzero flat direction.</p></details>
+<p><b>4. Sylvester’s positive-definite criterion checks…</b></p><ol type="A"><li>Only the trace</li><li>All leading principal minors are positive</li><li>Only the determinant</li><li>Only diagonal entries</li></ol><details><summary>Answer & reasoning</summary><p>All leading principal minors are positive. For symmetric matrices, these leading minors characterize strict positivity.</p></details>
+<p><b>5. Positive semidefiniteness via minors requires…</b></p><ol type="A"><li>All principal minors nonnegative</li><li>Only leading principal minors nonnegative</li><li>Only determinant positive</li><li>Every entry nonnegative</li></ol><details><summary>Answer & reasoning</summary><p>All principal minors nonnegative. The semidefinite criterion requires more than the leading subset.</p></details>
+<p><b>6. For symmetric A with eigenvalues 2,5, minimum xᵀAx on ||x||=1 is…</b></p><ol type="A"><li>5</li><li>7</li><li>10</li><li>2</li></ol><details><summary>Answer & reasoning</summary><p>2. The Rayleigh quotient is bounded by the extreme eigenvalues.</p></details>
+<p><b>7. The skew-symmetric part of A contributes to xᵀAx…</b></p><ol type="A"><li>Its trace times ||x||²</li><li>A positive term</li><li>Nothing</li><li>Its determinant</li></ol><details><summary>Answer & reasoning</summary><p>Nothing. Its scalar quadratic expression equals its own negative.</p></details>
+<p><b>8. For SPD A, minimizer of ½xᵀAx−bᵀx solves…</b></p><ol type="A"><li>x=b always</li><li>Ax=b</li><li>Ax=0</li><li>A²x=b</li></ol><details><summary>Answer & reasoning</summary><p>Ax=b. Gradient Ax−b vanishes and positive curvature gives uniqueness.</p></details>
+<p><b>9. Hessian of ½||Mx−y||² is…</b></p><ol type="A"><li>MᵀM</li><li>MMᵀ in every shape</li><li>M</li><li>yᵀy</li></ol><details><summary>Answer & reasoning</summary><p>MᵀM. Differentiate the gradient Mᵀ(Mx−y).</p></details>
+<p><b>10. For eigenvalues 1 and 4, ellipse xᵀAx=1 has semiaxis lengths…</b></p><ol type="A"><li>1 and 4</li><li>1 and 2</li><li>2 and 4</li><li>1 and 1/2</li></ol><details><summary>Answer & reasoning</summary><p>1 and 1/2. An axis length is the reciprocal square root of its eigenvalue.</p></details>
+<h2>LU, pivoting &amp; stable solves</h2><p>Elimination factors, triangular substitution and numerical judgment</p>
+<h3>01 · Elimination becomes LU decomposition</h3>
+<p>Gaussian elimination subtracts multiples of pivot rows. Store these multipliers below the diagonal of a unit lower triangular L; the resulting upper triangular matrix is U. Without row swaps, the factorization is A=LU. It packages elimination so many right-hand sides can reuse the same work.</p>
+<p>For the Doolittle convention L has ones on its diagonal. At step k, multiplier lᵢk is the current entry aᵢk divided by pivot aₖk; subtract lᵢk times row k. Previously stored multipliers belong to L rather than the current U. A zero pivot can prevent this unpivoted construction even when A is invertible.</p>
+<p>For an n×n matrix with all leading principal minors nonzero, an LU factorization with unit lower L exists and is unique. This is a useful sufficient condition in the nonsingular setting. Singular matrices can sometimes have LU too, but diagonal pivots may be zero and uniqueness or standard elimination can fail.</p>
+<p>Once A=LU, solve Ly=b and then Ux=y. Determinants become the product of U diagonal entries because det(L)=1. Dense factorization costs O(n³), while the pair of triangular solves costs O(n²) per right-hand side.</p>
+<div class="formula">A=LU   ·   lᵢk=uᵢk/uₖk   ·   Ly=b, Ux=y   ·   det(A)=Πuᵢᵢ (unit L)</div><h4>Work it through</h4><ol><li>A=[[2,1],[4,3]]. The first multiplier is 4/2=2.</li><li>Row 2 becomes [0,1], so U=[[2,1],[0,1]].</li><li>L=[[1,0],[2,1]], and direct multiplication gives LU=A.</li><li>For b=(3,7), Ly=b gives y=(3,1); Ux=y gives x=(1,1).</li></ol><aside><b>Application:</b> A fixed physical or statistical model with many different input vectors can factor once and solve repeatedly.<br><b>Watch the trap:</b> L stores elimination multipliers with their original signs, because it reverses the row subtraction.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,1.],[4.,3.]])
+L=np.array([[1.,0.],[2.,1.]])
+U=np.array([[2.,1.],[0.,1.]])
+print(L@U)
+print(np.linalg.solve(U,np.linalg.solve(L,[3.,7.])))</pre><h4>Expected output</h4><pre>[[2. 1.]
+ [4. 3.]]
+[1. 1.]</pre><h4>Your turn</h4><p>Find unit-lower LU for [[3,2],[6,5]].</p><p><b>Worked answer:</b> L=[[1,0],[2,1]], U=[[3,2],[0,1]].</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+L=np.array([[1.,0.],[2.,1.]])
+U=np.array([[3.,2.],[0.,1.]])
+print(L@U)</pre>
+<h3>02 · Permutation matrices and partial pivoting</h3>
+<p>A permutation matrix reorders rows when multiplied on the left. A row swap changes determinant sign; every permutation matrix is orthogonal. With pivoting, this guide uses PA=LU. Always check the convention: some software reports A=PLU, where its P is the inverse of ours.</p>
+<p>Partial pivoting chooses the largest absolute entry in the current column among the remaining rows. It avoids a zero pivot when a usable one exists and reduces growth from dividing by tiny numbers. It is not a guarantee of perfect numerical accuracy on every matrix, but is the standard practical default.</p>
+<p>When later row swaps occur, swap the already-computed entries of those rows in L as well. Swapping only U would invalidate PA=LU. The right-hand side must follow the same permutation: solve Ly=Pb and then Ux=y.</p>
+<p>For PA=LU with unit lower L, det(A)=det(P)Πuᵢᵢ. A zero pivot after searching the remaining column can signal rank deficiency; a robust rank-revealing procedure may need to move to another column. Tiny nonzero floating-point values require a tolerance, not an exact equality test.</p>
+<div class="formula">PA=LU ⇒ Ly=Pb, Ux=y   ·   P⁻¹=Pᵀ   ·   det(A)=(−1)ˢ Πuᵢᵢ</div><h4>Work it through</h4><ol><li>A=[[0,2],[1,3]] has a zero first pivot but determinant −2.</li><li>Swap rows: P=[[0,1],[1,0]], PA=[[1,3],[0,2]].</li><li>L=I and U=PA. For b=(4,7), Pb=(7,4).</li><li>Back substitution gives y-coordinate 2, then x-coordinate 1.</li></ol><aside><b>Application:</b> Pivoted LU supports general square-system solvers such as numpy.linalg.solve.<br><b>Watch the trap:</b> A zero first diagonal entry does not prove singularity; try a row interchange.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[0.,2.],[1.,3.]])
+P=np.array([[0.,1.],[1.,0.]])
+print(P@A)
+print(np.linalg.solve(P@A,P@np.array([4.,7.])))</pre><h4>Expected output</h4><pre>[[1. 3.]
+ [0. 2.]]
+[1. 2.]</pre><h4>Your turn</h4><p>Solve [[0,1],[2,3]]x=(2,8) by swapping rows first.</p><p><b>Worked answer:</b> After swapping, 2x₁+3x₂=8 and x₂=2, so x=(1,2).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[0.,1.],[2.,3.]])
+print(np.linalg.solve(A,[2.,8.]))</pre>
+<h3>03 · Cholesky, conditioning and residuals</h3>
+<p>For a real symmetric positive definite matrix, Cholesky gives A=LLᵀ with L lower triangular and positive diagonal. It uses symmetry and requires less work than general LU. Positive semidefinite matrices may require special handling; the standard positive-pivot algorithm assumes positive definiteness.</p>
+<p>For [[a,b],[b,c]], take l₁₁=√a, l₂₁=b/l₁₁ and l₂₂=√(c−l₂₁²). Positive square-root arguments reflect Sylvester’s criterion. Cholesky is supporting depth that connects definiteness, efficient solves and covariance simulation.</p>
+<p>A residual r=b−Ax̂ tells how well a computed answer satisfies the equations. A small residual need not mean small solution error if A is ill-conditioned. For an invertible A, the 2-norm condition number is σmax/σmin; a singular matrix has infinite condition number.</p>
+<p>Avoid solving ordinary systems by forming A⁻¹. Avoid forming AᵀA for a numerically difficult least-squares problem because its 2-norm condition number squares that of a full-column-rank A. QR or SVD can be more reliable. These numerical caveats matter in hands-on work even when exam arithmetic is exact.</p>
+<div class="formula">A≻0 ⇒ A=LLᵀ   ·   r=b−Ax̂   ·   κ₂(A)=σmax/σmin</div><h4>Work it through</h4><ol><li>For A=[[4,2],[2,3]], l₁₁=2 and l₂₁=1.</li><li>l₂₂=√(3−1)=√2, so L=[[2,0],[1,√2]].</li><li>Multiply LLᵀ to recover A.</li><li>For diag(1,0.001), κ₂=1000: small perturbations can be strongly amplified.</li></ol><aside><b>Application:</b> Cholesky is useful for Gaussian models and repeated positive-definite solves; conditioning explains unstable fitted coefficients.<br><b>Watch the trap:</b> A small determinant is scale-dependent; use singular values or a condition number to judge sensitivity.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[4.,2.],[2.,3.]])
+L=np.linalg.cholesky(A)
+print(L)
+print(np.allclose(L@L.T,A))</pre><h4>Expected output</h4><pre>[[2.     0.    ]
+ [1.     1.4142]]
+True</pre><h4>Your turn</h4><p>Find Cholesky L for [[9,3],[3,5]].</p><p><b>Worked answer:</b> L=[[3,0],[1,2]], since the final diagonal is √(5−1)=2.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[9.,3.],[3.,5.]])
+print(np.linalg.cholesky(A))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. In Doolittle LU, the diagonal of L contains…</b></p><ol type="A"><li>Ones</li><li>Pivots of U</li><li>Zeros</li><li>Eigenvalues</li></ol><details><summary>Answer & reasoning</summary><p>Ones. This normalization fixes the scaling ambiguity.</p></details>
+<p><b>2. For [[2,1],[6,4]], the first elimination multiplier is…</b></p><ol type="A"><li>2</li><li>6</li><li>1/3</li><li>3</li></ol><details><summary>Answer & reasoning</summary><p>3. Divide the lower entry 6 by pivot 2.</p></details>
+<p><b>3. For PA=LU, solving Ax=b starts with…</b></p><ol type="A"><li>Uy=Pb</li><li>Lx=Ub</li><li>Ly=Pb</li><li>Ly=b in every case</li></ol><details><summary>Answer & reasoning</summary><p>Ly=Pb. Permutation must also be applied to b.</p></details>
+<p><b>4. Partial pivoting chooses…</b></p><ol type="A"><li>Always the first row</li><li>Largest absolute available entry in the current column</li><li>Largest diagonal entry anywhere</li><li>Smallest absolute pivot</li></ol><details><summary>Answer & reasoning</summary><p>Largest absolute available entry in the current column. It avoids unnecessarily small divisors.</p></details>
+<p><b>5. After a later pivot row swap, stored L multipliers…</b></p><ol type="A"><li>Must be swapped in previously completed columns</li><li>Must all be negated</li><li>Are never changed</li><li>Become eigenvalues</li></ol><details><summary>Answer & reasoning</summary><p>Must be swapped in previously completed columns. This preserves the factorization identity.</p></details>
+<p><b>6. With unit-lower L and no swaps, det A equals…</b></p><ol type="A"><li>Sum of L diagonal entries</li><li>det L alone</li><li>Zero</li><li>Product of U diagonal entries</li></ol><details><summary>Answer & reasoning</summary><p>Product of U diagonal entries. det L=1 and determinants multiply.</p></details>
+<p><b>7. Cholesky with positive diagonal is guaranteed for…</b></p><ol type="A"><li>Every singular matrix</li><li>Every orthogonal matrix</li><li>Real symmetric positive definite matrices</li><li>Every real matrix</li></ol><details><summary>Answer & reasoning</summary><p>Real symmetric positive definite matrices. The square-root pivots are positive under this assumption.</p></details>
+<p><b>8. For A=[[9,3],[3,5]], Cholesky L is…</b></p><ol type="A"><li>[[1,0],[3,1]]</li><li>[[3,0],[1,2]]</li><li>[[9,0],[3,5]]</li><li>[[3,1],[0,2]]</li></ol><details><summary>Answer & reasoning</summary><p>[[3,0],[1,2]]. Multiply LLᵀ to obtain A.</p></details>
+<p><b>9. A small residual in an ill-conditioned system…</b></p><ol type="A"><li>May coexist with large solution error</li><li>Guarantees exact coefficients</li><li>Proves A is orthogonal</li><li>Means no solution exists</li></ol><details><summary>Answer & reasoning</summary><p>May coexist with large solution error. Ill-conditioning amplifies small perturbations.</p></details>
+<p><b>10. For a fixed dense A and many b values, prefer…</b></p><ol type="A"><li>Compute a fresh inverse for every b</li><li>Repeat symbolic determinants</li><li>Ignore conditioning</li><li>Factor once, reuse triangular solves</li></ol><details><summary>Answer & reasoning</summary><p>Factor once, reuse triangular solves. The expensive factorization can be amortized.</p></details>
+<h2>SVD, pseudoinverse &amp; low-rank models</h2><p>Rectangular matrices, singular directions, minimum-norm solutions and compression</p>
+<h3>01 · Singular value decomposition from first principles</h3>
+<p>Every real m×n matrix has A=UΣVᵀ. In the full form, U is m×m orthogonal, V is n×n orthogonal, and Σ is m×n with nonnegative diagonal singular values sorted in descending order. Unlike eigendecomposition, SVD works for rectangular and defective matrices.</p>
+<p>AᵀA is symmetric positive semidefinite. Its eigenvectors supply right singular directions vᵢ and its eigenvalues are σᵢ². For σᵢ&gt;0, define uᵢ=Avᵢ/σᵢ. Complete orthonormal bases in the null spaces for zero singular values. AAᵀ has the same positive eigenvalues but may have a different number of zeros.</p>
+<p>Geometrically, Vᵀ rotates or reflects the input, Σ scales along perpendicular axes (and may collapse directions), and U rotates or reflects the output. The image of the unit circle is an ellipse whose semiaxis lengths are the singular values. Eigenvectors and singular vectors have different meanings.</p>
+<p>Let k=min(m,n). The economy form uses U of shape m×k, Σ k×k and Vᵀ k×n. The compact rank-r form keeps only positive singular values, with shapes m×r, r×r and r×n. State which meaning of thin SVD you use; libraries and textbooks differ. Signs of paired uᵢ,vᵢ can flip without changing A.</p>
+<div class="formula">Avᵢ=σᵢuᵢ   ·   σᵢ=√λᵢ(AᵀA)   ·   rank(A)=#{σᵢ&gt;0}</div><h4>Work it through</h4><ol><li>Take A=[[3,0],[0,2],[0,0]], a 3×2 matrix.</li><li>AᵀA=diag(9,4), giving singular values 3 and 2.</li><li>Right directions are e₁,e₂; corresponding left directions are the first two axes in R³.</li><li>The economy shapes are U:3×2, Σ:2×2, Vᵀ:2×2.</li></ol><aside><b>Application:</b> SVD describes how a data matrix stretches directions even when observations and features have different counts.<br><b>Watch the trap:</b> Singular values are nonnegative; they are not generally the eigenvalues or absolute diagonal entries of A.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[3.,0.],[0.,2.],[0.,0.]])
+U,s,Vt=np.linalg.svd(A,full_matrices=False)
+print(s, U.shape, Vt.shape)
+print(np.allclose(U@np.diag(s)@Vt,A))</pre><h4>Expected output</h4><pre>[3. 2.] (3, 2) (2, 2)
+True</pre><h4>Your turn</h4><p>Find singular values and rank of [[0,2],[0,0]].</p><p><b>Worked answer:</b> AᵀA=diag(0,4); singular values are 2 and 0, so rank is 1. Both eigenvalues of A itself are 0.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[0.,2.],[0.,0.]])
+print(np.linalg.svd(A,compute_uv=False))
+print(np.linalg.matrix_rank(A))</pre>
+<h3>02 · Pseudoinverse and minimum-norm least squares</h3>
+<p>The Moore–Penrose pseudoinverse is A⁺=VΣ⁺Uᵀ: invert each positive singular value and transpose the rectangular diagonal shape, leaving zeros at zero. It exists for every matrix, equals A⁻¹ when an ordinary inverse exists, and can solve singular or rectangular systems.</p>
+<p>x*=A⁺b minimizes ||Ax−b||₂. Among all least-squares minimizers, it has the smallest Euclidean norm. Every least-squares minimizer has the form A⁺b+z with z in null(A). If Ax=b is consistent, the same formula describes exact solutions.</p>
+<p>AA⁺ is the orthogonal projector onto col(A); A⁺A projects onto row(A). The four defining relations are AA⁺A=A, A⁺AA⁺=A⁺, (AA⁺)ᵀ=AA⁺, and (A⁺A)ᵀ=A⁺A. For full column rank, A⁺=(AᵀA)⁻¹Aᵀ; for full row rank, A⁺=Aᵀ(AAᵀ)⁻¹.</p>
+<p>Tiny singular values can amplify noise when inverted. Numerical routines use a tolerance to decide which directions to discard. This trades exact fit for stability. Rank and pseudoinverse answers near the tolerance boundary depend on scaling and the chosen cutoff.</p>
+<div class="formula">A⁺=VΣ⁺Uᵀ   ·   xLS=A⁺b   ·   AA⁺=Pcol(A)   ·   A⁺A=Prow(A)</div><h4>Work it through</h4><ol><li>Solve x₁+x₂=2, so A=[1,1] and b=2.</li><li>The pseudoinverse is [1/2,1/2]ᵀ, giving x*=(1,1).</li><li>All solutions are (1+t,1−t). Their squared norms are 2+2t².</li><li>The unique smallest norm occurs at t=0.</li></ol><aside><b>Application:</b> Minimum-norm fitting handles redundant features and underdetermined inverse problems.<br><b>Watch the trap:</b> A pseudoinverse returns a least-squares solution; it does not make an inconsistent system exact.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[1.,1.]])
+print(np.linalg.pinv(A)@np.array([2.]))</pre><h4>Expected output</h4><pre>[1. 1.]</pre><h4>Your turn</h4><p>Find the minimum-norm solution to 2x₁+2x₂=4.</p><p><b>Worked answer:</b> The solution is (1,1). It satisfies the equation and is perpendicular to null(A)=span((1,−1)).</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.array([[2.,2.]])
+print(np.linalg.pinv(A)@np.array([4.]))</pre>
+<h3>03 · Truncated SVD and the bridge to PCA</h3>
+<p>Write A=Σᵢσᵢuᵢvᵢᵀ as a sum of rank-one outer products. Keeping the largest k singular values gives Aₖ, a best rank-at-most-k approximation in both spectral and Frobenius norms. This is the Eckart–Young result; uniqueness can fail when the cutoff singular values tie.</p>
+<p>The spectral error is ||A−Aₖ||₂=σₖ₊₁. The squared Frobenius error is Σᵢ&gt;k σᵢ². Total squared Frobenius norm is Σσᵢ², so retained energy is the fraction in the first k squared singular values. For exact rank r, keeping r terms reconstructs A exactly.</p>
+<p>For PCA, arrange samples in rows of X and center each feature by subtracting its column mean. With n samples, sample covariance is XᵀX/(n−1). Right singular vectors are principal directions; covariance eigenvalues are σᵢ²/(n−1). Scores in k dimensions are XVₖ=UₖΣₖ.</p>
+<p>Centering matters: uncentered SVD approximates the original matrix, whereas PCA describes variation about the mean. Standardizing features is a separate modeling choice because it changes the geometry. PCA and regularization here are applications of linear algebra; the complete machine-learning syllabus belongs to its own track.</p>
+<div class="formula">Aₖ=Σᵢ≤k σᵢuᵢvᵢᵀ   ·   ||A−Aₖ||F²=Σᵢ&gt;k σᵢ²   ·   PCA variance=σᵢ²/(n−1)</div><h4>Work it through</h4><ol><li>Suppose singular values are 5,3,1. Total squared energy is 25+9+1=35.</li><li>The best rank-one squared Frobenius error is 9+1=10.</li><li>Rank two retains 34/35 of the energy, approximately 97.14%.</li><li>Its spectral error is 1 and its Frobenius error is also 1.</li></ol><aside><b>Application:</b> Image compression, denoising and low-dimensional data visualization all use dominant singular directions.<br><b>Watch the trap:</b> Energy uses squared singular values, not their sum. Center data before interpreting SVD directions as PCA axes.</aside><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+A=np.diag([5.,3.,1.])
+U,s,Vt=np.linalg.svd(A)
+Ak=(U[:,:2]*s[:2])@Vt[:2]
+print(Ak)
+print(np.linalg.norm(A-Ak,&#x27;fro&#x27;))</pre><h4>Expected output</h4><pre>[[5. 0. 0.]
+ [0. 3. 0.]
+ [0. 0. 0.]]
+1.0</pre><h4>Your turn</h4><p>For singular values 4,2,1, find rank-one spectral error and squared Frobenius error.</p><p><b>Worked answer:</b> Spectral error 2; squared Frobenius error 2²+1²=5.</p><pre>import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+s=np.array([4.,2.,1.])
+print(s[1],np.sum(s[1:]**2))</pre>
+<h3>Topic practice: 10 questions</h3>
+<p><b>1. Singular values are square roots of eigenvalues of…</b></p><ol type="A"><li>AᵀA</li><li>A always</li><li>A+Aᵀ always</li><li>A⁻¹</li></ol><details><summary>Answer & reasoning</summary><p>AᵀA. AᵀA is symmetric positive semidefinite.</p></details>
+<p><b>2. An m×n matrix has a full SVD with U shape…</b></p><ol type="A"><li>n×n</li><li>m×n always</li><li>1×m</li><li>m×m</li></ol><details><summary>Answer & reasoning</summary><p>m×m. U is an orthonormal basis of the output space.</p></details>
+<p><b>3. Rank equals the number of…</b></p><ol type="A"><li>Nonzero entries</li><li>Distinct singular values</li><li>Positive singular values</li><li>Positive eigenvalues of A always</li></ol><details><summary>Answer & reasoning</summary><p>Positive singular values. Count nonzero singular values with multiplicity.</p></details>
+<p><b>4. SVD exists for…</b></p><ol type="A"><li>Only symmetric matrices</li><li>Every real rectangular matrix</li><li>Only square matrices</li><li>Only invertible matrices</li></ol><details><summary>Answer & reasoning</summary><p>Every real rectangular matrix. Rectangular or rank-deficient matrices are included.</p></details>
+<p><b>5. For diag(−3,2), singular values are…</b></p><ol type="A"><li>3,2</li><li>−3,2</li><li>9,4</li><li>1/3,1/2</li></ol><details><summary>Answer & reasoning</summary><p>3,2. They are nonnegative square roots of 9 and 4.</p></details>
+<p><b>6. Pseudoinverse of diag(2,0) is…</b></p><ol type="A"><li>diag(1/2,∞)</li><li>diag(2,0)</li><li>Undefined</li><li>diag(1/2,0)</li></ol><details><summary>Answer & reasoning</summary><p>diag(1/2,0). Only positive singular values are inverted.</p></details>
+<p><b>7. A⁺b selects which least-squares solution?</b></p><ol type="A"><li>An arbitrary random one</li><li>Only an exact solution</li><li>The minimum Euclidean norm one</li><li>The maximum norm one</li></ol><details><summary>Answer & reasoning</summary><p>The minimum Euclidean norm one. It discards the free null-space component.</p></details>
+<p><b>8. For singular values 5,3,1, rank-one squared Frobenius error is…</b></p><ol type="A"><li>1</li><li>10</li><li>4</li><li>9</li></ol><details><summary>Answer & reasoning</summary><p>10. Sum squares of discarded singular values: 3²+1².</p></details>
+<p><b>9. For singular values 4 and 0.5, κ₂ is…</b></p><ol type="A"><li>8</li><li>4.5</li><li>2</li><li>0.125</li></ol><details><summary>Answer & reasoning</summary><p>8. The ratio of largest to smallest is 4/0.5.</p></details>
+<p><b>10. Before interpreting SVD as covariance PCA, usually…</b></p><ol type="A"><li>Add a row of zeros only</li><li>Normalize every singular value to one</li><li>Transpose without centering</li><li>Center feature columns</li></ol><details><summary>Answer & reasoning</summary><p>Center feature columns. PCA variation is measured about the mean; scaling is a separate choice.</p></details>
+<h2>Official PYQ references</h2><p>Open the paper for exact wording and options. Keys are official; short explanations in the interactive exam room are study cues.</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=10">DA 2024 Q13</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=14">DA 2024 Q22</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=21">DA 2024 Q35</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=30">DA 2024 Q47</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=31">DA 2024 Q48</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=32">DA 2024 Q49</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2024/DA24S1.pdf#page=39">DA 2024 Q61</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2024/DAFinalAnswerKey.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=10">DA 2025 Q12</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=10">DA 2025 Q13</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=15">DA 2025 Q25</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=16">DA 2025 Q28</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=18">DA 2025 Q34</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=19">DA 2025 Q37</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=19">DA 2025 Q38</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=27">DA 2025 Q50</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=28">DA 2025 Q52</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=29">DA 2025 Q55</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2025/DA2025.pdf#page=32">DA 2025 Q60</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2025_Key/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=8">DA 2026 Q11</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a> · application/enrichment</p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=14">DA 2026 Q21</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=14">DA 2026 Q22</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=30">DA 2026 Q46</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=35">DA 2026 Q52</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2026.iitg.ac.in/doc/download/2026/QPs/DA.pdf#page=39">DA 2026 Q65</a> · <a href="https://gate2026.iitg.ac.in/doc/download/2026/Keys/DA_Keys.pdf">Official key</a></p>
+<p><a href="https://gate2027.iitm.ac.in/static/doc/GATE2027_Syllabus/DA_GATE2027_Syllabus.pdf">Official syllabus</a> · Original teaching material, GATE Lab.</p></html>

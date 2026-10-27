@@ -1,0 +1,36 @@
+﻿Topic,Front,Back
+Functions & algebra refresh,Domain of ln(x−1) is…,x>1. The logarithm argument must be positive.
+Functions & algebra refresh,Which function is even?,x². Replacing x by −x leaves x² unchanged.
+Functions & algebra refresh,f⁻¹ denotes…,Inverse function. It reverses a one-to-one mapping.
+Functions & algebra refresh,π radians equals…,180°. A half turn is π radians.
+Functions & algebra refresh,Cancelling x−1 from (x²−1)/(x−1)…,Does not restore x=1 to the original domain. Formula simplification must preserve domain exclusions.
+Limits & continuity,limₓ→₀ sin x/x equals…,1. Use radians and the standard limit.
+Limits & continuity,limₓ→₁ (x²−1)/(x−1) equals…,2. For x≠1 the expression is x+1.
+Limits & continuity,Continuity at a requires…,The limit equals the defined value f(a). All three conditions must hold at the point.
+Limits & continuity,limₓ→₀ x sin(1/x) equals…,0. Squeeze its absolute value by |x|.
+Limits & continuity,"A continuous f on [a,b] with f(a)<0<f(b) has…","At least one root inside. The intermediate value theorem guarantees existence, not uniqueness."
+Differentiation from scratch,Derivative of x⁵ is…,5x⁴. Apply the power rule.
+Differentiation from scratch,Derivative of ln(1+x²) is…,2x/(1+x²). Apply the logarithm rule and chain rule.
+Differentiation from scratch,Derivative of cos x is…,−sin x. The cosine slope is negative sine in radians.
+Differentiation from scratch,Derivative of xˣ for x>0 is…,xˣ(ln x+1). Logarithmic differentiation handles the changing exponent.
+Differentiation from scratch,Tangent slope to x² at x=3 is…,6. The derivative 2x evaluates to 6.
+What derivatives reveal,"For f=x² on [0,2], an MVT point is…",1. Average slope is 2; solve 2c=2.
+What derivatives reveal,"If f′>0 throughout an interval, f is…","Strictly increasing. Positive slope controls monotonicity, not curvature."
+What derivatives reveal,"At zero, x⁴ has…",A minimum but no inflection. It is nonnegative and convex on both sides.
+What derivatives reveal,"For A=πr², dA/dt equals…",2πr dr/dt. Chain rule accounts for time-dependent radius.
+What derivatives reveal,Strictly increasing f must have f′>0 at every point if differentiable?,No: x³ has f′(0)=0. The sufficient positive-derivative condition is not necessary pointwise.
+Taylor series & approximation,The quadratic Maclaurin polynomial of eˣ is…,1+x+x²/2. All derivatives at zero are 1; divide by factorials.
+Taylor series & approximation,The quadratic coefficient in cos x is…,−1/2. The cosine series begins 1−x²/2!.
+Taylor series & approximation,limₓ→₀ (eˣ−1−x)/x² is…,1/2. The first surviving term is x²/2.
+Taylor series & approximation,"If the first nonzero derivative at a stationary point is order 3, the point is…",Not a local extremum. The leading odd power changes sign across the point.
+Taylor series & approximation,An infinitely differentiable function always equals its Taylor series?,No. Smooth functions can have a zero Taylor series but be nonzero nearby.
+"Maxima, minima & optimization",A differentiable interior local extremum must satisfy…,f′=0. This necessary condition is Fermat’s theorem.
+"Maxima, minima & optimization","When f′(c)=0 and f″(c)=0, the second derivative test is…",Inconclusive. Use sign changes or higher-order behavior.
+"Maxima, minima & optimization",Minimum of x+4/x on x>0 is…,4 at x=2. Derivative vanishes at 2 and the function is strictly convex on x>0.
+"Maxima, minima & optimization","For f=x², η=1 makes nonzero GD iterates…",Oscillate without shrinking. The update multiplier is 1−2η=−1.
+"Maxima, minima & optimization",A local minimum is necessarily global?,No. Multiple wells can have different values; convexity provides a useful global guarantee.
+Supporting bridge: integration & gradients,An antiderivative of 2x is…,x²+C. Differentiate x²+C to recover 2x.
+Supporting bridge: integration & gradients,∫₋₁¹x dx equals…,0. Signed areas cancel.
+Supporting bridge: integration & gradients,The gradient of x²+3y² is…,"(2x,6y). Differentiate one coordinate at a time."
+Supporting bridge: integration & gradients,The least-squares residual r satisfies…,Xᵀr=0. It is orthogonal to the design column space.
+Supporting bridge: integration & gradients,A PSD Hessian at one stationary point proves a minimum for any smooth function?,No. Zero-curvature directions need higher-order analysis; x⁴−y⁴ at zero is a counterexample.
